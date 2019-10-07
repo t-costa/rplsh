@@ -1,2 +1,0 @@
-/usr/bin/ar qc libenvironment.a  CMakeFiles/environment.dir/rpl_environment.cpp.o
-/usr/bin/ranlib libenvironment.a

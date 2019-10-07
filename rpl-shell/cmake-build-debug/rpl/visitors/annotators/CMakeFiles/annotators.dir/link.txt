@@ -1,2 +1,0 @@
-/usr/bin/ar qc libannotators.a  CMakeFiles/annotators.dir/annotators.cpp.o
-/usr/bin/ranlib libannotators.a
