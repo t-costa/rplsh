@@ -90,7 +90,7 @@ void ffmapper::visit(id_node& n) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else
-        cout << n.id << " whaaaat?" << endl;
+        cout << n.id << " whaaaat? in ffmapper::visit(id_node)" << endl;
 }
 
 // clear member vector mw

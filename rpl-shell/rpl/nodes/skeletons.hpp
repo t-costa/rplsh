@@ -6,10 +6,13 @@
 #include "node_interface.hpp"
 
 // The skeleton node interface
+/**
+ * Skeleton node interface, is an rvalue_node
+ */
 struct skel_node : public rvalue_node {
 
     skel_node(std::initializer_list<skel_node*> init);
-    virtual ~skel_node();
+    virtual ~skel_node();   //TODO: this definition is needed?
 
     virtual void accept(visitor& v)                 = 0;
     virtual skel_node* clone()                      = 0;
@@ -30,6 +33,10 @@ protected:
     std::vector<skel_node*> children;
 };
 
+/**
+ * Class that implements the interface of the skeleton
+ * @tparam skeleton one of the possible skeletons node (farm, pipe...)
+ */
 template <typename skeleton>
 struct concrete_skel_node : skel_node {
     virtual void accept(visitor& v);
@@ -47,6 +54,9 @@ private:
     std::size_t id;
 };
 
+/**
+ * Sequential node
+ */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
     seq_node( double servicetime, bool datap_flag = false );
@@ -60,6 +70,9 @@ struct seq_node : public concrete_skel_node<seq_node> {
     std::string file;
 };
 
+/**
+ * Source node for stream
+ */
 struct source_node : public concrete_skel_node<source_node> {
     source_node( std::string name, std::string typeout, std::string file );
     source_node( double servicetime );
@@ -71,6 +84,9 @@ struct source_node : public concrete_skel_node<source_node> {
     std::string file;
 };
 
+/**
+ * Drain node for stream
+ */
 struct drain_node : public concrete_skel_node<drain_node> {
     drain_node( std::string name, std::string typein, std::string file );
     drain_node( double servicetime );
@@ -83,6 +99,9 @@ struct drain_node : public concrete_skel_node<drain_node> {
 };
 
 //TODO templated constructor taking iterators begin end?
+/**
+ * Composition node
+ */
 struct comp_node : public concrete_skel_node<comp_node> {
     comp_node( std::initializer_list<skel_node*> init );
     comp_node( const comp_node& other );
@@ -90,12 +109,18 @@ struct comp_node : public concrete_skel_node<comp_node> {
     bool compseq;
 };
 
+/**
+ * Pipeline node
+ */
 struct pipe_node : public concrete_skel_node<pipe_node> {
     pipe_node( std::initializer_list<skel_node*> init );
     pipe_node( const pipe_node& other );
     skel_node* clone();
 };
 
+/**
+ * Farm node
+ */
 struct farm_node : public concrete_skel_node<farm_node> {
     farm_node( std::initializer_list<skel_node*> init );
     farm_node( skel_node* pattexp, int pardegree = 1 );
@@ -104,6 +129,9 @@ struct farm_node : public concrete_skel_node<farm_node> {
     int pardegree;
 };
 
+/**
+ * Map node
+ */
 struct map_node : public concrete_skel_node<map_node> {
     map_node( std::initializer_list<skel_node*> init );
     map_node( skel_node* pattexp, int pardegree = 1 );
@@ -112,6 +140,9 @@ struct map_node : public concrete_skel_node<map_node> {
     int pardegree;
 };
 
+/**
+ * Reduce node
+ */
 struct reduce_node : public concrete_skel_node<reduce_node> {
     reduce_node( std::initializer_list<skel_node*> init );
     reduce_node( skel_node* pattexp, int pardegree = 1 );
@@ -120,6 +151,10 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
     int pardegree;
 };
 
+/**
+ * Id node
+ */
+ //TODO: e che è??
 struct id_node : public concrete_skel_node<id_node> {
     id_node( const std::string& id, const int& index, bool all );
     id_node( const std::string& id );
@@ -130,7 +165,9 @@ struct id_node : public concrete_skel_node<id_node> {
     bool all;
 };
 
-// special node, it matches with every other node
+/**
+ * Special node that matches with every other node
+ */
 struct _ : public concrete_skel_node<_> {
     _();
     _(const _& o);

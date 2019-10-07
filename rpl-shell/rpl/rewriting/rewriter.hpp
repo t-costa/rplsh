@@ -18,6 +18,9 @@ vector<pair_node> allpairs( node_set&& s1, node_set&& s2);
 node_set merge(node_set& s1, node_set& s2);
 void delset( node_set& s );
 
+/**
+ * Class that applies the rewriting rules
+ */
 struct rewriter {
     rewriter(bool rec) : rec(rec) {}
     node_set apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp);
@@ -33,12 +36,19 @@ private:
     node_set fullrecrewrite( skel_node& n, rewrule& r );
     void insert_or_delete( node_set& set, skel_node* rn );
 
-    /* When it is set to true, the rewrules are considered as  recrewrules:
-     * the rewriter will apply the rule recursively modifying the same
-     * skel tree */
+    //when is set to true, the rewrules are considered as recrewrules:
+    //the rewriter will apply the rule recursively modifying the same skel tree
     bool rec;
 };
 
+/**
+ * Applies the rewrule passed to all the nodes in the range defined by the iterators
+ * @tparam Iterator type of the iterator
+ * @param begin starting position of the range
+ * @param end end of the range, the element pointed by it is not considered
+ * @param r rewrule to be applied
+ * @return the set of nodes on which the rule has been applied
+ */
 template <typename Iterator>
 node_set rewriter::apply_rule ( Iterator& begin, Iterator& end, rewrule& r) {
     node_set set;
@@ -49,6 +59,12 @@ node_set rewriter::apply_rule ( Iterator& begin, Iterator& end, rewrule& r) {
     return set;
 }
 
+/**
+ *
+ * @param tree
+ * @param rr_disp
+ * @return
+ */
 node_set rewriter::apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp) {
     node_set set;;
     vector<node_set> sets;
@@ -59,6 +75,14 @@ node_set rewriter::apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp) {
     return set;
 }
 
+/**
+ *
+ * @tparam Iterator
+ * @param begin
+ * @param end
+ * @param rr_disp
+ * @return
+ */
 template <typename Iterator>
 node_set rewriter::apply_allrules ( Iterator& begin, Iterator& end, rr_dispatcher& rr_disp) {
     node_set set;
@@ -72,7 +96,15 @@ node_set rewriter::apply_allrules ( Iterator& begin, Iterator& end, rr_dispatche
     return set;
 }
 
+/**
+ * Modifies the passed node using the rule given; if recursion
+ * is enabled, the ruled is applied to all the children of n
+ * @param n skeleton node on which the rewriting has to be applied
+ * @param r rule to use for the rewriting
+ * @return the modified node if everything goes ok, nullptr otherwise
+ */
 skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
+    //FIXME: probably should use unique pointers?
     skel_node* newptr = r.rewrite(n);
     skel_node* tmp;
 
@@ -96,6 +128,12 @@ skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
     return newptr == nullptr ? n.clone() : newptr;
 }
 
+/**
+ * Applies recursively the rule r to the node n and its children
+ * @param n node on which to apply the rule
+ * @param r rule to be applied
+ * @return the set of the modified nodes
+ */
 node_set rewriter::fullrecrewrite( skel_node& n, rewrule& r ) {
     node_set set;
     unique_ptr<skel_node> rn( rewrite(n, r) );
@@ -113,14 +151,27 @@ node_set rewriter::fullrecrewrite( skel_node& n, rewrule& r ) {
     return set;
 }
 
+/**
+ * Inserts the passed node to the set; if the insertion fails
+ * the node is deleted
+ * @param set set of nodes on which to insert rn
+ * @param rn pointer to the node to be inserted
+ */
 void rewriter::insert_or_delete( node_set& set, skel_node* rn ) {
     if (rn != nullptr) {
-        auto p = set.insert({print(*rn), rn});
+        auto p = set.insert({print(*rn), rn});  //TODO: unnecessary copy?
         if (!p.second)
             delete rn;
     }
 }
 
+/**
+ * Clones the node n, adds p1 to the copy of n and tries
+ * to insert it in s
+ * @param s set on which to insert the node
+ * @param n node to be cloned
+ * @param p1 node to be added to the copy of n
+ */
 void comb_and_ins( node_set& s, skel_node& n, skel_node* p1 ) {
     single_node_cloner snc;
     skel_node * rn = snc(n);
@@ -131,6 +182,14 @@ void comb_and_ins( node_set& s, skel_node& n, skel_node* p1 ) {
         delete rn;
 }
 
+/**
+ * Clones the node n, adds p1 and p2 to the copy and
+ * tries to insert it in s
+ * @param s set on which to insert the node
+ * @param n node to be cloned
+ * @param p1 first node to be added to the copy of n
+ * @param p2 second node to be added to the copy of n
+ */
 void comb_and_ins( node_set& s, skel_node& n, skel_node* p1, skel_node* p2 ) {
     single_node_cloner snc;
     skel_node * rn = snc(n);
@@ -142,21 +201,43 @@ void comb_and_ins( node_set& s, skel_node& n, skel_node* p1, skel_node* p2 ) {
         delete rn;
 }
 
+/**
+ * Calls the comb_and_ins for each pair of nodes in pairs
+ * @param root node that will be cloned in comb_and_ins
+ * @param pairs vector of pairs of nodes to be added to root
+ * @param to_set set on which to insert the root
+ */
 void combine( skel_node& root, vector<pair_node>&& pairs, node_set& to_set ) {
     for (auto& p : pairs)
         comb_and_ins(to_set, root, p.first, p.second);
 }
 
+/**
+ * Calls the comb_and_ins for all the nodes in from_set
+ * @param root node that will be cloned in comb_and_ins
+ * @param from_set list of nodes to be added to root
+ * @param to_set set on which to insert the root
+ */
 void combine (skel_node& root, node_set&& from_set, node_set& to_set) {
     for (auto& it : from_set)
         comb_and_ins(to_set, root, it.second);
 }
 
+/**
+ * Deletes all the nodes in s
+ * @param s set from which the nodes will be deleted
+ */
 void delset( node_set& s ) {
     for (auto& it : s )
         delete it.second;
 }
 
+/**
+ * Inserts all the nodes in s2 in s1
+ * @param s1 set that will contain all the nodes
+ * @param s2 set of nodes to be added to the first one
+ * @return the complete set
+ */
 node_set merge(node_set& s1, node_set& s2) {
     vector<skel_node*> nodes;
     for (auto& p : s2) {
@@ -167,9 +248,19 @@ node_set merge(node_set& s1, node_set& s2) {
     return s1;
 }
 
-//TODO don't clone and avoid memory leaks...
+//TODO don't clone and avoid memory leaks... (c'era già!)
+/**
+ * Removes all the elements in the two sets and inserts them
+ * in a new vector of all the passible pairs (node in s1, node in s2)
+ * @param s1 first set of nodes
+ * @param s2 second set of nodes
+ * @return the vector of all the possible pairs
+ */
 vector<pair_node> allpairs( node_set&& s1, node_set&& s2) {
     vector<pair_node> pairs;
+    //TODO: it1 è sempre lo stesso per ogni it2, non serve
+    //  clonarlo ogni volta...  A meno che non sia voluto
+    //  per avere riferimenti diversi!
     for (auto& it1 : s1 )
         for (auto& it2 : s2)
             pairs.push_back(make_pair(it1.second->clone(), it2.second->clone()));

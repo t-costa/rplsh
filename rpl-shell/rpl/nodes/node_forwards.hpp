@@ -1,11 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  This file contains the forward declarations of the rpl nodes (definited elsewhere)
+//  This file contains the forward declarations of the rpl nodes (defined in skeletons and verbs)
 //  This is useful for declare/define classes that "encapsulate" these declarations
 //  but that are not effectively used/known (because maybe passed by reference)
 //
-//  This header is needed in the file containing the definitions of visitors and
-//  annotations
+//  This header is needed in the file containing the definitions of visitors and annotations
 //
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef rpl_node_forwards_hpp

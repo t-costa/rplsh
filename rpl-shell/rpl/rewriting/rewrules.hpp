@@ -1,12 +1,16 @@
 #ifndef rpl_rewrules_hpp
 #define rpl_rewrules_hpp
 
+#include <memory>
+
 #include "nodes/tree_matcher.hpp"
 #include "nodes/skeletons.hpp"
-#include <memory>
 
 struct rewrule;
 
+/**
+ * Abstract class for applying all the rewriting rules; it is a tree matcher
+ */
 struct rewrule : public tree_matcher <skel_node, _>
 {
     rewrule( skel_node*&& left0, skel_node*&& left1 = nullptr );

@@ -75,21 +75,21 @@ int main(int argc, char * argv[])
 
     char *buffer;
     while ( (buffer = readline(rplsh::name.c_str())) ) {
-        if ( !buffer ) {
-            std::cout << rplsh::name << " exit..." << std::endl;
-        }
+//        if ( !buffer ) {
+//            std::cout << rplsh::name << " exit..." << std::endl;
+//        }
 
-        std::string line(buffer);
-        add_history(line.c_str());
-        if (is_empty_input(line) || is_comment(line))
+        std::string new_line(buffer);
+        add_history(new_line.c_str());
+        if (is_empty_input(new_line) || is_comment(new_line))
             continue;
-        if (is_quit_input(line))
+        if (is_quit_input(new_line))
             break;
-        process(_interpr, line);
+        process(_interpr, new_line);
         free(buffer);
-
     }
 
+    free(buffer);
     /*
     while ( print_rpl() && getline(cin, line) ) {
         // interactive mode

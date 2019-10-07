@@ -1,15 +1,12 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  This file contains all the parameter names for the optimization
-//  rules, the rewriting rules and so long as constant std::strings
-//
-///////////////////////////////////////////////////////////////////////////////
-
 #ifndef rpl_parameters_hpp
 #define rpl_parameters_hpp
 
 #include <string>
 
+/**
+ * Contains all the parameter names for the optimization rules,
+ * the rewriting rules and so long as constant std::string
+ */
 namespace par
 {
     /* rewriting rules parameter names */

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libnodes.a  CMakeFiles/nodes.dir/skeletons.cpp.o CMakeFiles/nodes.dir/verbs.cpp.o
+/usr/bin/ranlib libnodes.a

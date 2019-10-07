@@ -65,7 +65,8 @@ bool parser::expect(token& tok, token::type exp, int& data)
 
 bool parser::expect(token& tok, token::type exp, double& data)
 {
-    data = (exp == tok.kind || exp == tok.kind) ? stod(tok.data) : 0;
+    //TODO: check correctness!
+    data = exp == tok.kind ? stod(tok.data) : 0;
     return expect(tok, exp);
 }
 

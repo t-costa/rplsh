@@ -4,6 +4,9 @@
 #include "environment/rpl_environment.hpp"
 #include "visitors/visitor_interface.hpp"
 
+/**
+ *
+ */
 struct ann_visitor : public skel_visitor
 {
     ann_visitor( rpl_environment& env );
@@ -18,7 +21,7 @@ struct ann_visitor : public skel_visitor
     virtual void visit(id_node& n);
 
     // implementations of this operator should return 'result';
-    // result should be set to true or false in overriden
+    // result should be set to true or false in overridden
     // visit methods according to the logic of the annotator
     virtual bool operator()( skel_node& n, ann_node& a ) = 0;
 

@@ -4,17 +4,19 @@
 #include <map>
 #include <memory>
 
-///////////////////////////////////////////////////////////////////////////////
-//  Template class that dispatch a name of type K returning
-//  the instantiated object associated to the name, or a
-//  logic_error exception
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * Template class that dispatch a name of type K returning
+ * the instantiated object associated to the name,
+ * or a logic_error exception
+ * @tparam K key in the environment
+ * @tparam V value in the environment
+ */
 template <typename K, typename V>
 struct dispatcher {
-    V& operator[]( const K& id );                 // could throw logic_error exception
-    void add( const K& id, const V& value );
-    void add( const K& id, V&& value );
-    std::map<K, V>& get_map();
+    V& operator[]( const K& id );               // could throw logic_error exception
+    void add( const K& id, const V& value );    // inserts the couple in the dispatch
+    void add( const K& id, V&& value );         // inserts the couple in the dispatch, the value is moved
+    std::map<K, V>& get_map();                  // returns the association of the dispatcher
 private:
     std::map<K, V> dispatch;
 };
