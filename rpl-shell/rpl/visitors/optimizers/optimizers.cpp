@@ -147,7 +147,7 @@ void pipeopt::visit( pipe_node& n ) {
         balance( n );                           // balance the stages
     }
 
-    auto run = longestrun(n, ts);
+    auto run = longestrun(n, ts);               //<total_sum, start_index, end_index>
     while (get<2>(run) - get<1>(run) > 0 ) {
         pipe_merge(n, get<1>(run), get<2>(run));
         run = longestrun(n, ts);

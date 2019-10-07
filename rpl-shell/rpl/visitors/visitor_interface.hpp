@@ -4,6 +4,10 @@
 #include "nodes/node_forwards.hpp"
 #include <string>
 
+/**
+ * Interface for all the different visitors;
+ * declares the visit operations for all the nodes
+ */
 struct visitor
 {
     virtual void visit(assign_node& n)  = 0;
@@ -32,9 +36,12 @@ struct visitor
     virtual void visit(_& n)            {}
 };
 
+/**
+ * Skeleton visitor, it does nothing
+ */
 struct skel_visitor : public visitor
 {
-    using visitor::visit;
+    using visitor::visit;   //TODO: e che è?
 
     // notice hat source and drain have
     // the base_class implementation

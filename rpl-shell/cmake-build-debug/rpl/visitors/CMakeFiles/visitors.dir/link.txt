@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvisitors.a  CMakeFiles/visitors.dir/visitors.cpp.o
+/usr/bin/ranlib libvisitors.a

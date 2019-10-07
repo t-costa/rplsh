@@ -16,7 +16,7 @@ void compseq_setter::visit(seq_node& n) {
 void compseq_setter::visit(source_node& n) {
     // reason: having a comp(source, ..., drain) program
     // compiled in a FF program with the ff_comp
-    // auxilary object will never work properly:
+    // auxiliary object will never work properly:
     // ff_comp doesn't implement the "run_and_wait_end"
     // method
     result = false;

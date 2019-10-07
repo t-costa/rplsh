@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+/**
+ * Wrapper for strings
+ */
 struct wrapper
 {
     virtual ~wrapper()                              = default;
@@ -14,6 +17,9 @@ protected:
     std::string strrep;
 };
 
+/**
+ * Wrapper for a string and a value (double)
+ */
 struct double_wrapper : public wrapper
 {
     double_wrapper( const std::string& str ) : wrapper(str), value(stod(str)) {}
@@ -25,6 +31,9 @@ private:
     double value;
 };
 
+/**
+ * Wrapper for a string and a value (string)
+ */
 struct string_wrapper : public wrapper
 {
     string_wrapper( const std::string& str ) : wrapper(str) , value(str) {}
@@ -37,7 +46,9 @@ private:
 };
 
 
-
+/**
+ * Acts as a container for pointers to wrappers
+ */
 struct mytuple
 {
     void add( std::unique_ptr<wrapper>&& term);

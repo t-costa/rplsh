@@ -404,7 +404,7 @@ void get_seq_wrappers::visit( id_node& n ) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else
-        cout << n.id << " whaaaat?" << endl;
+        cout << n.id << " whaaaat? in get_seq_wrappers::visit(id_node)" << endl;
 }
 
 vector<seq_node*> get_seq_wrappers::get_seq_nodes() {
@@ -470,7 +470,7 @@ void top_datap_skeletons::visit( id_node& n ) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else
-        cout << n.id << " whaaaat?" << endl;
+        cout << n.id << " whaaaat? in top_data_skeletons::visit(id_node)" << endl;
 }
 
 vector<map_node*> top_datap_skeletons::get_map_nodes() {

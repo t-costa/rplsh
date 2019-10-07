@@ -8,7 +8,7 @@ const style pp_err(color::err, font::bold);
 const style pp_def(color::def, font::normal);
 
 // common print func
-void print(ostream& os, const string& tok, const string& info, int pos) {
+void print(ostream &os, const string &tok, const string &info, int pos) {
     int offset = rplsh::name.size() + pos;
     os << pp_err << string(offset, ' ');
     os << pp_err << string( max<int>(tok.size(), 1), '^') << endl;

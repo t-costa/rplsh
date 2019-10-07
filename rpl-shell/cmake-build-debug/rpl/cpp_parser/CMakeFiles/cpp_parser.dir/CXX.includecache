@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tommaso/rplsh/rpl-shell/rpl/cpp_parser/cpp_parser.cpp
+cpp_parser.hpp
+/home/tommaso/rplsh/rpl-shell/rpl/cpp_parser/cpp_parser.hpp
+iostream
+-
+fstream
+-
+regex
+-
+
+/home/tommaso/rplsh/rpl-shell/rpl/cpp_parser/cpp_parser.hpp
+string
+-
+vector
+-
+utility
+-
+

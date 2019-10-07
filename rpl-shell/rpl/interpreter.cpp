@@ -162,6 +162,7 @@ void interpreter::visit(ann_node& n) {
 }
 
 void interpreter::visit(rwr_node& n) {
+    string last_rule;
     try {
         string id = n.id;
 
@@ -171,6 +172,7 @@ void interpreter::visit(rwr_node& n) {
         if (rec) n.parameters.erase(it);
 
         for (const string& rule : n.parameters ) {
+            last_rule = rule;
             node_set _set;
             rewriter _rewriter(rec);
             auto range = env.range( n.id );
@@ -186,17 +188,19 @@ void interpreter::visit(rwr_node& n) {
                 env.add( id, p.second );
         }
 
-    } catch (out_of_range& e) {
+    } catch (invalid_argument& e) {
         err_repo.add( make_shared<error_not_exist>(n.id) );
+    } catch (out_of_range& e) {
+        err_repo.add( make_shared<error_not_exist>(last_rule) );
     }
 }
 
 void interpreter::visit(opt_node& n) {
     try {
-
-        auto it = std::find(n.parameters.begin(), n.parameters.end(), "subexp");
-        bool subexp = it != n.parameters.end();
-        if (subexp) n.parameters.erase(it);
+        //TODO: prova a mettere il vero tipo di it invece di auto
+        auto sub_it = std::find(n.parameters.begin(), n.parameters.end(), "subexp");
+        bool subexp = sub_it != n.parameters.end();
+        if (subexp) n.parameters.erase(sub_it);
 
         for (const string& opt : n.parameters ) {
             if (opt == "normalform") {
@@ -205,10 +209,10 @@ void interpreter::visit(opt_node& n) {
                 //env.clear( n.id );
                 //env.add( n.id, newsk );
             } else {
-
+                //TODO: probabilmente anche qui serve il controllo se n.id esiste ed identificare la regola che non quadra
                 auto range = env.range( n.id );
-                auto begin = range.first + ( n.index < 0 ? 0 : n.index );
-                auto end   = n.index < 0 ? range.second : range.first + n.index + 1;
+                auto begin = range.first + ( n.index <= 0 ? 0 : n.index );
+                auto end   = n.index <= 0 ? range.second : range.first + n.index + 1;
 
                 node_set _set;
                 printer print;
@@ -219,12 +223,19 @@ void interpreter::visit(opt_node& n) {
                 for (auto it = begin; it != end; it++) {
                     auto& skptr = *it;
                     //cout << (it-begin) << ": " << print(*skptr) << endl;
+
                     assignres( *skptr, env.get_inputsize() );
                     optrule( *skptr );
                     _set.insert({print(*skptr), skptr->clone()});
                 }
 
-                env.clear( n.id );
+                if (n.index >= 0) {
+                    // just remove the selected version
+                    env.clear( n.id, n.index );
+                } else {
+                    //remove everything
+                    env.clear(n.id);
+                }
                 for ( auto& p : _set )
                     env.add( n.id, p.second );
             }
