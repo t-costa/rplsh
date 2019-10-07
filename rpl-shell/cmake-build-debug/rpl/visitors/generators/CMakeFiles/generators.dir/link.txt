@@ -1,2 +1,0 @@
-/usr/bin/ar qc libgenerators.a  CMakeFiles/generators.dir/ffcode.cpp.o CMakeFiles/generators.dir/ffmapper.cpp.o CMakeFiles/generators.dir/compseq_setter.cpp.o
-/usr/bin/ranlib libgenerators.a
