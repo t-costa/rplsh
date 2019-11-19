@@ -2,7 +2,7 @@
 #################      HELLO!      #################
 ####################################################
 
-import "business/simple/business.hpp"
+import "../business/simple/business.hpp"
 
 # annotate imported variables: "datap true" means that these wrappers
 # are suitable for being functional parameters of data parallel skeletons

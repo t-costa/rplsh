@@ -1,7 +1,5 @@
 #pragma once
 
-// TODO funzia, ma un po' incasinato
-
 #include "rewrules.hpp"
 #include "nodes/skeletons.hpp"
 #include "visitors/visitors.hpp"
@@ -22,16 +20,16 @@ void delset( node_set& s );
  * Class that applies the rewriting rules
  */
 struct rewriter {
-    rewriter(bool rec) : rec(rec) {}
+    explicit rewriter(bool rec) : rec(rec) {}
     node_set apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp);
     template <typename Iterator>
-    node_set apply_allrules ( Iterator& it1, Iterator& it2, rr_dispatcher& rr_disp);
+    node_set apply_allrules ( Iterator& begin, Iterator& end, rr_dispatcher& rr_disp);
     template <typename Iterator>
-    node_set apply_rule ( Iterator& it1, Iterator& it2, rewrule& r);
+    node_set apply_rule ( Iterator& begin, Iterator& end, rewrule& r);
 
 private:
     printer print;
-    single_node_cloner snc;
+    //single_node_cloner snc;
     skel_node* rewrite( skel_node& n, rewrule& r );
     node_set fullrecrewrite( skel_node& n, rewrule& r );
     void insert_or_delete( node_set& set, skel_node* rn );
@@ -60,13 +58,13 @@ node_set rewriter::apply_rule ( Iterator& begin, Iterator& end, rewrule& r) {
 }
 
 /**
- *
- * @param tree
- * @param rr_disp
- * @return
+ * Applies all the rules to all the nodes in the passed tree
+ * @param tree skeleton tree on which to apply the rules
+ * @param rr_disp dispatcher of the rewriting rules
+ * @return the set of the new nodes
  */
 node_set rewriter::apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp) {
-    node_set set;;
+    node_set set;
     vector<node_set> sets;
     for (auto& str : rr_disp.get_allrules())
         sets.push_back( fullrecrewrite(tree, *rr_disp[str]) );
@@ -76,12 +74,12 @@ node_set rewriter::apply_allrules ( skel_node& tree, rr_dispatcher& rr_disp) {
 }
 
 /**
- *
- * @tparam Iterator
- * @param begin
- * @param end
- * @param rr_disp
- * @return
+ * Applies all the rules to all the subtrees whose root is between begin and end
+ * @tparam Iterator type of the iterator
+ * @param begin starting point of the range, the node pointed by it is included
+ * @param end end point of the range, the node pointed by it is NOT included
+ * @param rr_disp dispatcher of the rewriting rules
+ * @return the set of the new nodes
  */
 template <typename Iterator>
 node_set rewriter::apply_allrules ( Iterator& begin, Iterator& end, rr_dispatcher& rr_disp) {
@@ -97,11 +95,12 @@ node_set rewriter::apply_allrules ( Iterator& begin, Iterator& end, rr_dispatche
 }
 
 /**
- * Modifies the passed node using the rule given; if recursion
- * is enabled, the ruled is applied to all the children of n
+ * Modifies the passed node using the given rule; if recursion
+ * is enabled, the rule is applied to all the children of n
  * @param n skeleton node on which the rewriting has to be applied
  * @param r rule to use for the rewriting
- * @return the modified node if everything goes ok, nullptr otherwise
+ * @return the modified node if everything goes ok,
+ * a clone of the original node with modified children otherwise
  */
 skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
     //FIXME: probably should use unique pointers?
@@ -142,7 +141,7 @@ node_set rewriter::fullrecrewrite( skel_node& n, rewrule& r ) {
 
     if ( n.size() == 1 )
         combine(n, fullrecrewrite(*n.get(0), r), set);
-    else if ( n.size() == 2 ) {                             // Comp or Pipe
+    else if ( n.size() == 2 ) { // Comp or Pipe
         combine(n, allpairs(fullrecrewrite(*n.get(0),r), fullrecrewrite(*n.get(1), r)), set);
         if (rn != nullptr && rn->size() == 2)
             combine(*rn, allpairs(fullrecrewrite(*rn->get(0),r), fullrecrewrite(*rn->get(1), r)), set);
@@ -248,22 +247,19 @@ node_set merge(node_set& s1, node_set& s2) {
     return s1;
 }
 
-//TODO don't clone and avoid memory leaks... (c'era già!)
+//TODO don't clone and avoid memory leaks...
 /**
  * Removes all the elements in the two sets and inserts them
- * in a new vector of all the passible pairs (node in s1, node in s2)
+ * in a new vector of all the possible pairs (node in s1, node in s2)
  * @param s1 first set of nodes
  * @param s2 second set of nodes
  * @return the vector of all the possible pairs
  */
 vector<pair_node> allpairs( node_set&& s1, node_set&& s2) {
     vector<pair_node> pairs;
-    //TODO: it1 è sempre lo stesso per ogni it2, non serve
-    //  clonarlo ogni volta...  A meno che non sia voluto
-    //  per avere riferimenti diversi!
     for (auto& it1 : s1 )
         for (auto& it2 : s2)
-            pairs.push_back(make_pair(it1.second->clone(), it2.second->clone()));
+            pairs.emplace_back(it1.second->clone(), it2.second->clone());
     delset(s1);
     delset(s2);
     return pairs;

@@ -9,7 +9,7 @@
  * the instantiated object associated to the name,
  * or a logic_error exception
  * @tparam K key in the environment
- * @tparam V value in the environment
+ * @tparam V value in the environment (function or pointer to object)
  */
 template <typename K, typename V>
 struct dispatcher {

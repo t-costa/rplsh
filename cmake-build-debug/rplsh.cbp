@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="rplsh"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/tommaso/forked/rplsh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/tommaso/forked/rplsh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rplsh">
+				<Option output="/home/tommaso/forked/rplsh/cmake-build-debug/rplsh" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tommaso/forked/rplsh/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tommaso/forked/rplsh/aux"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/cpp_parser"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/annotators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 rplsh"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rplsh/fast">
+				<Option output="/home/tommaso/forked/rplsh/cmake-build-debug/rplsh" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tommaso/forked/rplsh/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tommaso/forked/rplsh/aux"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/cpp_parser"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/annotators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators"/>
+					<Add directory="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 rplsh/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/tommaso/forked/rplsh/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/tommaso/forked/rplsh/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/tommaso/forked/rplsh/aux/aux.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/aux/ff_comp.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/aux/types.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/aux/wrappers.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/install.sh">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/cpp_parser/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/cpp_parser/cpp_parser.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/cpp_parser/cpp_parser.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/ann_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/eval_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/get_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/opt_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/rr_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/dispatchers/set_dispatcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment/environment.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment/rpl_environment.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/environment/rpl_environment.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report/error_report.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report/error_report.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/error_report/style.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/history.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/history.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/interpreter.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/interpreter.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/node_forwards.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/node_interface.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/skeletons.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/skeletons.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/tree_matcher.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/verbs.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/verbs.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parameters.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/parser.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/parser.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/token.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/token.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/rewriter.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/rewrules.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/rewrules.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/mytuple.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/printable.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/rank.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/utils.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/annotators/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/annotators/annotators.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/annotators/annotators.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators/evaluators.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators/evaluators.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/compseq_setter.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/compseq_setter.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffcode.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffcode.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffmapper.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffmapper.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/CMakeLists.txt">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/normalform.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/normalform.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/optimizers.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/optimizers.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/visitor_interface.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/visitors.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/visitors.hpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/rpl-shell/rplsh.cpp">
+			<Option target="rplsh"/>
+		</Unit>
+		<Unit filename="/home/tommaso/forked/rplsh/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

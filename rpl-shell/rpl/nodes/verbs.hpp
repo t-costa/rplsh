@@ -17,7 +17,7 @@ struct skel_node;
  */
 struct assign_node : public rpl_node {
     assign_node(const std::string& id, skel_node* rvalue);
-    void accept(visitor & v);
+    void accept(visitor & v) override;
     std::string id;
     skel_node* rvalue;
 };
@@ -28,7 +28,7 @@ struct assign_node : public rpl_node {
  */
 template <typename verb>
 struct verb_node : public rpl_node {
-    void accept(visitor& v);
+    void accept(visitor& v) override;
 protected:
     verb_node(verb& _verb, const std::string& id, const std::string& prop);
     verb_node(verb& _verb, const std::string& id, const std::vector<std::string>& parameters);
@@ -39,7 +39,7 @@ private:
 public:
     std::string id;
     int index;
-    std::string prop;   //TODO: what is it?
+    std::string prop;
     std::vector<std::string> parameters;
 };
 
@@ -90,21 +90,21 @@ struct opt_node : public verb_node<opt_node> {
  * Node representing the "history" verb
  */
 struct history_node : public verb_node<history_node> {
-    history_node(const std::string& id);
+    explicit history_node(const std::string& id);
 };
 
 /**
  * Node representing the "import" verb
  */
 struct import_node : public verb_node<import_node> {
-    import_node(const std::string& id);
+    explicit import_node(const std::string& id);
 };
 
 /**
  * Node representing the "import" verb
  */
 struct gencode_node : public verb_node<gencode_node> {
-    gencode_node(const std::string& id, int index = 0);
+    explicit gencode_node(const std::string& id, int index = 0);
 };
 
 /**

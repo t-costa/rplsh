@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.14)
+project(rplsh)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(aux)
+include_directories(rpl-shell/rpl)
+include_directories(rpl-shell/rpl/cpp_parser)
+include_directories(rpl-shell/rpl/dispatchers)
+include_directories(rpl-shell/rpl/environment)
+include_directories(rpl-shell/rpl/error_report)
+include_directories(rpl-shell/rpl/nodes)
+include_directories(rpl-shell/rpl/parser)
+include_directories(rpl-shell/rpl/rewriting)
+include_directories(rpl-shell/rpl/utils)
+include_directories(rpl-shell/rpl/visitors)
+include_directories(rpl-shell/rpl/visitors/annotators)
+include_directories(rpl-shell/rpl/visitors/evaluators)
+include_directories(rpl-shell/rpl/visitors/generators)
+include_directories(rpl-shell/rpl/visitors/optimizers)
+
+add_executable(rplsh)
