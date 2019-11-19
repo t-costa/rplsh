@@ -11,6 +11,11 @@ using namespace std;
 map<string, int> names;
 map<string, bool> business_headers;
 
+/**
+ * Generates a string with the passed name and an increasing value
+ * @param name of the variable
+ * @return new name for the variable of the form nameNumber
+ */
 string new_name(const string& name) {
     int num = 0;
     string apnd;
@@ -27,7 +32,15 @@ string new_name(const string& name) {
 
 // insert a debug print that determines the CPU
 // on which the calling thread is running
-string dtrace_core( string where1, string where2, string tabs ) {
+/**
+ * Insert a debug print that determines the CPU on which
+ * the calling thread is running
+ * @param where1
+ * @param where2
+ * @param tabs
+ * @return working code as a string
+ */
+string dtrace_core( const string& where1, const string& where2, const string& tabs ) {
     stringstream ss;
     ss << tabs << "#ifdef TRACE_CORE\n";
     ss << tabs << "std::cout << \"" << where1 << " -- " << where2 << " -- id = \"";
@@ -36,8 +49,12 @@ string dtrace_core( string where1, string where2, string tabs ) {
     return ss.str();
 }
 
-// insert svc_init stage with debug print
-string svc_init_decl(string where) {
+/**
+ * Inserts svc_init stage with debug print
+ * @param where
+ * @return working code as a string
+ */
+string svc_init_decl(const string& where) {
     stringstream ss;
     ss << "\tint svc_init() {\n";
     ss << dtrace_core("svc_init", where, "\t\t");
@@ -46,9 +63,13 @@ string svc_init_decl(string where) {
     return ss.str();
 }
 
-// return the ff_node calling the function
-// typein and typeout MUST implement copy
-// assignment operator and default constructor
+/**
+ * Creates the ff_node calling the function.
+ * Typein and typeout must implement copy assignment
+ * operator and default constructor
+ * @param n node to be converted in code
+ * @return working code as string
+ */
 string stage_declaration( const seq_node& n ) {
     stringstream ss;
     ss << "class " << n.name << "_stage : public ff_node {\n";
@@ -66,6 +87,11 @@ string stage_declaration( const seq_node& n ) {
     return ss.str();
 }
 
+/**
+ * Creates the ff_node for the source node
+ * @param n node to be converted in code
+ * @return working code as string
+ */
 string source_declaration( const source_node& n ) {
     stringstream ss;
     ss << "class " << n.name << "_stage : public ff_node {\n";
@@ -82,6 +108,11 @@ string source_declaration( const source_node& n ) {
     return ss.str();
 }
 
+/**
+ * Creates the ff_node for the drain node
+ * @param n node to be converted in code
+ * @return working code as string
+ */
 string drain_declaration( const drain_node& n ) {
     stringstream ss;
     ss << "class " << n.name << "_stage : public ff_node {\n";
@@ -97,15 +128,34 @@ string drain_declaration( const drain_node& n ) {
     return ss.str();
 }
 
-string mapred_constructor( string name, int nw, bool value ) {
+/**
+ * Creates the ff_map for the given name
+ * @param name of the new ff_map
+ * @param nw number of workers
+ * @param value argument for the disableScheduler function
+ * @return working code as string
+ */
+string mapred_constructor( const string& name, int nw, bool value ) {
     stringstream ss;
+    //TODO: ma ff_Map o ff_map? e cos'è pfr??
     ss << "\t" << name << "() : ff_Map(" << nw << ") {\n";
     ss << "\t\tpfr.disableScheduler(" << value << ");\n";
     ss << "\t}\n";
     return ss.str();
 }
 
+/**
+ * Creates the ff_map class for the given node.
+ * Works only with two tier model! Inside map
+ * only seq and compseq
+ * @param n node to be converted in code
+ * @param env rpl environment
+ * @return working code as string
+ */
 string map_declaration( map_node& n, rpl_environment& env ) {
+
+    //FIXME: tutti i TODO che trovi sotto non li ho messi io! ci sarà da lavorare qui! TC
+
     // two-tier model: inside map nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
 
@@ -178,7 +228,19 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     return ss.str();
 }
 
+/**
+ * Creates an ff_map class for the reduce node
+ * Works only with two tier model! Inside map
+ * only seq and compseq
+ * @param n node to be converted in code
+ * @param env rpl environment
+ * @return working code as string
+ */
 string red_declaration( reduce_node& n, rpl_environment& env ) {
+
+    //FIXME: potrebbero esserci gli stessi problemi di map, e forse sarebbe
+    //  il caso di reingegnerizzare un po' queste due funzioni... TC
+
     // two-tier model: inside reduce nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
     pardegree nw(env);           // setup the pardegree visitor
@@ -251,7 +313,10 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     return ss.str();
 }
 
-// header includes and namespaces
+/**
+ * Creates headers and includes
+ * @return code for headers and includes as string
+ */
 string includes() {
     stringstream ss;
     ss << "#include <iostream>\n";
@@ -273,6 +338,11 @@ string includes() {
     return ss.str();
 }
 
+/**
+ * Generates main function
+ * @param code body of the main
+ * @return working code as string
+ */
 string main_wrapper( const string& code ) {
     regex nline("\n");
     stringstream ss;
@@ -291,18 +361,35 @@ ffcode::ffcode( rpl_environment& env ) :
     compseq(env)
 {}
 
+/**
+ * Wraps the sequential node
+ * @param n sequential node
+ */
 void ffcode::visit( seq_node& n ) {
     seq_wraps(n.name);
 }
 
+/**
+ * Wraps the source node
+ * @param n source node
+ */
 void ffcode::visit( source_node& n ) {
     seq_wraps(n.name);
 }
 
+/**
+ * wraps the drain node
+ * @param n drain node
+ */
 void ffcode::visit( drain_node& n ) {
     seq_wraps(n.name);
 }
 
+/**
+ * Calls comp_pipe for a sequential composition
+ * or a pipeline
+ * @param n composite node
+ */
 void ffcode::visit( comp_node& n ) {
     if (n.compseq)
         comp_pipe("ff_comp", "comp", n);
@@ -310,10 +397,19 @@ void ffcode::visit( comp_node& n ) {
         comp_pipe("ff_pipeline", "pipe", n);
 }
 
+/**
+ * Calls comp_pipe for a pipeline
+ * @param n pipe node
+ */
 void ffcode::visit( pipe_node& n ) {
     comp_pipe("ff_pipeline", "pipe", n);
 }
 
+/**
+ * Builds a farm with all the needed workers,
+ * the collector is set to NULL
+ * @param n farm node
+ */
 void ffcode::visit( farm_node& n ) {
 
     stringstream ss;
@@ -343,6 +439,10 @@ void ffcode::visit( farm_node& n ) {
 
 }
 
+/**
+ * Creates the code line for the map
+ * @param n map node
+ */
 void ffcode::visit( map_node& n ) {
     stringstream ss;
     string var = new_name("_map"+to_string(n.getid())+"_");
@@ -350,6 +450,10 @@ void ffcode::visit( map_node& n ) {
     code_lines.push({var, ss.str()});
 }
 
+/**
+ * Creates the code line for the reduce
+ * @param n reduce node
+ */
 void ffcode::visit( reduce_node& n ) {
     stringstream ss;
     string var = new_name("_red"+to_string(n.getid())+"_");
@@ -357,6 +461,10 @@ void ffcode::visit( reduce_node& n ) {
     code_lines.push({var, ss.str()});
 }
 
+/**
+ * Calls the accept on the id_node, if it exist
+ * @param n id node
+ */
 void ffcode::visit( id_node& n ) {
     auto ptr = env.get(n.id, n.index);
     if (ptr != nullptr)
@@ -365,11 +473,17 @@ void ffcode::visit( id_node& n ) {
         cout << n.id << " whaaaat?" << endl;
 }
 
+/**
+ * Builds all the source code
+ * @param n root of the skeletons tree
+ * @return code as a string representation
+ */
 string ffcode::operator()(skel_node& n) {
 
     ann_printer pr;
     string repr = "// " + pr.print(n) + "\n\n";
 
+    //penso serva in caso di diverse chiamate a gencode
     // clear global environment:
     // names, business_headers, queue
     names.clear();
@@ -402,7 +516,7 @@ string ffcode::operator()(skel_node& n) {
     }
 
     for (auto seq : seq_nodes) {
-        business_headers[seq->file] = true;
+        business_headers[seq->file] = true;     //TODO: e se non ci fosse un file associato?? TC
         decls += stage_declaration(*seq);
     }
 
@@ -418,7 +532,7 @@ string ffcode::operator()(skel_node& n) {
         decls += red_declaration(*redn, env);
     }
 
-    n.accept(*this);
+    n.accept(*this);    //TODO: chiama comp_pipe passando già pipe... non so se va proprio bene!
     stringstream ss;
 
     /* mapping */
@@ -454,6 +568,10 @@ string ffcode::operator()(skel_node& n) {
     return code;
 }
 
+/**
+ * Adds declaration of a name to the code lines
+ * @param name of the variable
+ */
 void ffcode::seq_wraps(const string& name) {
     stringstream ss;
     string var = new_name("_"+name);
@@ -461,6 +579,12 @@ void ffcode::seq_wraps(const string& name) {
     code_lines.push({var, ss.str()});
 }
 
+/**
+ * Declares and add stages to a sequential composition or a pipeline
+ * @param type sequential comp or pipe
+ * @param name name of the stage
+ * @param n comp or pipe node
+ */
 void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
     stringstream ss;
     string var  = new_name(name);

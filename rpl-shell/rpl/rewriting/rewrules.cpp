@@ -41,7 +41,6 @@ inline skelptr Reduce(skelptr s) {
     return new reduce_node(s);
 }
 
-//TODO: riguarda tutti i costruttori come funzionano
 
 ///////////////////////////////////////////////////////////////////////////////
 

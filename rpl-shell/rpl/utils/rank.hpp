@@ -3,6 +3,14 @@
 
 //TODO: non capisco niente...
 
+/**
+ * Flattens the skeleton tree, merging together nodes of the
+ * same type when possible. The number of children of the nodes
+ * might grow.
+ * @tparam Node type of the skeleton node
+ * @param curr_node node that is currently visited
+ * @param root_node root of the current subtree
+ */
 template <typename Node>
 void ranktounrank(Node* curr_node, Node* root_node)
 {
@@ -23,6 +31,14 @@ void ranktounrank(Node* curr_node, Node* root_node)
         root_node->add(curr_node);
 }
 
+/**
+ * Called after a ranktounrank, transforms the skeleton tree
+ * back to its original shape (at most two children per node)
+ * @tparam Node type of the nodes
+ * @tparam NewNodeFunctor type of the function used to clone the nodes
+ * @param n starting node
+ * @param snc function used to clone the nodes
+ */
 template <typename Node, typename NewNodeFunctor>
 void unranktorank2( Node& n, NewNodeFunctor& snc )
 {

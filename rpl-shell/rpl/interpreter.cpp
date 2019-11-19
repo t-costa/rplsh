@@ -183,7 +183,15 @@ void interpreter::visit(rwr_node& n) {
                 _rewriter.apply_allrules( begin, end, rdispatch) :
                 _rewriter.apply_rule( begin, end, *rdispatch[ rule ]);
 
-            env.clear( id );
+            //env.clear( id );
+            if (n.index >= 0) {
+                // just remove the selected version
+                env.clear( n.id, n.index );
+            } else {
+                //remove everything
+                env.clear(n.id);
+            }
+
             for ( auto& p : _set )
                 env.add( id, p.second );
         }
@@ -196,13 +204,14 @@ void interpreter::visit(rwr_node& n) {
 }
 
 void interpreter::visit(opt_node& n) {
+    std::string last_opt;
     try {
-        //TODO: prova a mettere il vero tipo di it invece di auto
         auto sub_it = std::find(n.parameters.begin(), n.parameters.end(), "subexp");
         bool subexp = sub_it != n.parameters.end();
         if (subexp) n.parameters.erase(sub_it);
 
         for (const string& opt : n.parameters ) {
+            last_opt = opt;
             if (opt == "normalform") {
                 //skel_node* newsk = normform( **begin );
                 //unranktorank2(*newsk, snc);
@@ -240,13 +249,15 @@ void interpreter::visit(opt_node& n) {
                     env.add( n.id, p.second );
             }
         }
-    } catch (out_of_range& e) {
+    } catch (invalid_argument& e) {
         err_repo.add( make_shared<error_not_exist>(n.id) );
+    } catch (out_of_range& e) {
+        err_repo.add( make_shared<error_not_exist>(last_opt) );
     }
 }
 
 void interpreter::visit(history_node& n) {
-    if (n.id == "")
+    if (n.id.empty())
         phistory.print();
     else {
         history h(n.id, phistory);
@@ -278,14 +289,16 @@ void interpreter::visit(import_node& n) {
                 sk = new source_node(name,tout, path);
             else if (it->wtype == wrapper_info::drain)
                 sk = new drain_node(name,tin, path);
-            else
+            else {
                 cout << "error: no type recognized" << endl;
+                return;     //aggiunto perchè altrimenti sk sarebbe non inizializzato e chissà che succede
+            }
 
             assign_node a ( name, sk );
             visit(a);
 
         }
-    } catch (std::logic_error) {
+    } catch (std::logic_error&) {
         cout << "impossible import code from " << n.id << endl;
     }
 }
@@ -303,6 +316,11 @@ bool lis_comment(string& line) {
 void interpreter::visit(load_node& n) {
     // TODO fast implementation of load verb, better rewrite please
     string path = utils::get_real_path(n.id);
+    if (path.empty()) {
+        //there is an error in the path
+        err_repo.add(make_shared<error_not_exist>(n.id));
+        return;
+    }
     string line;
     ifstream infile(path);
     while ( getline(infile, line) ) {
@@ -371,6 +389,7 @@ bool toclone(skel_node* ptr) {
 void exprecurse(skel_node* n, rpl_environment& env) {
     for (size_t i = 0; i < n->size(); i++) {
         id_node* k = dynamic_cast<id_node*>(n->get(i));
+        //FIXME: credo che l'else possa dare problemi, se k è nullptr probabilmente lo è anche n->get(i) no?
         if ( k ) {
             auto ptr = env.get(k->id, k->index);    // shared pointer
             if ( toclone( ptr.get() ) ) {
@@ -400,7 +419,15 @@ void interpreter::visit(expand_node& n) {
 
 void interpreter::visit(add_node& n) {
     auto skptr = env.get(n.id, 0);
-    auto range = env.range(n.prop);
+    std::pair<set_iterator<skel_node>, set_iterator<skel_node>> range;// = env.range(n.prop);
+
+    try {
+        range = env.range(n.prop);
+    } catch (std::invalid_argument& e) {
+        err_repo.add(make_shared<error_not_exist>(n.prop));
+        return;
+    }
+
     std::vector<skel_node*> vec;
     if (!skptr) //TODO better error handling
         std::cout << "error: " << n.id << " does not exist" << std::endl;

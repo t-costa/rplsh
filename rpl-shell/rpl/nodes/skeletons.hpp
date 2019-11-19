@@ -5,7 +5,6 @@
 #include <vector>
 #include "node_interface.hpp"
 
-// The skeleton node interface
 /**
  * Skeleton node interface, is an rvalue_node
  */
@@ -154,7 +153,6 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
 /**
  * Id node
  */
- //TODO: e che è??
 struct id_node : public concrete_skel_node<id_node> {
     id_node( const std::string& id, const int& index, bool all );
     id_node( const std::string& id );
