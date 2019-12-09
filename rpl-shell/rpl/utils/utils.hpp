@@ -44,10 +44,10 @@ namespace utils {
     }
 
     std::string get_real_path(const std::string& str) {
-        // TODO unix only, do also for windows??
+        //unix only, do also for windows??
         char * full_path = realpath(str.c_str(), nullptr);
         if (full_path == nullptr) {
-            free(full_path);    //TODO: serve se è null?
+            //free(full_path);    //it does nothing
             return "";
         }
         std::string fstr(full_path);

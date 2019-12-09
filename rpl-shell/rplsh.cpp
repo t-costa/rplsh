@@ -90,6 +90,8 @@ int main(int argc, char * argv[])
     }
 
     free(buffer);
+
+    //env.clear_all();
     /*
     while ( print_rpl() && getline(cin, line) ) {
         // interactive mode

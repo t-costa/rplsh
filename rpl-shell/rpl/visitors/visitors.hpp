@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  Concrete visitors:
-//  printer, servicetime, latencytime, ...
+//  printer, service time, latency time, ...
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef rpl_visitor_hpp
@@ -13,17 +13,17 @@
 
 struct printer : public skel_visitor, public printable
 {
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& sk);
+    std::string print(skel_node& sk) override;
     std::string operator()(skel_node& sk);
 private:
     std::string res;
@@ -32,17 +32,17 @@ private:
 
 struct ann_printer : public skel_visitor, public printable
 {
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& sk);
+    std::string print(skel_node& sk) override;
     std::string operator()(skel_node& sk);
 private:
     std::string res;
@@ -52,46 +52,46 @@ private:
 
 // implementation of a visitor
 struct label_printer : public skel_visitor {
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     std::string operator()(skel_node& n);
 private:
     std::string str;
 };
 
 struct single_node_cloner : public skel_visitor {
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     skel_node* operator()(skel_node& n);
 private:
     skel_node* tmp;
 };
 
 struct reduce_resources : public skel_visitor {
-    reduce_resources( rpl_environment& env );
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit reduce_resources( rpl_environment& env );
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     bool operator()(skel_node& n);
     bool subexp;
 private:
@@ -102,27 +102,27 @@ private:
 };
 
 struct assign_resources : public skel_visitor {
-    void visit(seq_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     void operator()(skel_node& n, double inputsize);
 };
 
 struct get_seq_wrappers : public skel_visitor {
-    get_seq_wrappers(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit get_seq_wrappers(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
     std::vector<seq_node*> get_seq_nodes();
     std::vector<drain_node*> get_drain_nodes();
@@ -137,16 +137,16 @@ private:
 };
 
 struct top_datap_skeletons : public skel_visitor {
-    top_datap_skeletons(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit top_datap_skeletons(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
     std::vector<map_node*> get_map_nodes();
     std::vector<reduce_node*> get_reduce_nodes();
@@ -159,14 +159,14 @@ private:
 };
 
 struct ranker : public skel_visitor {
-    ranker(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit ranker(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     void operator()(skel_node& n);
 private:
     rpl_environment& env;
@@ -174,30 +174,30 @@ private:
 };
 
 struct unranker : public skel_visitor {
-    unranker(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit unranker(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     void operator()(skel_node& n);
 private:
     rpl_environment& env;
 };
 
 struct count_stages : public skel_visitor {
-    count_stages(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit count_stages(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     std::size_t operator()(skel_node& n);
 private:
     rpl_environment& env;
