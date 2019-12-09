@@ -33,7 +33,7 @@ struct visitor
     virtual void visit(reduce_node& n)  = 0;
     virtual void visit(id_node& n)      = 0;
 
-    virtual void visit(_& n)            {}
+    virtual void visit(_& n) {}
 };
 
 /**
@@ -45,21 +45,21 @@ struct skel_visitor : public visitor
 
     // notice hat source and drain have
     // the base_class implementation
-    virtual void visit(source_node& n) {};
-    virtual void visit(drain_node& n)  {};
+    void visit(source_node& n) override {};
+    void visit(drain_node& n) override  {};
 
-    void visit(assign_node& n)  {};
-    void visit(show_node& n)    {};
-    void visit(set_node& n)     {};
-    void visit(ann_node& n)     {};
-    void visit(rwr_node& n)     {};
-    void visit(opt_node& n)     {};
-    void visit(history_node& n) {};
-    void visit(import_node& n)  {};
-    void visit(gencode_node& n) {};
-    void visit(expand_node& n)  {};
-    void visit(add_node& n)  {};
-    void visit(load_node& n) {};
+    void visit(assign_node& n) override  {};
+    void visit(show_node& n) override    {};
+    void visit(set_node& n) override     {};
+    void visit(ann_node& n) override     {};
+    void visit(rwr_node& n) override     {};
+    void visit(opt_node& n) override     {};
+    void visit(history_node& n) override {};
+    void visit(import_node& n) override  {};
+    void visit(gencode_node& n) override {};
+    void visit(expand_node& n) override  {};
+    void visit(add_node& n) override  {};
+    void visit(load_node& n) override {};
 };
 
 #endif

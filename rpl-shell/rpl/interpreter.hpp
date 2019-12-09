@@ -25,38 +25,37 @@
 #include <tuple>
 #include <map>
 
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Template class of the rpl interpreter. Template arguments are Env,
-//  for the environment <name, skel_node_ptr> and Disp for the dispatcher
-//  <name, skel_visitor>
-//
-///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Template class of the rpl interpreter. Template arguments are
+ * Env for the environment <name, skel_node_ptr> and
+ * Disp for the dispatcher<name, skel_visitor>
+ */
 struct interpreter : public visitor
 {
     interpreter(rpl_environment& env, error_container& err_repo);
-    void visit(assign_node& n);
-    void visit(show_node& n);
-    void visit(set_node& n);
-    void visit(ann_node& n);
-    void visit(rwr_node& n);
-    void visit(opt_node& n);
-    void visit(history_node& n);
-    void visit(import_node& n);
-    void visit(gencode_node& n);
-    void visit(expand_node& n);
-    void visit(add_node& n);
-    void visit(load_node& n);
+    void visit(assign_node& n) override;
+    void visit(show_node& n) override;
+    void visit(set_node& n) override;
+    void visit(ann_node& n) override;
+    void visit(rwr_node& n) override;
+    void visit(opt_node& n) override;
+    void visit(history_node& n) override;
+    void visit(import_node& n) override;
+    void visit(gencode_node& n) override;
+    void visit(expand_node& n) override;
+    void visit(add_node& n) override;
+    void visit(load_node& n) override;
 
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     history& get_history();
 
 private:

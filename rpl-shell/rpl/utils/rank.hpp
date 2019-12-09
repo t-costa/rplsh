@@ -1,8 +1,6 @@
 #ifndef rpl_utils_rank_hpp
 #define rpl_utils_rank_hpp
 
-//TODO: non capisco niente...
-
 /**
  * Flattens the skeleton tree, merging together nodes of the
  * same type when possible. The number of children of the nodes
