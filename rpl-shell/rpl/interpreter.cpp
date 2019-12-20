@@ -268,7 +268,6 @@ void interpreter::visit(opt_node& n) {
                                                             // applied recursively in the subexpr
                 for (auto it = begin; it != end; it++) {
                     auto& skptr = *it;
-                    //TODO: what if res where already assigned? TC
                     assignres( *skptr, env.get_inputsize() );
                     optrule( *skptr );
                     _set.insert({print(*skptr), skptr->clone()});

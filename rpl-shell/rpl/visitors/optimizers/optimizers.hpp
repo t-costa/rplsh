@@ -14,19 +14,19 @@
 */
 struct optrule : public skel_visitor
 {
-    virtual void visit(seq_node& n);
-    virtual void visit(comp_node& n);
-    virtual void visit(pipe_node& n);
-    virtual void visit(farm_node& n);
-    virtual void visit(map_node& n);
-    virtual void visit(reduce_node& n);
-    virtual void visit(id_node& n);
+    void visit(seq_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
     virtual void operator() ( skel_node& n ) = 0;
 
     bool subexp;
 
 protected:
-    optrule(rpl_environment& env);
+    explicit optrule(rpl_environment& env);
     rpl_environment& env;
     servicetime ts;
 };
@@ -36,9 +36,9 @@ protected:
 // emitter service time
 struct farmopt : public optrule
 {
-    farmopt( rpl_environment& env );
-    void visit( farm_node& n );
-    void operator()( skel_node& n );
+    explicit farmopt( rpl_environment& env );
+    void visit( farm_node& n ) override;
+    void operator()( skel_node& n ) override ;
 };
 
 // choose parallelism degree such that
@@ -46,11 +46,11 @@ struct farmopt : public optrule
 // max of scatter-gather service times
 struct mapopt : public optrule
 {
-    mapopt( rpl_environment& env );
-    void visit( map_node& n );
-    void operator()( skel_node& n );
-private:
-    assign_resources assignres;
+    explicit mapopt( rpl_environment& env );
+    void visit( map_node& n ) override;
+    void operator()( skel_node& n ) override;
+//private:
+//    assign_resources assignres;
 };
 
 // choose parallelism degree such that
@@ -58,11 +58,11 @@ private:
 // max of scatter-gather service times
 struct reduceopt : public optrule
 {
-    reduceopt( rpl_environment& env );
-    void visit( reduce_node& n );
-    void operator()( skel_node& n );
-private:
-    assign_resources assignres;
+    explicit reduceopt( rpl_environment& env );
+    void visit( reduce_node& n ) override;
+    void operator()( skel_node& n ) override;
+//private:
+//    assign_resources assignres;
 };
 
 // given a skeleton pipe node it tries
@@ -70,12 +70,12 @@ private:
 // its fastest children
 struct pipebalance : public optrule
 {
-    pipebalance( rpl_environment& env );
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void operator()( skel_node& n );
+    explicit pipebalance( rpl_environment& env );
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void operator()( skel_node& n ) override;
 private:
     void operator()( skel_node& n, double max );
     double ts_max;
@@ -85,24 +85,24 @@ private:
 // 2) merges faster stages
 struct pipeopt : public optrule
 {
-    pipeopt( rpl_environment& env );
-    void visit( pipe_node& n );
-    void operator()( skel_node& n );
+    explicit pipeopt( rpl_environment& env );
+    void visit( pipe_node& n ) override;
+    void operator()( skel_node& n ) override;
 private:
     pipebalance balance;
 };
 
 struct maxresources : public optrule
 {
-    maxresources ( rpl_environment& env );
-    void visit( comp_node& n );
-    void visit( pipe_node& n );
-    void visit( farm_node& n );
-    void visit( map_node& n );
-    void visit( reduce_node& n );
-    void operator()( skel_node& n );
+    explicit maxresources ( rpl_environment& env );
+    void visit( comp_node& n ) override;
+    void visit( pipe_node& n ) override;
+    void visit( farm_node& n ) override;
+    void visit( map_node& n ) override;
+    void visit( reduce_node& n ) override;
+    void operator()( skel_node& n ) override;
 private:
-    void operator()( skel_node& n, size_t maxres );
+    //void operator()( skel_node& n, size_t maxres );
     reduce_resources reduce_res;
     resources res;
     size_t maxres;
@@ -110,24 +110,24 @@ private:
 
 struct twotier : public optrule
 {
-    twotier( rpl_environment& env );
-    void visit( map_node& n );
-    void visit( reduce_node& n);
-    void operator()( skel_node& n );
+    explicit twotier( rpl_environment& env );
+    void visit( map_node& n ) override;
+    void visit( reduce_node& n) override;
+    void operator()( skel_node& n ) override;
 };
 
 struct farmfarmopt : public optrule
 {
-    farmfarmopt( rpl_environment& env );
-    virtual void visit(farm_node& n);
-    void operator()( skel_node& n );
+    explicit farmfarmopt( rpl_environment& env );
+    void visit(farm_node& n) override;
+    void operator()( skel_node& n ) override;
 };
 
 struct mapmapopt : public optrule
 {
-    mapmapopt( rpl_environment& env );
-    virtual void visit(map_node& n);
-    void operator()( skel_node& n );
+    explicit mapmapopt( rpl_environment& env );
+    void visit(map_node& n) override;
+    void operator()( skel_node& n ) override;
 };
 
 #endif

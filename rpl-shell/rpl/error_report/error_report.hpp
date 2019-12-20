@@ -12,8 +12,6 @@
 #include <memory>
 #include <vector>
 
-//TODO: potrebbe essere utile aggiungere gli errori per opt_rule e rew_rule non esistenti
-
 /**
  * Simple class used for error reporting
  */
@@ -29,8 +27,8 @@ struct error
  */
 struct error_unexp : public error
 {
-    error_unexp(string word, int pos);
-    virtual void print(ostream& os) const;
+    error_unexp(const string& word, int pos);
+    void print(ostream& os) const override;
     const string word;
     const int pos;
 };
@@ -40,8 +38,8 @@ struct error_unexp : public error
  */
 struct error_illegal : public error
 {
-    error_illegal(string word, int pos);
-    virtual void print(ostream& os) const;
+    error_illegal(const string& word, int pos);
+    void print(ostream& os) const override;
     const string word;
     const int pos;
 };
@@ -51,8 +49,8 @@ struct error_illegal : public error
  */
 struct error_not_exist : public error
 {
-    error_not_exist(string word);
-    virtual void print(ostream& os) const;
+    explicit error_not_exist(const string& word);
+    void print(ostream& os) const override;
     const string word;
 };
 

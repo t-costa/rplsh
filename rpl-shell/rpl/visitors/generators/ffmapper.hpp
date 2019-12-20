@@ -7,16 +7,16 @@
 
 struct ffmapper : public skel_visitor {
 public:
-    ffmapper(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit ffmapper(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
     void clear();
     std::vector<std::size_t> get_worker_mapping() const;

@@ -7,9 +7,13 @@
 #include "parameters.hpp"
 #include <memory>
 
+/**
+ * Dispatcher for evaluators (ts, l, tc, pardegree, resources); for each evaluator
+ * stores the unique pointer to the corresponding visitor
+ */
 struct eval_dispatcher : public dispatcher<std::string, std::unique_ptr<eval_visitor>>
 {
-    eval_dispatcher(rpl_environment& env) {
+    explicit eval_dispatcher(rpl_environment& env) {
         add(par::servicetime    ,  std::unique_ptr<eval_visitor>(new servicetime(env)));
         add(par::latency        ,  std::unique_ptr<eval_visitor>(new latencytime(env)));
         add(par::compltime      ,  std::unique_ptr<eval_visitor>(new completiontime(env)));

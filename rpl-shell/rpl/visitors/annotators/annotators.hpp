@@ -20,9 +20,14 @@ struct ann_visitor : public skel_visitor
     void visit(reduce_node& n) override;
     void visit(id_node& n) override;
 
-    // implementations of this operator should return 'result';
-    // result should be set to true or false in overridden
-    // visit methods according to the logic of the annotator
+    /**
+     * Implementations of this operator should return 'result';
+     * result should be set to true or false in overridden
+     * visit methods according to the logic of the annotator
+     * @param n skeleton node
+     * @param a annotation
+     * @return true or false according to the annotator
+     */
     virtual bool operator()( skel_node& n, ann_node& a ) = 0;
 
 protected:
@@ -40,7 +45,7 @@ struct ann_servicetime : public ann_visitor
     bool operator()( skel_node& n, ann_node& a ) override ;
 
 private:
-    double servicetime;
+    double servicetime{};
 };
 
 struct ann_pardegree : public ann_visitor

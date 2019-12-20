@@ -7,9 +7,13 @@
 #include "visitors/optimizers/optimizers.hpp"
 #include <memory>
 
+/**
+ * For each optimization rule, stores the unique pointer to the corresponding
+ * rule node
+ */
 struct opt_dispatcher : public dispatcher<std::string, std::unique_ptr<optrule>>
 {
-    opt_dispatcher(rpl_environment& env) {
+    explicit opt_dispatcher(rpl_environment& env) {
         add(par::farmopt,      std::unique_ptr<optrule>( new farmopt(env) ));
         add(par::mapopt,       std::unique_ptr<optrule>( new mapopt(env)));
         add(par::reduceopt,    std::unique_ptr<optrule>( new reduceopt(env)));

@@ -7,25 +7,25 @@
 
 struct eval_visitor : public skel_visitor, public printable
 {
-    eval_visitor( rpl_environment& env );
+    explicit eval_visitor( rpl_environment& env );
 protected:
     rpl_environment& env;
 };
 
 struct servicetime: public eval_visitor
 {
-    servicetime(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit servicetime(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& n);
+    std::string print(skel_node& n) override;
     double operator()(skel_node& n);
 private:
     double res;
@@ -33,18 +33,18 @@ private:
 
 struct latencytime: public eval_visitor
 {
-    latencytime(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit latencytime(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& n);
+    std::string print(skel_node& n) override;
     double operator()(skel_node& n);
 protected:
     double res;
@@ -52,18 +52,18 @@ protected:
 
 struct completiontime: public eval_visitor
 {
-    completiontime(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit completiontime(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& n);
+    std::string print(skel_node& n) override;
     double operator()(skel_node& n);
 protected:
     latencytime lat;
@@ -73,18 +73,18 @@ protected:
 
 struct pardegree: public eval_visitor
 {
-    pardegree(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit pardegree(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& n);
+    std::string print(skel_node& n) override;
     std::size_t operator()(skel_node& n);
 protected:
     std::size_t res;
@@ -92,18 +92,18 @@ protected:
 
 struct resources: public eval_visitor
 {
-    resources(rpl_environment& env);
-    void visit(seq_node& n);
-    void visit(source_node& n);
-    void visit(drain_node& n);
-    void visit(comp_node& n);
-    void visit(pipe_node& n);
-    void visit(farm_node& n);
-    void visit(map_node& n);
-    void visit(reduce_node& n);
-    void visit(id_node& n);
+    explicit resources(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(id_node& n) override;
 
-    std::string print(skel_node& n);
+    std::string print(skel_node& n) override;
     std::size_t operator()(skel_node& n);
 protected:
     std::size_t res;

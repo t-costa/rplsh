@@ -12,6 +12,10 @@ parser::parser(lexer& scanner, error_container& err_repo)
         error::line = scanner.getline();
 }
 
+/**
+ * Starts the parsing process of the input line
+ * @return unique pointer to the ast or nullptr if error
+ */
 unique_ptr<rpl_node> parser::parse()
 {
     token tok = scanner.next();
@@ -24,6 +28,14 @@ unique_ptr<rpl_node> parser::parse()
 //  Useful functions in parsing: check if the token tok has the expected output
 //  and advance the scanner returning true, otherwise add error message to the
 //  error_repo and return false
+/**
+ * Checks if the token tok has the expected output
+ * and advance the scanner if everything ok, otherwise
+ * sets error_repo
+ * @param tok token to be checked
+ * @param exp expected output
+ * @return true if there is a match, false otherwise
+ */
 bool parser::expect(token& tok, token::type exp)
 {
     if (tok.kind == exp) {
@@ -35,6 +47,13 @@ bool parser::expect(token& tok, token::type exp)
     }
 }
 
+/**
+ * Sets data and calls parser::expect
+ * @param tok token to be checked
+ * @param exp expected output
+ * @param data string to be set
+ * @return true if there is a match, false otherwise
+ */
 bool parser::expect(token& tok, token::type exp, string& data)
 {
     data = tok.data;
@@ -165,7 +184,7 @@ rpl_node* parser::show_rule(token& tok)
     }
 
     /* always put the default */
-    parameters.push_back("show_default");
+    parameters.emplace_back("show_default");
 
     if ( tok.kind == token::plus || tok.kind == token::minus ) {
         auto type = tok.kind;

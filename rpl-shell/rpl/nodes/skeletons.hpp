@@ -11,9 +11,9 @@
 struct skel_node : public rvalue_node {
 
     skel_node(std::initializer_list<skel_node*> init);
-    virtual ~skel_node();   //TODO: this definition is needed?
+    virtual ~skel_node();
 
-    virtual void accept(visitor& v)                 = 0;
+    void accept(visitor& v)                 override = 0;
     virtual skel_node* clone()                      = 0;
     virtual bool operator==( const skel_node& rhs ) = 0;
     virtual bool operator!=( const skel_node& rhs ) = 0;
@@ -29,7 +29,7 @@ struct skel_node : public rvalue_node {
     std::size_t size() const;
 
 protected:
-    std::vector<skel_node*> children;
+    std::vector<skel_node*> children; //default empty
 };
 
 /**
@@ -38,19 +38,19 @@ protected:
  */
 template <typename skeleton>
 struct concrete_skel_node : skel_node {
-    virtual void accept(visitor& v);
+    void accept(visitor& v) override;
     virtual void setid(std::size_t id);
     virtual std::size_t getid() const;
-    bool operator==( const skel_node& rhs );
-    bool operator!=( const skel_node& rhs );
+    bool operator==( const skel_node& rhs ) override;
+    bool operator!=( const skel_node& rhs ) override;
 protected:
-    concrete_skel_node( skeleton& sk );
+    explicit concrete_skel_node( skeleton& sk );
     concrete_skel_node( skeleton& sk, std::initializer_list<skel_node*> init);
     concrete_skel_node( skeleton& sk, const skeleton& toclone);
 private:
     bool match( const skel_node& rhs );
     skeleton& _sk;
-    std::size_t id;
+    std::size_t id; //default 0
 };
 
 /**
@@ -58,9 +58,9 @@ private:
  */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
-    seq_node( double servicetime, bool datap_flag = false );
+    explicit seq_node( double servicetime, bool datap_flag = false );
     seq_node( const seq_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     double servicetime;
     bool datap_flag;
     std::string name;
@@ -74,9 +74,9 @@ struct seq_node : public concrete_skel_node<seq_node> {
  */
 struct source_node : public concrete_skel_node<source_node> {
     source_node( std::string name, std::string typeout, std::string file );
-    source_node( double servicetime );
+    explicit source_node( double servicetime );
     source_node( const source_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     double servicetime;
     std::string name;
     std::string typeout;
@@ -88,24 +88,23 @@ struct source_node : public concrete_skel_node<source_node> {
  */
 struct drain_node : public concrete_skel_node<drain_node> {
     drain_node( std::string name, std::string typein, std::string file );
-    drain_node( double servicetime );
+    explicit drain_node( double servicetime );
     drain_node( const drain_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     double servicetime;
     std::string name;
     std::string typein;
     std::string file;
 };
 
-//TODO templated constructor taking iterators begin end?
 /**
  * Composition node
  */
 struct comp_node : public concrete_skel_node<comp_node> {
     comp_node( std::initializer_list<skel_node*> init );
     comp_node( const comp_node& other );
-    skel_node* clone();
-    bool compseq;
+    skel_node* clone() override;
+    bool compseq;   //default false
 };
 
 /**
@@ -114,7 +113,7 @@ struct comp_node : public concrete_skel_node<comp_node> {
 struct pipe_node : public concrete_skel_node<pipe_node> {
     pipe_node( std::initializer_list<skel_node*> init );
     pipe_node( const pipe_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
 };
 
 /**
@@ -122,9 +121,9 @@ struct pipe_node : public concrete_skel_node<pipe_node> {
  */
 struct farm_node : public concrete_skel_node<farm_node> {
     farm_node( std::initializer_list<skel_node*> init );
-    farm_node( skel_node* pattexp, int pardegree = 1 );
+    explicit farm_node( skel_node* pattexp, int pardegree = 1 );
     farm_node( const farm_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     int pardegree;
 };
 
@@ -133,9 +132,9 @@ struct farm_node : public concrete_skel_node<farm_node> {
  */
 struct map_node : public concrete_skel_node<map_node> {
     map_node( std::initializer_list<skel_node*> init );
-    map_node( skel_node* pattexp, int pardegree = 1 );
+    explicit map_node( skel_node* pattexp, int pardegree = 1 );
     map_node( const map_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     int pardegree;
 };
 
@@ -144,9 +143,9 @@ struct map_node : public concrete_skel_node<map_node> {
  */
 struct reduce_node : public concrete_skel_node<reduce_node> {
     reduce_node( std::initializer_list<skel_node*> init );
-    reduce_node( skel_node* pattexp, int pardegree = 1 );
+    explicit reduce_node( skel_node* pattexp, int pardegree = 1 );
     reduce_node( const reduce_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     int pardegree;
 };
 
@@ -155,9 +154,9 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
  */
 struct id_node : public concrete_skel_node<id_node> {
     id_node( const std::string& id, const int& index, bool all );
-    id_node( const std::string& id );
+    explicit id_node( const std::string& id );
     id_node( const id_node& other );
-    skel_node* clone();
+    skel_node* clone() override;
     std::string id;
     int index;
     bool all;
@@ -169,7 +168,7 @@ struct id_node : public concrete_skel_node<id_node> {
 struct _ : public concrete_skel_node<_> {
     _();
     _(const _& o);
-    skel_node* clone();
+    skel_node* clone() override;
 };
 
 #endif

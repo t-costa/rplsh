@@ -5,8 +5,16 @@
 
 using namespace std;
 
+/*
+ *
+ * Maps workers
+ *
+ */
+
 ffmapper::ffmapper(rpl_environment& env) :
     env(env),
+    startID(0),
+    endID(0),
     res(env)
 {}
 
@@ -84,7 +92,6 @@ void ffmapper::visit(farm_node& n) {
     mw.push_back(startID++ % endID);
 
     // recurse n.pardegree times for assign cpu ids to the workers
-    //TODO: è corretto lo 0 o servirebbe i? TC -> ho visto anche da altre parti questa cosa, quindi forse ok
     for (int i = 0; i < n.pardegree; i++)
         n.get(0)->accept(*this);
 

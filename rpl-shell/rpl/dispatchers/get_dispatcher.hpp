@@ -6,9 +6,13 @@
 #include "environment/rpl_environment.hpp"
 #include <functional>
 
+/**
+ * Dispatcher for functions: stores for each desired information (emitter time, scatter time,
+ * resources...) the corresponding get function of the environment
+ */
 struct get_dispatcher : public dispatcher<std::string, std::function<double (void)>>
 {
-    get_dispatcher(rpl_environment& env) {
+    explicit get_dispatcher(rpl_environment& env) {
         add(par::emitter_time,   [&]() { return env.get_emitter_time(); });
         add(par::collector_time, [&]() { return env.get_collector_time(); });
         add(par::scatter_time,   [&]() { return env.get_scatter_time(); });

@@ -41,7 +41,7 @@ struct visitor
  */
 struct skel_visitor : public visitor
 {
-    using visitor::visit;   //TODO: e che è?
+    using visitor::visit;
 
     // notice hat source and drain have
     // the base_class implementation
