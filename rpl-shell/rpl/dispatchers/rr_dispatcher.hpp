@@ -8,9 +8,13 @@
 #include <memory>
 #include <vector>
 
+/**
+ * Dispatcher for the rewriting rules; for each rule stores the unique pointer to
+ * the rule node
+ */
 struct rr_dispatcher : public dispatcher<std::string, std::unique_ptr<rewrule>>
 {
-    rr_dispatcher() {
+    explicit rr_dispatcher() {
         add(par::pipeintro , std::unique_ptr<rewrule> (new pipeintro()));
         add(par::pipeelim  , std::unique_ptr<rewrule> (new pipeelim()));
         add(par::compassoc , std::unique_ptr<rewrule> (new compassoc()));
@@ -31,6 +35,9 @@ struct rr_dispatcher : public dispatcher<std::string, std::unique_ptr<rewrule>>
         add(par::pipedel, std::unique_ptr<rewrule> (new pipedel()));
     }
 
+    /**
+     * @return list of all the rules that are included in allrules
+     */
     std::vector<std::string> get_allrules() {
         return {
             par::mapelim,

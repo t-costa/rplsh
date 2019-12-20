@@ -1,0 +1,53 @@
+set inputsize with 100
+set dimension with 5
+set resources with 16
+
+s1 = seq(1)
+s2 = seq(2)
+annotate s1 with datap true
+annotate s2 with datap true
+
+c = comp(s1, s2)
+mr = map(reduce(c))
+
+s3 = seq(5)
+f = farm(s3)
+
+p = pipe(mr, f)
+expand p
+
+show p by servicetime, latency, compltime, pardegree, resources
+
+copy = p
+rewrite copy with allrules
+# forse pure la rewrite soffre degli stessi problemi della optimize?
+show copy by servicetime, latency, compltime, pardegree, resources
+
+#varie optimize, e per ognuna mostra sempre cosa succede con la show
+#forse può essere utile anche salvarsi delle copie mentre ci lavori
+copy = p
+
+optimize copy with maxresources
+show copy by servicetime, latency, compltime, pardegree, resources
+copy = p
+
+optimize copy with farmopt
+show copy by servicetime, latency, compltime, pardegree, resources
+copy = p
+
+optimize copy with mapopt
+show copy by servicetime, latency, compltime, pardegree, resources
+copy = p
+
+optimize copy with reduceopt
+show copy by servicetime, latency, compltime, pardegree, resources
+copy = p
+
+optimize copy with pipeopt
+show copy by servicetime, latency, compltime, pardegree, resources
+copy = p
+
+optimize copy with pipeopt, mapopt, reduceopt, farmopt, maxresources
+show copy by servicetime, latency, compltime, pardegree, resources
+
+gencode copy

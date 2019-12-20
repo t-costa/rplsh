@@ -30,8 +30,6 @@ string new_name(const string& name) {
     return name + apnd;
 }
 
-// insert a debug print that determines the CPU
-// on which the calling thread is running
 /**
  * Insert a debug print that determines the CPU on which
  * the calling thread is running
@@ -101,7 +99,7 @@ string source_declaration( const source_node& n ) {
     ss << svc_init_decl(n.name) << "\n";
     ss << "\tvoid * svc(void *t) {\n";
     ss << "\t\twhile( src->has_next() )\n";
-    ss << "\t\t\tff_send_out((void*) src->next() );\n";
+        ss << "\t\t\tff_send_out((void*) src->next() );\n";
     ss << "\t\treturn (NULL);\n";
     ss << "\t}\n";
     ss << "};\n\n";
@@ -129,7 +127,7 @@ string drain_declaration( const drain_node& n ) {
 }
 
 /**
- * Creates the ff_map for the given name
+ * Creates the ff_map constructor for the given name
  * @param name of the new ff_map
  * @param nw number of workers
  * @param value argument for the disableScheduler function
@@ -137,7 +135,6 @@ string drain_declaration( const drain_node& n ) {
  */
 string mapred_constructor( const string& name, int nw, bool value ) {
     stringstream ss;
-    //TODO: ma ff_Map o ff_map? e cos'è pfr??
     ss << "\t" << name << "() : ff_Map(" << nw << ") {\n";
     ss << "\t\tpfr.disableScheduler(" << value << ");\n";
     ss << "\t}\n";
@@ -502,8 +499,8 @@ string ffcode::operator()(skel_node& n) {
     auto red_nodes = tds.get_reduce_nodes();
 
     size_t idx;
-    string code  = "";
-    string decls = "";
+    string code;
+    string decls;
 
     for (auto src : src_nodes) {
         business_headers[src->file] = true;
@@ -600,7 +597,7 @@ void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
     }
 
     ss << type << " " << var << ";\n";
-    for (auto p : vec)
+    for (const auto& p : vec)
         ss << var << ".add_stage(&" << p.first << ");\n";
     ss << "\n";
 

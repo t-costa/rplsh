@@ -8,7 +8,7 @@ using namespace std;
 // skel_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 skel_node::skel_node( initializer_list<skel_node*> init )
-    : children(init) {}
+    : inputsize (0), children(init) {}
 
 skel_node::~skel_node() {
     for (auto sk : children)
@@ -17,7 +17,7 @@ skel_node::~skel_node() {
 
 /**
  * @param idx position of the desired node
- * @return skeleton node, nullptr in idx not present
+ * @return skeleton node, nullptr if idx not present
  */
 skel_node* skel_node::get( size_t idx ) const {
     return idx < children.size() ? children[idx] : nullptr;
@@ -36,7 +36,7 @@ skel_node* skel_node::pop() {
 }
 
 /**
- * @param sk node to be added, at the end of the list
+ * @param sk node to be added at the end of the list
  */
 void skel_node::add( skel_node* sk ) {
     children.push_back(sk);
@@ -49,8 +49,8 @@ void skel_node::add( skel_node* sk ) {
  */
 void skel_node::set( skel_node* sk, size_t pos) {
     //FIXME: this is not a solution, maybe there is nothing to do?
-    if (pos >= children.size()) {
-        std::cerr << "Aiuto! la pos richiesta nella set è oltre il limite!" << std::endl;
+    if (pos >= children.size() || pos < 0) {
+        std::cerr << "Error! Pos is outside the limit in skel_node::set!" << std::endl;
         exit(1);
     }
     delete children[pos];
@@ -70,11 +70,11 @@ std::size_t skel_node::size() const {
 ///////////////////////////////////////////////////////////////////////////////
 template <typename skeleton>
 concrete_skel_node<skeleton>::concrete_skel_node( skeleton& sk )
-        : skel_node({}), _sk(sk) {}
+        : skel_node({}), _sk(sk) , id ( 0 ) {}
 
 template <typename skeleton>
 concrete_skel_node<skeleton>::concrete_skel_node( skeleton& sk, const skeleton& toclone )
-        : skel_node({}), _sk(sk) {
+        : skel_node({}), _sk(sk), id ( 0 ) {
 
     inputsize = toclone.inputsize;
     for (size_t i = 0; i < toclone.size(); i++)
@@ -84,7 +84,7 @@ concrete_skel_node<skeleton>::concrete_skel_node( skeleton& sk, const skeleton& 
 
 template <typename skeleton>
 concrete_skel_node<skeleton>::concrete_skel_node( skeleton& sk, initializer_list<skel_node*> init)
-        : skel_node(init), _sk(sk) {}
+        : skel_node(init), _sk(sk), id ( 0 ) {}
         
 /**
  * Calls the visit operation of the passed visitor
@@ -116,7 +116,7 @@ size_t concrete_skel_node<skeleton>::getid() const {
 }
 
 /**
- * Checks if the passed skel_node is the correct type of this class
+ * Checks if the passed skel_node is of type skeleton
  * @tparam skeleton type of the node
  * @param rhs node to be checked
  * @return true iff rhs has the same dynamic type of skeleton
@@ -146,7 +146,8 @@ seq_node::seq_node( double servicetime, bool datap_flag ) :
     datap_flag(datap_flag)
 {}
 
-seq_node::seq_node( std::string name, string typein, string typeout, string file ) :
+//TODO: why all the strings passed by value (also source and drain)?? TC
+seq_node::seq_node( std::string name, std::string typein, std::string typeout, std::string file ) :
     concrete_skel_node( *this ),
     servicetime(1.0),
     datap_flag(false),
@@ -156,6 +157,7 @@ seq_node::seq_node( std::string name, string typein, string typeout, string file
     file(file)
 {}
 
+//TODO: check rule of three
 seq_node::seq_node( const seq_node& other ) :
     concrete_skel_node( *this, other ),
     servicetime(other.servicetime),
@@ -233,10 +235,10 @@ skel_node* drain_node::clone() {
 // comp_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 comp_node::comp_node( initializer_list<skel_node*> init )
-    : concrete_skel_node( *this, init ) {}
+    : concrete_skel_node( *this, init ), compseq (false) {}
 
 comp_node::comp_node( const comp_node& other )
-    : concrete_skel_node( *this, other ) {}
+    : concrete_skel_node( *this, other ), compseq (false) {}
 
 skel_node * comp_node::clone() {
     return new comp_node(*this);

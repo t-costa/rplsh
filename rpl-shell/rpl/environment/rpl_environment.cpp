@@ -2,6 +2,9 @@
 
 using namespace std;
 
+/**
+ * Fills the environment with default values
+ */
 rpl_environment::rpl_environment() {
     set_emitter_time(1);
     set_collector_time(1);

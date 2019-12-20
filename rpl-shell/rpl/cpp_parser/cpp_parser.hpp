@@ -15,7 +15,7 @@ struct wrapper_info;
 struct cpp_parser {
 public:
     typedef std::vector<wrapper_info>::iterator iterator;
-    cpp_parser(const std::string& path);
+    explicit cpp_parser(const std::string& path);
     std::pair<iterator,iterator> parse();
 private:
     std::vector<wrapper_info> vec;

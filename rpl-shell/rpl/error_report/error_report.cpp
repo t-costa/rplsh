@@ -9,7 +9,7 @@ const style pp_def(color::def, font::normal);
 
 // common print func
 void print(ostream &os, const string &tok, const string &info, int pos) {
-    int offset = rplsh::name.size() + pos;
+    auto offset = rplsh::name.size() + pos;
     os << pp_err << string(offset, ' ');
     os << pp_err << string( max<int>(tok.size(), 1), '^') << endl;
     os << pp_def << rplsh::info;
@@ -38,7 +38,7 @@ string error::line;
 //  Implementation of the derived class error_unexp
 //
 ///////////////////////////////////////////////////////////////////////////////
-error_unexp::error_unexp(const string word, const int pos)
+error_unexp::error_unexp(const string& word, const int pos)
     : word(word), pos(pos) {
     }
 
@@ -51,7 +51,7 @@ void error_unexp::print(ostream& os) const {
 //  Implementation of the derived class error_not_exist
 //
 ///////////////////////////////////////////////////////////////////////////////
-error_not_exist::error_not_exist(const string word)
+error_not_exist::error_not_exist(const string& word)
     : word(word) {
     }
 
@@ -67,7 +67,7 @@ void error_not_exist::print(ostream& os) const {
 //  Implementation of the derived class error_illegal
 //
 ///////////////////////////////////////////////////////////////////////////////
-error_illegal::error_illegal(string word, int pos)
+error_illegal::error_illegal(const string& word, int pos)
     : word(word), pos(pos) {}
 
 void error_illegal::print(ostream& os) const {

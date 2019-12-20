@@ -75,10 +75,6 @@ int main(int argc, char * argv[])
 
     char *buffer;
     while ( (buffer = readline(rplsh::name.c_str())) ) {
-//        if ( !buffer ) {
-//            std::cout << rplsh::name << " exit..." << std::endl;
-//        }
-
         std::string new_line(buffer);
         add_history(new_line.c_str());
         if (is_empty_input(new_line) || is_comment(new_line))
@@ -90,17 +86,6 @@ int main(int argc, char * argv[])
     }
 
     free(buffer);
-
-    //env.clear_all();
-    /*
-    while ( print_rpl() && getline(cin, line) ) {
-        // interactive mode
-        if (is_empty_input(line) || is_comment(line))
-            continue;
-        if (is_quit_input(line))
-            break;
-        process(_interpr, line);
-    }*/
 
     return 0;
 }
