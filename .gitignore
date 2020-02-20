@@ -2,3 +2,8 @@ build/*
 dot/*
 rpl_scripts/*
 cmake-build-debug/*
+
+rpl-shell/cmake-build-debug/*
+aux/dot/*
+aux/CMakeLists.txt
+aux/cmake-build-debug/*
