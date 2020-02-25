@@ -1,0 +1,2 @@
+/usr/bin/ar qc liboptimizers.a  CMakeFiles/optimizers.dir/optimizers.cpp.o CMakeFiles/optimizers.dir/normalform.cpp.o
+/usr/bin/ranlib liboptimizers.a

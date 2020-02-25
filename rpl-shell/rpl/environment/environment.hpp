@@ -34,6 +34,7 @@ struct environment
     void add(const K& key, V* value);
     void clear( const K& key );
     void clear(const K& key, int pos);
+    std::vector<K> get_keys();
 
 private:
     std::map<K, set<V>> env;
@@ -127,6 +128,18 @@ void environment<K, V>::clear(const K& key, const int pos) {
     {
         env[key].erase(env[key].begin() + pos);
     }
+}
+
+/**
+ * @return the list of keys in the environment
+ */
+template<typename K, typename V>
+std::vector<K> environment<K, V>::get_keys() {
+    std::vector<K> keys;
+    for (auto& c : env) {
+        keys.emplace_back(c.first);
+    }
+    return keys;
 }
 
 #endif

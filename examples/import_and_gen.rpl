@@ -1,0 +1,47 @@
+import "../aux/sequential.hpp"
+
+# annotate servicetime and data parallel options
+annotate generator with servicetime 1
+annotate sorter with servicetime 100
+annotate multiplier with servicetime 2
+annotate multiplier with datap true
+annotate sum with servicetime 1
+annotate sum with datap true
+
+# setting up the environment
+# inputsize = length of the vectors
+# dimension = number of vectors (size of the stream)
+set resources with 16
+set inputsize with 5
+set dimension with 10
+
+# setting up the skeleton tree
+f = farm(sorter)
+m = map(multiplier)
+r = reduce(sum)
+
+# building all
+main = pipe(generator, f, m, r)
+
+# just to see better prints
+expand main
+show main by servicetime, latency, compltime, resources, pardegree
+# ts = 100, l = 135, tc = 800
+
+# optimize without restrictions
+optimize main with farmopt, mapopt, reduceopt, pipeopt
+show main by servicetime, latency, compltime, resources, pardegree
+# ts = 5.1, l = 115.1, tc = 40.8
+
+# apply the limit on resources
+optimize main with maxresources
+show main by servicetime, latency, compltime, resources, pardegree
+# ts = 20, l = 116.8, tc = 160
+
+# generate the corresponding code
+gencode main
+
+# expected sequential times: 
+# ts = 1 + 100 + 2*5 + 1*5 = 116
+# l = ts
+# tc = 10 * ts = 1160

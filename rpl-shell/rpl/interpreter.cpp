@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "tab_completion.hpp"
+
 // only for load verb...
 #include <regex>
 #include <unordered_set>
@@ -52,6 +54,8 @@ void interpreter::visit(assign_node& n) {
         //TODO: why there is this unrank? TC
         unranktorank2(*n.rvalue, snc);
         env.put(n.id, n.rvalue);
+        //add id for tab completion
+        tab_completion::add_id(n.id);
     } else if ( success ) {
         env.clear(n.id);
         if (idnode->all) {
@@ -246,6 +250,13 @@ void interpreter::visit(opt_node& n) {
         auto sub_it = std::find(n.parameters.begin(), n.parameters.end(), "subexp");
         bool subexp = sub_it != n.parameters.end();
         if (subexp) n.parameters.erase(sub_it);
+
+        //for now simple fix, maxresources always at the end
+        auto res_it = std::find(n.parameters.begin(), n.parameters.end(), "maxresources");
+        if (res_it != n.parameters.end()) {
+            n.parameters.erase(res_it);
+            n.parameters.emplace_back("maxresources");
+        }
 
         for (const string& opt : n.parameters ) {
             last_opt = opt;

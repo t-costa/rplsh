@@ -1,0 +1,77 @@
+#set environment
+set resources with 16
+set emitter_time with 1
+set collector_time with 2
+set scatter_time with 2
+set gather_time with 1
+set dimension with 32
+set inputsize with 1024
+
+#declare variables
+a = seq(10)
+b = seq(5)
+c = seq(2)
+d = seq(4)
+cd = comp(c,d)
+ma = map(a)
+rb = reduce(b)
+fma = farm(ma)
+main = pipe(fma, rb, cd)
+
+#check main
+expand main
+show main by servicetime, latency, resources, pardegree, compltime
+
+#create backup copy
+copy = main
+
+#trying optimizations in different orders
+#from left to right
+optimize main with pipeopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+optimize main with farmopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+optimize main with mapopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+optimize main with reduceopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+#optimizing with all rules, different orders
+optimize main with pipeopt, farmopt, mapopt, reduceopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+optimize main with reduceopt, mapopt, farmopt, pipeopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+#trying optimize singular things, keep changes
+optimize main with pipeopt
+optimize main with farmopt
+optimize main with mapopt
+optimize main with reduceopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+main = copy
+
+optimize main with reduceopt
+optimize main with mapopt
+optimize main with farmopt
+optimize main with pipeopt
+show main by servicetime, latency, resources, pardegree, compltime
+
+
+
