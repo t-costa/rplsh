@@ -13,7 +13,7 @@ add_subdirectory (error_report)
 add_subdirectory (cpp_parser)
 
 # Add source file
-add_library(rpl interpreter.cpp history.cpp)
+add_library(rpl interpreter.cpp history.cpp tab_completion.cpp)
 
 # Target link libraries
 target_link_libraries(rpl parser visitors rewriting cpp_parser)

@@ -20,6 +20,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "tab_completion.hpp"
+
 using namespace std;
 
 rpl_environment env;                    // environment: <name, skel_tree> bindings
@@ -49,12 +51,16 @@ void process(interpreter& _interpr, string& line) {
     parser _parser(_scanner, err_repo);
 
     unique_ptr<rpl_node> t = _parser.parse();
-    if (err_repo.size() == 0)
+    if (err_repo.size() == 0) {
         t->accept(_interpr);
-    if (err_repo.size() == 0)
+    }
+    //there might be an error after the accept
+    if (err_repo.size() == 0){
         _interpr.get_history().add(line);
-    if (err_repo.size() > 0)
+    }
+    if (err_repo.size() > 0) {
         cout << err_repo.get(0);
+    }
 }
 
 int main(int argc, char * argv[])
@@ -73,6 +79,7 @@ int main(int argc, char * argv[])
         }
     }
 
+    rl_attempted_completion_function = tab_completion::character_name_completion;
     char *buffer;
     while ( (buffer = readline(rplsh::name.c_str())) ) {
         std::string new_line(buffer);

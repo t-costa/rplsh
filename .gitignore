@@ -6,4 +6,8 @@ cmake-build-debug/*
 rpl-shell/cmake-build-debug/*
 aux/dot/*
 aux/CMakeLists.txt
+<<<<<<< Updated upstream
 aux/cmake-build-debug/*
+=======
+aux/cmake-build-debug/*
+>>>>>>> Stashed changes

@@ -8,7 +8,7 @@ if(EXPANSION)
 	add_definitions(-DEXPANSION)
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -Wall -g -O0 -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g -O0 -pedantic")
 set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -Wall")
 
 add_subdirectory (rpl)

@@ -12,7 +12,7 @@ BIN=$(patsubst %.cpp,%,$(SRC))
 ff:	$(BIN)
 
 sequential: sequential.cpp
-	$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $< $(LIBS)
+	$(CXX) $(OPT) -I$(RPL) -o $@ $< $(LIBS)
 
 $(BIN): %: %.cpp
-	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -o $@ $< $(LIBS) -pthread
+	$(CXX) $(OPT) -I$(FF) -I$(RPL) -o $@ $< $(LIBS) -pthread
