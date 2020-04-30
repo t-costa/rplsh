@@ -33,10 +33,36 @@ public:
 private:
     //rpl_environment* m_env;
 
-    static void split_string(const std::string& str, std::vector<std::string>& v);
+    static int split_string(const std::string& str, std::vector<std::string>& v);
 
     static inline void add_match(const std::string& word, const std::string& textstr, std::vector<std::string>& matches);
 
     static char* character_name_generator(const char *text, int state);
+
+    static void match_all(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_identifier(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_env_parameters(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_nfun_parameters(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_rew_rules(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_opt_rules(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_pattern(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_verb(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_id_def(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_by(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_with(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_in(const std::string& textstr, std::vector<std::string>& matches);
+
+    static void match_file_search(const std::string& textstr, std::vector<std::string>& matches);
 };
 #endif //RPL_SHELL_TAB_COMPLETION_HPP
