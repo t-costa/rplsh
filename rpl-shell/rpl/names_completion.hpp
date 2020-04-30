@@ -25,14 +25,14 @@ const std::unordered_set<std::string> verbs = {
 };
 
 const std::unordered_set<std::string> patterns = {
-        "seq",
-        "source",
-        "drain",
-        "comp",
-        "pipe",
-        "farm",
-        "map",
-        "reduce"
+        "seq(",
+        "source(",
+        "drain(",
+        "comp(",
+        "pipe(",
+        "farm(",
+        "map(",
+        "reduce("
 };
 
 const std::unordered_set<std::string> refactoring_rules {
@@ -82,6 +82,24 @@ const std::unordered_set<std::string> environmental_parameters {
         "dimension",
         "inputsize",
         "resources"
+};
+
+const std::unordered_set<std::string> with {
+    "with"
+};
+
+const std::unordered_set<std::string> id_def {
+    "=",
+    "(",
+    ")"
+};
+
+const std::unordered_set<std::string> file_search {
+    "\""
+};
+
+const std::unordered_set<std::string> by {
+    "by"
 };
 
 #endif //RPL_SHELL_NAMES_COMPLETION_HPP
