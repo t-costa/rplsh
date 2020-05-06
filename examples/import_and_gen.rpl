@@ -1,4 +1,4 @@
-import "../aux/sequential.hpp"
+import "./aux/sequential.hpp"
 
 # annotate servicetime and data parallel options
 annotate generator with servicetime 1
