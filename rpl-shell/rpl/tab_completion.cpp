@@ -161,23 +161,23 @@ bool check_leaf_pattern() {
     auto pos_drain = test.find("drain", std::max((size_t) 0, test.size() - 6));
     auto pos_source = test.find("source", std::max((size_t) 0, test.size() - 7));
 
-    std::cout << "stringa test -> " << test << std::endl;
-    std::cout << "lunghezza test -> " << test.size() << std::endl;
-    std::cout << pos_seq << std::endl;
-    std::cout << pos_drain << std::endl;
-    std::cout << pos_source << std::endl;
+//    std::cout << "stringa test -> " << test << std::endl;
+//    std::cout << "lunghezza test -> " << test.size() << std::endl;
+//    std::cout << pos_seq << std::endl;
+//    std::cout << pos_drain << std::endl;
+//    std::cout << pos_source << std::endl;
 
 
     if (pos_seq != std::string::npos) {
-        std::cout << "è seq!" << std::endl;
+        //std::cout << "è seq!" << std::endl;
         return true;
     }
     if (pos_drain != std::string::npos) {
-        std::cout << "è drain!" << std::endl;
+        //std::cout << "è drain!" << std::endl;
         return true;
     }
     if (pos_source != std::string::npos) {
-        std::cout << "è source!" << std::endl;
+        //std::cout << "è source!" << std::endl;
         return true;
     }
 
@@ -294,12 +294,8 @@ char* tab_completion::character_name_generator(const char *text, int state){
                     //it's an assignment with a new or old identifier
 
                     if (!check_leaf_pattern()) {
-                        std::cout << "NON è leaf" << std::endl;
                         match_pattern(textstr, matches);
                         match_identifier(textstr, matches);
-                    }
-                    else {
-                        std::cout << "è leaf" << std::endl;
                     }
                     //else it's seq/source/drain, nothing inside
 
