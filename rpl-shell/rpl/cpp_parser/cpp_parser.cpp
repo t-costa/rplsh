@@ -37,20 +37,35 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
     regex src_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)source([ ]*)<([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9
     regex drn_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)drain([ ]*)<([ ]*)(.+)([ ]*)>");
+    // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
+    regex map_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)map_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");   //<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
+    // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
+    regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
+    //TODO: non dovrebbe servire il tipo degli elementi interni (controllo sui tipi a comp.)
 
     string line;
     smatch match;
 
     while (std::getline(file, line)) {
-        if( std::regex_search(line, match, seq_regex) ) {
-            vec.emplace_back( trim(match[3]), wrapper_info::seq,
-                match[12], match[9]);
-        } else if( std::regex_search(line, match, src_regex) ) {
-            vec.emplace_back( trim(match[3]), wrapper_info::source,
+        if (line == "class dsrc : public source<vec_pair> {") {
+            std::cout << "ci sono " << std::endl;
+        }
+
+        if ( std::regex_search(line, match, seq_regex) ) {
+            vec.emplace_back(trim(match[3]), wrapper_info::seq,
+                match[9], match[12]);   //TODO: check, ho appena scambiato in e out
+        } else if ( std::regex_search(line, match, src_regex) ) {
+            vec.emplace_back(trim(match[3]), wrapper_info::source,
                 "", match[9]);
-        } else if( std::regex_search(line, match, drn_regex) ) {
-            vec.emplace_back( trim(match[3]), wrapper_info::drain,
+        } else if ( std::regex_search(line, match, drn_regex) ) {
+            vec.emplace_back(trim(match[3]), wrapper_info::drain,
                 match[9], "");
+        } else if ( std::regex_search(line, match, map_regex) ) {
+            vec.emplace_back(trim(match[3]), wrapper_info::map,
+                match[9], match[12]);
+        } else if ( std::regex_search(line, match, red_regex) ) {
+            vec.emplace_back(trim(match[3]), wrapper_info::reduce,
+                match[9], match[12]);
         }
     }
 

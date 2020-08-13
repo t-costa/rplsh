@@ -27,6 +27,73 @@ using namespace std;
 rpl_environment env;                    // environment: <name, skel_tree> bindings
 error_container err_repo;               // filled with errors
 
+void usage(const token& tok) {
+    switch (tok.kind) {
+        case token::word : {
+            std::cout << "Assignment usage: ";
+            std::cout << "<identifier> = <pattern>" << std::endl;
+            break;
+        }
+        case token::show : {
+            std::cout << "Show usage: ";
+            std::cout << "show <identifier> [by <list of parameters, separated by commas>]" << std::endl;
+            break;
+        }
+        case token::set : {
+            std::cout << "Set usage: ";
+            std::cout << "set <parameter> with <number>" << std::endl;
+            break;
+        }
+        case token::annotate : {
+            std::cout << "Annotate usage: ";
+            std::cout << "annotate <identifier> with <parameter value>" << std::endl;
+            break;
+        }
+        case token::rewrite : {
+            std::cout << "Rewrite usage: ";
+            std::cout << "rewrite <identifier> with <rewriting rules, separated by commas>" << std::endl;
+            break;
+        }
+        case token::optimize : {
+            std::cout << "Optimize usage: ";
+            std::cout << "optimize <identifier> with <optimization rules, separated by commas>" << std::endl;
+            break;
+        }
+        case token::history : {
+            std::cout << "History usage: ";
+            std::cout << "history [<identifier>]" << std::endl;
+            break;
+        }
+        case token::import : {
+            std::cout << "Import usage: ";
+            std::cout << "import \"<path to source file>\"" << std::endl;
+            break;
+        }
+        case token::gencode : {
+            std::cout << "Gencode usage: ";
+            std::cout << "gencode <identifier>" << std::endl;
+            break;
+        }
+        case token::expand : {
+            std::cout << "Expand usage: ";
+            std::cout << "expand <identifier1> [in <identifier2>]" << std::endl;
+            break;
+        }
+        case token::add : {
+            std::cout << "Add usage: ";
+            std::cout <<  "add <identifier1> in <identifier2>" << std::endl;
+            break;
+        }
+        case token::load : {
+            std::cout << "Load usage: ";
+            std::cout << "load \"<path to commands file>\" [true/false]" << std::endl;
+            break;
+        }
+        default :
+            break;
+    }
+}
+
 bool print_rpl() {
     cout << rplsh::name;
     return true;
@@ -50,9 +117,9 @@ void process(interpreter& _interpr, string& line) {
     lexer _scanner(line, err_repo);
     parser _parser(_scanner, err_repo);
 
-    unique_ptr<rpl_node> t = _parser.parse();
+    auto t = _parser.parse();
     if (err_repo.size() == 0) {
-        t->accept(_interpr);
+        t.first->accept(_interpr);
     }
     //there might be an error after the accept
     if (err_repo.size() == 0){
@@ -60,6 +127,7 @@ void process(interpreter& _interpr, string& line) {
     }
     if (err_repo.size() > 0) {
         cout << err_repo.get(0);
+        usage(t.second);
     }
 }
 

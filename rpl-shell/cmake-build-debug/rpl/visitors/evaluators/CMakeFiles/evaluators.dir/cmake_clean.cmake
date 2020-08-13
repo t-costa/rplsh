@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/evaluators.dir/evaluators.cpp.o"
-  "libevaluators.pdb"
   "libevaluators.a"
+  "libevaluators.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/rplsh.dir/rplsh.cpp.o"
-  "rplsh.pdb"
   "rplsh"
+  "rplsh.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

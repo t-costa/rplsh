@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/annotators.dir/annotators.cpp.o"
-  "libannotators.pdb"
   "libannotators.a"
+  "libannotators.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

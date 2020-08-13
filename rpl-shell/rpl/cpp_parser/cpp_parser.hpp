@@ -31,6 +31,8 @@ struct wrapper_info {
 public:
     typedef enum {
         seq,
+        map,
+        reduce,
         source,
         drain
     } wrapper_type;

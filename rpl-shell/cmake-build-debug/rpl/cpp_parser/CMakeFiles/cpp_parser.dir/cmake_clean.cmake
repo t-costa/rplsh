@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/cpp_parser.dir/cpp_parser.cpp.o"
-  "libcpp_parser.pdb"
   "libcpp_parser.a"
+  "libcpp_parser.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <set>
 #include <regex>
 #include <cassert>
 
@@ -99,7 +100,7 @@ string source_declaration( const source_node& n ) {
     ss << svc_init_decl(n.name) << "\n";
     ss << "\tvoid * svc(void *t) {\n";
     ss << "\t\twhile( src->has_next() )\n";
-        ss << "\t\t\tff_send_out((void*) src->next() );\n";
+    ss << "\t\t\tff_send_out((void*) src->next() );\n";
     ss << "\t\treturn (NULL);\n";
     ss << "\t}\n";
     ss << "};\n\n";
@@ -375,7 +376,7 @@ void ffcode::visit( source_node& n ) {
 }
 
 /**
- * wraps the drain node
+ * Wraps the drain node
  * @param n drain node
  */
 void ffcode::visit( drain_node& n ) {
@@ -430,14 +431,15 @@ void ffcode::visit( farm_node& n ) {
     ss << "ff_farm<> " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
     ss << fvar << ".add_collector(NULL);\n\n";
+    //FIXME: e se il collector ci fosse? dove è messo il collector?
+    //  e l'emitter?
 
     assert(code_lines.empty());
     code_lines.push({fvar, ss.str()});
-
 }
 
 /**
- * Creates the code line for the map
+ * Creates the code line for the map declaration
  * @param n map node
  */
 void ffcode::visit( map_node& n ) {
@@ -448,7 +450,7 @@ void ffcode::visit( map_node& n ) {
 }
 
 /**
- * Creates the code line for the reduce
+ * Creates the code line for the reduce declaration
  * @param n reduce node
  */
 void ffcode::visit( reduce_node& n ) {
@@ -466,8 +468,27 @@ void ffcode::visit( id_node& n ) {
     auto ptr = env.get(n.id, n.index);
     if (ptr != nullptr)
         ptr->accept(*this);
-    else
-        cout << n.id << " whaaaat?" << endl;
+    else {
+        //TODO: sarebbe da aggiungere err_repo...
+        std::cout << n.id << " whaaaat?" << std::endl;
+    }
+}
+
+/**
+ * Retrieves sequential nodes inside composition nodes
+ * @param node starting composition node
+ * @param set container for the sequential nodes
+ */
+void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
+    size_t i = 0;
+    while (node->size() > i) {
+        add_seq_of_comp(node->get(i), set);
+        i++;
+    }
+    if (i == 0) {
+        //it's a seq
+        set.emplace(node);
+    }
 }
 
 /**
@@ -494,13 +515,37 @@ string ffcode::operator()(skel_node& n) {
     auto drn_nodes = gsw.get_drain_nodes();
     auto seq_nodes = gsw.get_seq_nodes();
 
-    tds(n);     // start visit for getting datap wrappers
+    tds(n);     // start visit for getting datap wrappers   //FIXME: forse qui quando trova map deve segnare i nodi interni come "speciali"
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
+
+    auto seq_not_gen = std::set<skel_node*>();
 
     size_t idx;
     string code;
     string decls;
+
+    for (auto m : map_nodes) {
+        auto c = m->get(0);
+        if (c->size() > 0) {
+            //comp, recursion
+            add_seq_of_comp(c, seq_not_gen);
+        } else {
+            //simple seq
+            seq_not_gen.emplace(c);
+        }
+    }
+
+    for (auto r : red_nodes) {
+        auto c = r->get(0);
+        if (c->size() > 0) {
+            //comp, recursion
+            add_seq_of_comp(c, seq_not_gen);
+        } else {
+            //simple seq
+            seq_not_gen.emplace(c);
+        }
+    }
 
     for (auto src : src_nodes) {
         business_headers[src->file] = true;
@@ -513,8 +558,12 @@ string ffcode::operator()(skel_node& n) {
     }
 
     for (auto seq : seq_nodes) {
-        business_headers[seq->file] = true;     //TODO: e se non ci fosse un file associato?? TC
-        decls += stage_declaration(*seq);
+        business_headers[seq->file] = true;
+        //if (! inside map/red) declare
+        if (seq_not_gen.find(seq) == seq_not_gen.end()) {
+            //this node is not inside map or reduce, must be generated
+            decls += stage_declaration(*seq);
+        }
     }
 
     idx = 0;
@@ -548,10 +597,10 @@ string ffcode::operator()(skel_node& n) {
     ss << p.first << ".run_and_wait_end();\n";
 
     /* time and stats*/
-    ss << "std::cout << \"Spent:\" << ";
-    ss <<  p.first << ".ffTime() << \"msecs\" << std::endl;\n\n";
+    ss << "std::cout << \"Spent: \" << ";
+    ss <<  p.first << ".ffTime() << \" msecs\" << std::endl;\n\n";
     ss << "#ifdef TRACE_FASTFLOW\n";
-    ss << "std::cout << \"Stats:\" << std::endl;\n";
+    ss << "std::cout << \"Stats: \" << std::endl;\n";
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
     ss << "return 0;\n";
@@ -584,7 +633,7 @@ void ffcode::seq_wraps(const string& name) {
  */
 void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
     stringstream ss;
-    string var  = new_name(name);
+    string var = new_name(name);
 
     // recursion over the children
     // and pick from code_lines

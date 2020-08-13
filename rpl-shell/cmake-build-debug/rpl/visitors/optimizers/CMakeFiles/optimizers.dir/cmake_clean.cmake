@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/optimizers.dir/optimizers.cpp.o"
   "CMakeFiles/optimizers.dir/normalform.cpp.o"
-  "liboptimizers.pdb"
+  "CMakeFiles/optimizers.dir/optimizers.cpp.o"
   "liboptimizers.a"
+  "liboptimizers.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

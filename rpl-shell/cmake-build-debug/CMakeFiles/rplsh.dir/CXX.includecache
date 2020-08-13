@@ -26,6 +26,12 @@ environment.hpp
 map
 -
 
+../rpl/names_completion.hpp
+unordered_set
+-
+string
+-
+
 ../rpl/nodes/node_forwards.hpp
 
 ../rpl/nodes/tree_matcher.hpp
@@ -76,24 +82,32 @@ nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 ../rpl/rewriting/nodes/skeletons.hpp
 
-../rpl/utils/printable.hpp
-nodes/skeletons.hpp
-../rpl/utils/nodes/skeletons.hpp
-string
--
-
-../rpl/utils/tab_completion.hpp
+../rpl/tab_completion.hpp
 cstdio
 -
 cstdlib
 -
 cstring
 -
+string
+-
 vector
 -
 readline/readline.h
 -
 unordered_set
+-
+environment/rpl_environment.hpp
+-
+sstream
+-
+names_completion.hpp
+../rpl/names_completion.hpp
+
+../rpl/utils/printable.hpp
+nodes/skeletons.hpp
+../rpl/utils/nodes/skeletons.hpp
+string
 -
 
 ../rpl/visitors/annotators/annotators.hpp
@@ -343,8 +357,6 @@ parser/lexer.hpp
 /home/tommaso/forked/rplsh/rpl-shell/parser/lexer.hpp
 parser/parser.hpp
 /home/tommaso/forked/rplsh/rpl-shell/parser/parser.hpp
-utils/tab_completion.hpp
-/home/tommaso/forked/rplsh/rpl-shell/utils/tab_completion.hpp
 iostream
 -
 fstream
@@ -365,4 +377,6 @@ readline/readline.h
 -
 readline/history.h
 -
+tab_completion.hpp
+/home/tommaso/forked/rplsh/rpl-shell/tab_completion.hpp
 
