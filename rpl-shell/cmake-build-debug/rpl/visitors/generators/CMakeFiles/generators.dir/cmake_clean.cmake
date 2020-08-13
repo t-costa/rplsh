@@ -1,9 +1,9 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/generators.dir/compseq_setter.cpp.o"
   "CMakeFiles/generators.dir/ffcode.cpp.o"
   "CMakeFiles/generators.dir/ffmapper.cpp.o"
-  "CMakeFiles/generators.dir/compseq_setter.cpp.o"
-  "libgenerators.pdb"
   "libgenerators.a"
+  "libgenerators.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

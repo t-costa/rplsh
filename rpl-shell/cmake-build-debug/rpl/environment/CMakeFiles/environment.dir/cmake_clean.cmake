@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/environment.dir/rpl_environment.cpp.o"
-  "libenvironment.pdb"
   "libenvironment.a"
+  "libenvironment.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

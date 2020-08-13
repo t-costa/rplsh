@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-../rpl/./nodes/node_forwards.hpp
+../rpl/nodes/node_forwards.hpp
 
-../rpl/./visitors/visitor_interface.hpp
+../rpl/visitors/visitor_interface.hpp
 nodes/node_forwards.hpp
-../rpl/./visitors/nodes/node_forwards.hpp
+../rpl/visitors/nodes/node_forwards.hpp
 string
 -
 

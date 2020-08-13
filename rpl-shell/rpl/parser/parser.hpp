@@ -24,7 +24,7 @@
 struct parser
 {
     parser(lexer& scanner, error_container& err_repo);
-    std::unique_ptr<rpl_node> parse();
+    std::pair<std::unique_ptr<rpl_node>, token> parse();
 
 private:
     rpl_node* start_rule(token& tok);

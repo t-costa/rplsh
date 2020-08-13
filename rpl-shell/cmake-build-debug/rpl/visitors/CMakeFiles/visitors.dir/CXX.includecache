@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-../rpl/./environment/environment.hpp
+../rpl/environment/environment.hpp
 map
 -
 vector
@@ -18,39 +18,39 @@ memory
 iostream
 -
 
-../rpl/./environment/rpl_environment.hpp
+../rpl/environment/rpl_environment.hpp
 nodes/skeletons.hpp
-../rpl/./environment/nodes/skeletons.hpp
+../rpl/environment/nodes/skeletons.hpp
 environment.hpp
-../rpl/./environment/environment.hpp
+../rpl/environment/environment.hpp
 map
 -
 
-../rpl/./nodes/node_forwards.hpp
+../rpl/nodes/node_forwards.hpp
 
-../rpl/./nodes/node_interface.hpp
+../rpl/nodes/node_interface.hpp
 visitors/visitor_interface.hpp
-../rpl/./nodes/visitors/visitor_interface.hpp
+../rpl/nodes/visitors/visitor_interface.hpp
 
-../rpl/./nodes/skeletons.hpp
+../rpl/nodes/skeletons.hpp
 string
 -
 vector
 -
 node_interface.hpp
-../rpl/./nodes/node_interface.hpp
+../rpl/nodes/node_interface.hpp
 
-../rpl/./utils/printable.hpp
+../rpl/utils/printable.hpp
 nodes/skeletons.hpp
-../rpl/./utils/nodes/skeletons.hpp
+../rpl/utils/nodes/skeletons.hpp
 string
 -
 
-../rpl/./utils/rank.hpp
+../rpl/utils/rank.hpp
 
-../rpl/./visitors/visitor_interface.hpp
+../rpl/visitors/visitor_interface.hpp
 nodes/node_forwards.hpp
-../rpl/./visitors/nodes/node_forwards.hpp
+../rpl/visitors/nodes/node_forwards.hpp
 string
 -
 

@@ -349,7 +349,14 @@ void interpreter::visit(import_node& n) {
                 sk = new source_node(name,tout, path);
             else if (it->wtype == wrapper_info::drain)
                 sk = new drain_node(name,tin, path);
-            else {
+            else if (it->wtype == wrapper_info::map) {
+                //TODO: ci dovrei mettere un controllo per quando poi va a generare?
+                sk = new seq_node(name, tin, tout, path);
+                ((seq_node*) sk)->datap_flag = true;
+            } else if (it->wtype == wrapper_info::reduce) {
+                sk = new seq_node(name, tin, tout, path);
+                ((seq_node*) sk)->datap_flag = true;
+            } else {
                 cerr << "Error: no type recognized for " << name << endl;
                 sk = nullptr;   //FIXME: what it should do?? -> maybe the logic error is for this branch?
             }
@@ -357,7 +364,6 @@ void interpreter::visit(import_node& n) {
             //performs the assignment to the new node
             assign_node a ( name, sk );
             visit(a);
-
         }
     } catch (std::logic_error&) {
         cerr << "impossible import code from " << n.id << endl;
@@ -405,7 +411,7 @@ void interpreter::visit(load_node& n) {
         lexer _scanner(line, err_repo);
         parser _parser(_scanner, err_repo);
 
-        unique_ptr<rpl_node> t = _parser.parse();
+        auto t = _parser.parse();
 
         // set null
         if (!n.show)
@@ -413,7 +419,7 @@ void interpreter::visit(load_node& n) {
 
         cout << "rplsh> " << line << endl;
         if (err_repo.size() == 0)
-            t->accept(*this);
+            t.first->accept(*this);
 
         // restore buffer
         if (!n.show)

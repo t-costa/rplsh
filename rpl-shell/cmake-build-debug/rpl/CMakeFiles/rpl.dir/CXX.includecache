@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-../rpl/./environment/environment.hpp
+../rpl/environment/environment.hpp
 map
 -
 vector
@@ -18,65 +18,65 @@ memory
 iostream
 -
 
-../rpl/./environment/rpl_environment.hpp
+../rpl/environment/rpl_environment.hpp
 nodes/skeletons.hpp
-../rpl/./environment/nodes/skeletons.hpp
+../rpl/environment/nodes/skeletons.hpp
 environment.hpp
-../rpl/./environment/environment.hpp
+../rpl/environment/environment.hpp
 map
 -
 
-../rpl/./nodes/node_forwards.hpp
+../rpl/nodes/node_forwards.hpp
 
-../rpl/./nodes/tree_matcher.hpp
+../rpl/nodes/tree_matcher.hpp
 vector
 -
 
-../rpl/./parameters.hpp
+../rpl/parameters.hpp
 string
 -
 
-../rpl/./rewriting/rewrules.hpp
+../rpl/rewriting/rewrules.hpp
 memory
 -
 nodes/tree_matcher.hpp
-../rpl/./rewriting/nodes/tree_matcher.hpp
+../rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
-../rpl/./rewriting/nodes/skeletons.hpp
+../rpl/rewriting/nodes/skeletons.hpp
 
-../rpl/./utils/printable.hpp
+../rpl/utils/printable.hpp
 nodes/skeletons.hpp
-../rpl/./utils/nodes/skeletons.hpp
+../rpl/utils/nodes/skeletons.hpp
 string
 -
 
-../rpl/./visitors/annotators/annotators.hpp
+../rpl/visitors/annotators/annotators.hpp
 environment/rpl_environment.hpp
-../rpl/./visitors/annotators/environment/rpl_environment.hpp
+../rpl/visitors/annotators/environment/rpl_environment.hpp
 visitors/visitor_interface.hpp
-../rpl/./visitors/annotators/visitors/visitor_interface.hpp
+../rpl/visitors/annotators/visitors/visitor_interface.hpp
 
-../rpl/./visitors/evaluators/evaluators.hpp
+../rpl/visitors/evaluators/evaluators.hpp
 environment/rpl_environment.hpp
-../rpl/./visitors/evaluators/environment/rpl_environment.hpp
+../rpl/visitors/evaluators/environment/rpl_environment.hpp
 visitors/visitor_interface.hpp
-../rpl/./visitors/evaluators/visitors/visitor_interface.hpp
+../rpl/visitors/evaluators/visitors/visitor_interface.hpp
 utils/printable.hpp
-../rpl/./visitors/evaluators/utils/printable.hpp
+../rpl/visitors/evaluators/utils/printable.hpp
 
-../rpl/./visitors/optimizers/optimizers.hpp
+../rpl/visitors/optimizers/optimizers.hpp
 visitors/visitor_interface.hpp
-../rpl/./visitors/optimizers/visitors/visitor_interface.hpp
+../rpl/visitors/optimizers/visitors/visitor_interface.hpp
 visitors/visitors.hpp
-../rpl/./visitors/optimizers/visitors/visitors.hpp
+../rpl/visitors/optimizers/visitors/visitors.hpp
 visitors/evaluators/evaluators.hpp
-../rpl/./visitors/optimizers/visitors/evaluators/evaluators.hpp
+../rpl/visitors/optimizers/visitors/evaluators/evaluators.hpp
 environment/rpl_environment.hpp
-../rpl/./visitors/optimizers/environment/rpl_environment.hpp
+../rpl/visitors/optimizers/environment/rpl_environment.hpp
 
-../rpl/./visitors/visitor_interface.hpp
+../rpl/visitors/visitor_interface.hpp
 nodes/node_forwards.hpp
-../rpl/./visitors/nodes/node_forwards.hpp
+../rpl/visitors/nodes/node_forwards.hpp
 string
 -
 
@@ -203,12 +203,12 @@ iostream
 -
 fstream
 -
+tab_completion.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.hpp
 regex
 -
 unordered_set
 -
-utils/tab_completion.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/tab_completion.hpp
 parser/lexer.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.hpp
 parser/parser.hpp
@@ -248,6 +248,12 @@ iostream
 tuple
 -
 map
+-
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/names_completion.hpp
+unordered_set
+-
+string
 -
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/nodes/node_interface.hpp
@@ -320,20 +326,14 @@ nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/skeletons.hpp
 
-/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/mytuple.hpp
-string
--
-vector
--
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/rank.hpp
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/tab_completion.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.hpp
 cstdio
 -
 cstdlib
 -
 cstring
+-
+string
 -
 vector
 -
@@ -341,6 +341,20 @@ readline/readline.h
 -
 unordered_set
 -
+environment/rpl_environment.hpp
+-
+sstream
+-
+names_completion.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/names_completion.hpp
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/mytuple.hpp
+string
+-
+vector
+-
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/rank.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/utils/utils.hpp
 string

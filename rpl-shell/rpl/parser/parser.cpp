@@ -4,6 +4,7 @@ using namespace std;
 
 #include <limits>
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //  Implementation of parser class
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,13 +17,14 @@ parser::parser(lexer& scanner, error_container& err_repo)
  * Starts the parsing process of the input line
  * @return unique pointer to the ast or nullptr if error
  */
-unique_ptr<rpl_node> parser::parse()
+std::pair<unique_ptr<rpl_node>, token> parser::parse()
 {
     token tok = scanner.next();
+    auto tok_copy = tok;
     rpl_node* tree = start_rule(tok);
     if (scanner.has_next() && err_repo.size() > 0)
-        return nullptr;
-    return unique_ptr<rpl_node>(tree);
+        return std::make_pair(nullptr, tok_copy);
+    return std::make_pair(unique_ptr<rpl_node>(tree), tok_copy);
 }
 
 //  Useful functions in parsing: check if the token tok has the expected output
