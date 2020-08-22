@@ -45,6 +45,7 @@ namespace par
     const std::string pardegree      = "pardegree";
     const std::string resources      = "resources";
     const std::string datap          = "datap";
+    const std::string inside_data_parallel = "inside_data_parallel";
 
     const std::string typein  = "typein";
     const std::string typeout = "typeout";

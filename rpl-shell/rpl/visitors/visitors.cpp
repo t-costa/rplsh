@@ -718,7 +718,7 @@ vector<reduce_node*> top_datap_skeletons::get_reduce_nodes() {
 }
 
 /**
- * Clears the lists and starts the visit from n
+ * Recovers map and reduce nodes
  * @param n root node
  */
 void top_datap_skeletons::operator()(skel_node& n) {

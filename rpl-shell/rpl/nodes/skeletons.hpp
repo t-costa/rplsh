@@ -63,6 +63,7 @@ struct seq_node : public concrete_skel_node<seq_node> {
     skel_node* clone() override;
     double servicetime;
     bool datap_flag;
+    bool inside_map_red;
     std::string name;
     std::string typein;
     std::string typeout;

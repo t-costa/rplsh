@@ -5,7 +5,7 @@
 #include "visitors/visitor_interface.hpp"
 
 /**
- *
+ * Interface for annotators visitors
  */
 struct ann_visitor : public skel_visitor
 {
@@ -65,10 +65,23 @@ struct ann_datap : public ann_visitor
     explicit ann_datap( rpl_environment& env );
     void visit(seq_node& n) override;
 
-    bool operator()( skel_node& n, ann_node& a )override ;
+    bool operator()( skel_node& n, ann_node& a ) override ;
 
 private:
     bool datap;
+};
+
+struct ann_inside_data_parallel : public ann_visitor
+{
+    explicit ann_inside_data_parallel( rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(id_node& n) override;
+
+    bool operator()( skel_node& n, ann_node& a) override;
+
+private:
+    bool inside_data_parallel;
 };
 
 struct ann_typein : public ann_visitor

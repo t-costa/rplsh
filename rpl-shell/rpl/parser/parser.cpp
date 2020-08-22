@@ -27,9 +27,6 @@ std::pair<unique_ptr<rpl_node>, token> parser::parse()
     return std::make_pair(unique_ptr<rpl_node>(tree), tok_copy);
 }
 
-//  Useful functions in parsing: check if the token tok has the expected output
-//  and advance the scanner returning true, otherwise add error message to the
-//  error_repo and return false
 /**
  * Checks if the token tok has the expected output
  * and advance the scanner if everything ok, otherwise
