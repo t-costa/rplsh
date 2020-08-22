@@ -491,6 +491,33 @@ void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
     }
 }
 
+void prova(id_node v) {
+    std::cout << "id" << std::endl;
+}
+
+void prova(seq_node s) {
+    std::cout << "seq" << std::endl;
+}
+
+void prova(comp_node c) {
+    std::cout << "comp" << std::endl;
+}
+
+template<typename T, typename U>
+struct is_same_type
+{
+    static const bool value = false;
+};
+
+template<typename T>
+struct is_same_type<T, T>
+{
+    static const bool value = true;
+};
+
+template<typename T, typename U>
+bool eq_types() { return is_same_type<T, U>::value; }
+
 /**
  * Builds all the source code
  * @param n root of the skeletons tree
@@ -519,31 +546,13 @@ string ffcode::operator()(skel_node& n) {
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
 
-    auto seq_not_gen = std::set<skel_node*>();
-
     size_t idx;
     string code;
     string decls;
 
-    for (auto m : map_nodes) {
-        auto c = m->get(0);
-        if (c->size() > 0) {
-            //comp, recursion
-            add_seq_of_comp(c, seq_not_gen);
-        } else {
-            //simple seq
-            seq_not_gen.emplace(c);
-        }
-    }
-
-    for (auto r : red_nodes) {
-        auto c = r->get(0);
-        if (c->size() > 0) {
-            //comp, recursion
-            add_seq_of_comp(c, seq_not_gen);
-        } else {
-            //simple seq
-            seq_not_gen.emplace(c);
+    for (auto n : map_nodes) {
+        for (size_t i=0; i<n->size(); ++i) {
+            //TODO: crea ann_node e fai la visita normalmente
         }
     }
 
@@ -560,7 +569,7 @@ string ffcode::operator()(skel_node& n) {
     for (auto seq : seq_nodes) {
         business_headers[seq->file] = true;
         //if (! inside map/red) declare
-        if (seq_not_gen.find(seq) == seq_not_gen.end()) {
+        if (!seq->inside_map_red) {
             //this node is not inside map or reduce, must be generated
             decls += stage_declaration(*seq);
         }

@@ -143,7 +143,8 @@ bool concrete_skel_node<skeleton>::operator!=( const skel_node& rhs ) {
 seq_node::seq_node( double servicetime, bool datap_flag ) :
     concrete_skel_node( *this ),
     servicetime(servicetime),
-    datap_flag(datap_flag)
+    datap_flag(datap_flag),
+    inside_map_red(false)
 {}
 
 //TODO: why all the strings passed by value (also source and drain)?? TC
@@ -287,6 +288,7 @@ map_node::map_node(initializer_list<skel_node*> init)
 map_node::map_node(skel_node* pattexp, int pardegree)
         : concrete_skel_node( *this ), pardegree( pardegree ) {
     add(pattexp);
+
 }
 
 map_node::map_node(const map_node& other)

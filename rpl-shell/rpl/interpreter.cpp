@@ -190,6 +190,7 @@ void interpreter::visit(ann_node& n) {
     std::size_t i = n.index < 0 ? 0 : n.index;
     auto ptr = env.get(n.id, i);
     if (ptr != nullptr) {
+        //TODO: la chiamata quindi è praticamente come questa
         bool b = (*adispatch[ n.prop ])( *ptr, n );
         cout << "response: " << (b? "annotated!" : "not annotated!") << endl;
     }
@@ -350,7 +351,6 @@ void interpreter::visit(import_node& n) {
             else if (it->wtype == wrapper_info::drain)
                 sk = new drain_node(name,tin, path);
             else if (it->wtype == wrapper_info::map) {
-                //TODO: ci dovrei mettere un controllo per quando poi va a generare?
                 sk = new seq_node(name, tin, tout, path);
                 ((seq_node*) sk)->datap_flag = true;
             } else if (it->wtype == wrapper_info::reduce) {
@@ -450,6 +450,8 @@ void interpreter::visit(gencode_node& n) {
     if (ptr != nullptr) {
         // unrank and generate code
         unrank(*ptr);
+        //TODO: qui potrei mettere la chiamata al visitor per settare chi è dentro la map
+        //  o prima di unrank????
         code = ff(*ptr);
 
         // find name and store
