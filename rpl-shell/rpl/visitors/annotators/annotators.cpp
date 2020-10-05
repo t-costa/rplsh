@@ -145,35 +145,6 @@ bool ann_datap::operator()( skel_node& n, ann_node& a ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ann_inside_data_parallel::ann_inside_data_parallel(rpl_environment &env) :
-    ann_visitor( env ) , inside_data_parallel (false)
-{}
-
-void ann_inside_data_parallel::visit(seq_node &n) {
-    n.inside_map_red = inside_data_parallel;
-    result = true;
-}
-
-void ann_inside_data_parallel::visit(comp_node& n) {
-    for (size_t i=0; i<n.size(); ++i) {
-        n.get(i)->accept(*this);  //TODO: CHECK!
-    }
-}
-
-void ann_inside_data_parallel::visit(id_node& n) {
-    auto ptr = env.get(n.id, n.index);
-    if (ptr != nullptr)
-        ptr->accept(*this);
-}
-
-bool ann_inside_data_parallel::operator()(skel_node &n, ann_node &a) {
-    this->inside_data_parallel = (a.value != 0);
-    n.accept(*this);
-    return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 ann_typein::ann_typein( rpl_environment& env ) :
     ann_visitor ( env )
 {}

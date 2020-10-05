@@ -501,7 +501,7 @@ void assign_resources::operator()(skel_node& n, double inputsize) {
  * @param env environment
  */
 get_seq_wrappers::get_seq_wrappers( rpl_environment& env ) :
-        env(env)
+        env(env), inside_datap(false)
 {}
 
 /**
@@ -509,7 +509,8 @@ get_seq_wrappers::get_seq_wrappers( rpl_environment& env ) :
  * @param n seq node
  */
 void get_seq_wrappers::visit( seq_node& n ) {
-    seq_nodes.push_back(&n);
+    if (!inside_datap)
+        seq_nodes.push_back(&n);
 }
 
 /**
@@ -559,7 +560,9 @@ void get_seq_wrappers::visit( farm_node& n ) {
  * @param n map node
  */
 void get_seq_wrappers::visit( map_node& n ) {
+    inside_datap = true;
     n.get(0)->accept(*this);
+    inside_datap = false;
 }
 
 /**
@@ -567,7 +570,9 @@ void get_seq_wrappers::visit( map_node& n ) {
  * @param n reduce node
  */
 void get_seq_wrappers::visit( reduce_node& n ) {
+    inside_datap = true;
     n.get(0)->accept(*this);
+    inside_datap = false;
 }
 
 /**

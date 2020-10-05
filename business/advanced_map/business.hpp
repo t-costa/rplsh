@@ -26,8 +26,8 @@ typedef std::vector<size_type> vec;
 constexpr int dimension = 5;
 constexpr size_type inputsize = 10;
 #else
-constexpr int dimension = 500;
-constexpr size_type inputsize = 600;
+constexpr int dimension = 100;
+constexpr size_type inputsize = 300;
 #endif
 
 bool sequential = true;
@@ -194,7 +194,7 @@ print_vec(*value);
     }
 };
 
-class map_first : public map_stage_wrapper<vec_pair, vec>
+class map_first : public map_stage_wrapper<vec_pair, vec, std::pair<size_type, size_type>, size_type>
 {
 public:
     vec compute(vec_pair& vp) {
@@ -213,12 +213,12 @@ print_vec(v);
 
     size_type op(const std::pair<size_type, size_type>& p) {
         //std::this_thread::sleep_for(std::chrono::nanoseconds(300));
-        waste(waste_time);
+        waste(2 * waste_time);
         return p.first*p.second;
     }
 };
 
-class map_second : public map_stage_wrapper<vec, vec> {
+class map_second : public map_stage_wrapper<vec, vec, size_type, size_type> {
 public:
     vec compute(vec& v) {
         vec out(v.size());
@@ -242,7 +242,7 @@ print_vec(out);
     }
 };
 
-class map_third : public map_stage_wrapper<vec, vec> {
+class map_third : public map_stage_wrapper<vec, vec, size_type, size_type> {
 public:
     vec compute(vec& v) {
         vec out(v.size());
@@ -261,12 +261,12 @@ print_vec(out);
 
     size_type op(const size_type& el) {
         //std::this_thread::sleep_for(std::chrono::nanoseconds(400));
-        waste(waste_time);
+        waste(3 * waste_time);
         return el * el;
     }
 };
 
-class map_fourth : public map_stage_wrapper<vec, vec> {
+class map_fourth : public map_stage_wrapper<vec, vec, size_type, size_type> {
 public:
     vec compute(vec& v) {
         vec out(v.size());
@@ -285,12 +285,12 @@ print_vec(out);
 
     size_type op(const size_type& el) {
         //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-        waste(waste_time);
+        waste(waste_time / 2);
         return el + 1;
     }
 };
 
-class map_fifth : public map_stage_wrapper<vec, vec> {
+class map_fifth : public map_stage_wrapper<vec, vec, size_type, size_type> {
 public:
     vec compute(vec& v) {
         vec out(v.size());
@@ -309,7 +309,7 @@ print_vec(out);
 
     size_type op(const size_type& el) {
         //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-        waste(waste_time);
+        waste(waste_time / 2);
         return el - 7;
     }
 };
