@@ -17,7 +17,6 @@ struct ann_dispatcher : public dispatcher<std::string, std::unique_ptr<ann_visit
         add(par::latency        ,  std::unique_ptr<ann_visitor>(new ann_servicetime(env))); //TODO: is it ok that it's the same as ts?? TC
         add(par::pardegree      ,  std::unique_ptr<ann_visitor>(new ann_pardegree(env)));
         add(par::datap          ,  std::unique_ptr<ann_visitor>(new ann_datap(env)));
-        add(par::inside_data_parallel, std::unique_ptr<ann_visitor>(new ann_inside_data_parallel(env)));
         add(par::typein         ,  std::unique_ptr<ann_visitor>(new ann_typein(env)));
         add(par::typeout        , std::unique_ptr<ann_visitor>(new ann_typeout(env)));
     }

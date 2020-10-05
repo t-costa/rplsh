@@ -37,7 +37,9 @@
       <w>getid</w>
       <w>getline</w>
       <w>getres</w>
+      <w>ident</w>
       <w>idnode</w>
+      <w>ifdef</w>
       <w>inputsize</w>
       <w>interpr</w>
       <w>ivisitor</w>
@@ -59,6 +61,7 @@
       <w>mytuple</w>
       <w>newnode</w>
       <w>newptr</w>
+      <w>nfun</w>
       <w>nline</w>
       <w>noann</w>
       <w>normalform</w>
@@ -66,6 +69,7 @@
       <w>numworkers</w>
       <w>odispatch</w>
       <w>optrule</w>
+      <w>optrules</w>
       <w>parallelization</w>
       <w>pardegree</w>
       <w>pattexp</w>

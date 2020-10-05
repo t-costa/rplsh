@@ -134,6 +134,7 @@ private:
     std::vector<seq_node*> seq_nodes;
     std::vector<drain_node*> drn_nodes;
     std::vector<source_node*> src_nodes;
+    bool inside_datap;
 };
 
 struct top_datap_skeletons : public skel_visitor {

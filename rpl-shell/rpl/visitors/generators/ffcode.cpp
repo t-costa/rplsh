@@ -491,18 +491,6 @@ void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
     }
 }
 
-void prova(id_node v) {
-    std::cout << "id" << std::endl;
-}
-
-void prova(seq_node s) {
-    std::cout << "seq" << std::endl;
-}
-
-void prova(comp_node c) {
-    std::cout << "comp" << std::endl;
-}
-
 template<typename T, typename U>
 struct is_same_type
 {
@@ -550,12 +538,6 @@ string ffcode::operator()(skel_node& n) {
     string code;
     string decls;
 
-    for (auto n : map_nodes) {
-        for (size_t i=0; i<n->size(); ++i) {
-            //TODO: crea ann_node e fai la visita normalmente
-        }
-    }
-
     for (auto src : src_nodes) {
         business_headers[src->file] = true;
         decls += source_declaration(*src);
@@ -568,11 +550,8 @@ string ffcode::operator()(skel_node& n) {
 
     for (auto seq : seq_nodes) {
         business_headers[seq->file] = true;
-        //if (! inside map/red) declare
-        if (!seq->inside_map_red) {
-            //this node is not inside map or reduce, must be generated
-            decls += stage_declaration(*seq);
-        }
+        decls += stage_declaration(*seq);
+        //in teoria qui dentro ho solo i nodi che vanno generati
     }
 
     idx = 0;
