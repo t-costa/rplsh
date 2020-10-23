@@ -43,7 +43,7 @@ struct skel_visitor : public visitor
 {
     using visitor::visit;
 
-    // notice hat source and drain have
+    // notice that source and drain have
     // the base_class implementation
     void visit(source_node& n) override {};
     void visit(drain_node& n) override  {};

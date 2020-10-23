@@ -63,6 +63,8 @@ private:
 
     static void match_in(const std::string& textstr, std::vector<std::string>& matches);
 
+    static void match_as(const std::string& textstr, std::vector<std::string>& matches);
+
     static void match_file_search(const std::string& textstr, std::vector<std::string>& matches);
 };
 #endif //RPL_SHELL_TAB_COMPLETION_HPP

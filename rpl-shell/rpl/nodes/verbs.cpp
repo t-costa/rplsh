@@ -117,6 +117,22 @@ gencode_node::gencode_node(const string& id, int index)
         this->index = index;
     }
 
+void gencode_node::set_location(const std::string &t_location) {
+    m_location = t_location;
+}
+
+void gencode_node::set_name(const std::string &t_name) {
+    m_name = t_name;
+}
+
+std::string gencode_node::get_location() {
+    return m_location;
+}
+
+std::string gencode_node::get_name() {
+    return m_name;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // expand_node implementation

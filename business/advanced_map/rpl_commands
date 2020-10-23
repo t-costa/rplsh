@@ -1,0 +1,53 @@
+import "/home/tommaso/forked/rplsh/business/advanced_map/business.hpp"
+set dimension with 100
+set inputsize with 300
+
+set resources with 8
+
+annotate dsrc with servicetime 1
+annotate ddrn with servicetime 1
+
+annotate map_first with servicetime 20
+annotate map_first with datap true
+
+annotate map_second with servicetime 10
+annotate map_second with datap true
+
+annotate map_third with servicetime 30
+annotate map_third with datap true
+
+annotate map_fourth with servicetime 5
+annotate map_fourth with datap true
+
+annotate map_fifth with servicetime 5
+annotate map_fifth with datap true
+
+show dsrc by servicetime, latency, pardegree, compltime, resources
+show ddrn by servicetime, latency, pardegree, compltime, resources
+show map_first by servicetime, latency, pardegree, compltime, resources
+show map_second by servicetime, latency, pardegree, compltime, resources
+show map_third by servicetime, latency, pardegree, compltime, resources
+show map_fourth by servicetime, latency, pardegree, compltime, resources
+show map_fifth by servicetime, latency, pardegree, compltime, resources
+
+#versione con tutte map staccate
+#m1 = map(map_first)
+#m2 = map(map_second)
+#m3 = map(map_third)
+#m4 = map(map_fourth)
+#m5 = map(map_fifth)
+#main = pipe(dsrc, comp(m1, m2, m3, m4, m5), ddrn)
+#show main by servicetime, latency, pardegree, compltime, resources
+
+#poi prova ad ottimizzare con max_resources
+
+#versione con una sola map
+c = comp(map_first, map_second, map_third, map_fourth, map_fifth)
+m = map(c)
+main = pipe(dsrc, m, ddrn)
+show c by servicetime, latency, pardegree, compltime, resources
+show m by servicetime, latency, pardegree, compltime, resources
+show main by servicetime, latency, pardegree, compltime, resources
+
+gencode main
+

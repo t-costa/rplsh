@@ -48,6 +48,7 @@ struct token
         with,
         by,
         in,
+        as,
         illegal,
         parameter,
         plus,

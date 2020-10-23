@@ -4,6 +4,7 @@
 #include <vector>
 
 // specify include directory for fastflow
+#include <ff/ff.hpp>
 #include <ff/farm.hpp>
 #include <ff/map.hpp>
 #include <ff/pipeline.hpp>

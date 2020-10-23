@@ -71,10 +71,21 @@ std::pair<set_iterator<V>, set_iterator<V>> environment<K,V>::range( const K& ke
 template <typename K, typename V>
 ptr<V> environment<K,V>::get( const K& key, std::size_t pos ) const
 {
+    //FIXME: manca controllo su pos < max size
     auto it = env.find(key);
-    return it != env.end() ?
+    try {
+        if (it != env.end()) {
+            return it->second.at(pos);
+        } else {
+            return nullptr;
+        }
+    } catch (std::exception& e) {
+        std::cerr << "Error: index out of bound." << std::endl;
+        return nullptr;
+    }
+    /*return it != env.end() ?
         it->second.at(pos) :
-        nullptr;
+        nullptr;*/
 }
 
 /**
