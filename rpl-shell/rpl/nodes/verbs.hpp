@@ -105,6 +105,15 @@ struct import_node : public verb_node<import_node> {
  */
 struct gencode_node : public verb_node<gencode_node> {
     explicit gencode_node(const std::string& id, int index = 0);
+    void set_name(const std::string& t_name);
+    std::string get_name();
+
+    void set_location(const std::string& t_location);
+    std::string get_location();
+
+private:
+    std::string m_name;
+    std::string m_location;
 };
 
 /**

@@ -141,6 +141,10 @@ void tab_completion::match_in(const std::string& textstr, std::vector<std::strin
     add_match("in", textstr, matches);
 }
 
+void tab_completion::match_as(const std::string &textstr, std::vector<std::string> &matches) {
+    add_match("as", textstr, matches);
+}
+
 void tab_completion::match_file_search(const std::string& textstr, std::vector<std::string>& matches) {
     add_match("\"", textstr, matches);
 }
@@ -211,12 +215,42 @@ char* tab_completion::character_name_generator(const char *text, int state){
                     rl_attempted_completion_over = 0;
                 }
 
-                if (splitted[0] == "gencode" || splitted[0] == "history") {
+                if (splitted[0] == "history") {
                     match_identifier(textstr, matches);
                 }
 
-                if (splitted[0] == "set") {
+                if (splitted[0] == "gencode") {
                     //based on where we are in the command, complete what is needed
+                    switch (count_word) {
+                        case 0:
+                        case 1:
+                        case 2:
+                            match_identifier(textstr, matches);
+                            break;
+                        case 3:
+                            //can be both as or in
+                            match_as(textstr, matches);
+                            match_in(textstr, matches);
+                            break;
+                        case 4:
+                            if (splitted[2] == "in") {
+                                rl_attempted_completion_over = 0;
+                            }
+                            //if it was as, it's a new name, can't complete
+                            break;
+                        case 5:
+                            //can only be the directory
+                            match_in(textstr, matches);
+                            break;
+                        case 6:
+                            rl_attempted_completion_over = 0;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (splitted[0] == "set") {
                     switch (count_word) {
                         case 0 :
                         case 1 :
@@ -298,7 +332,6 @@ char* tab_completion::character_name_generator(const char *text, int state){
                         match_identifier(textstr, matches);
                     }
                     //else it's seq/source/drain, nothing inside
-
                     /*
                      * TODO:
                      *  seq, drain e source -> vogliono solo numeri dentro, quindi non vanno più completati
@@ -318,7 +351,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
             }
         }
 
-        /* TODO: It works, now I have to separate all the different cases
+        /**
          *  first word  |  second word  |  rest
          *  ---------------------------------------------------
          *  annotate    |  identifier   |  with parameter value
@@ -327,7 +360,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
          *  expand      |  identifier   |  [in identifier]
          *  add         |  identifier   |  in identifier
          *  show        |  identifier   |  [by parameters]
-         *  gencode     |  identifier
+         *  gencode     |  identifier   | [as name] [as name in directory] [in directory]
          *  ---------------------------------------------------
          *  import      |  "file"
          *  load        |  "file"       |  boolean

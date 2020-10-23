@@ -152,7 +152,7 @@ string mapred_constructor( const string& name, int nw, bool value ) {
  */
 string map_declaration( map_node& n, rpl_environment& env ) {
 
-    //FIXME: tutti i TODO che trovi sotto non li ho messi io! ci sarà da lavorare qui! TC
+    //FIXME: all TODOs not mine! TC
 
     // two-tier model: inside map nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
@@ -206,7 +206,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     } else {
         ss << "[this, &_task](const long i) {\n";
         for (i = 0; i < seq_nodes.size()-1; i++) {
-            // TODO questo potrebbe essere un problema...
+            // TODO this could be a problem...
             par = !i ? "_task[i]" : ("res" + to_string(i-1));
             ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
         }
@@ -236,8 +236,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
  */
 string red_declaration( reduce_node& n, rpl_environment& env ) {
 
-    //FIXME: potrebbero esserci gli stessi problemi di map, e forse sarebbe
-    //  il caso di reingegnerizzare un po' queste due funzioni... TC
+    //FIXME: probably same issues of map, need refactoring TC
 
     // two-tier model: inside reduce nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
@@ -320,6 +319,7 @@ string includes() {
     ss << "#include <iostream>\n";
     ss << "#include <vector>\n\n";
     ss << "// specify include directory for fastflow\n";
+    ss << "#include <ff/ff.hpp>\n";     //always needed for fastflow 3.0
     ss << "#include <ff/farm.hpp>\n";
     ss << "#include <ff/map.hpp>\n";
     ss << "#include <ff/pipeline.hpp>\n";
@@ -431,8 +431,7 @@ void ffcode::visit( farm_node& n ) {
     ss << "ff_farm<> " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
     ss << fvar << ".add_collector(NULL);\n\n";
-    //FIXME: e se il collector ci fosse? dove è messo il collector?
-    //  e l'emitter?
+    //FIXME: what if collector and emitter are present?
 
     assert(code_lines.empty());
     code_lines.push({fvar, ss.str()});
@@ -469,8 +468,8 @@ void ffcode::visit( id_node& n ) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else {
-        //TODO: sarebbe da aggiungere err_repo...
-        std::cout << n.id << " whaaaat?" << std::endl;
+        //TODO: add err_repo?
+        std::cout << n.id << " unexpected error in ffcode visit" << std::endl;
     }
 }
 
@@ -490,7 +489,7 @@ void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
         set.emplace(node);
     }
 }
-
+/*
 template<typename T, typename U>
 struct is_same_type
 {
@@ -504,9 +503,10 @@ struct is_same_type<T, T>
 };
 
 template<typename T, typename U>
-bool eq_types() { return is_same_type<T, U>::value; }
+bool eq_types() { return is_same_type<T, U>::value; }*/
 
 /**
+ * Builds all the source code
  * Builds all the source code
  * @param n root of the skeletons tree
  * @return code as a string representation
@@ -516,7 +516,6 @@ string ffcode::operator()(skel_node& n) {
     ann_printer pr;
     string repr = "// " + pr.print(n) + "\n\n";
 
-    //penso serva in caso di diverse chiamate a gencode
     // clear global environment:
     // names, business_headers, queue
     names.clear();
@@ -530,7 +529,7 @@ string ffcode::operator()(skel_node& n) {
     auto drn_nodes = gsw.get_drain_nodes();
     auto seq_nodes = gsw.get_seq_nodes();
 
-    tds(n);     // start visit for getting datap wrappers   //FIXME: forse qui quando trova map deve segnare i nodi interni come "speciali"
+    tds(n);     // start visit for getting datap wrappers
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
 
@@ -548,10 +547,10 @@ string ffcode::operator()(skel_node& n) {
         decls += drain_declaration(*drn);
     }
 
+    //here only nodes that need to be generated
     for (auto seq : seq_nodes) {
         business_headers[seq->file] = true;
         decls += stage_declaration(*seq);
-        //in teoria qui dentro ho solo i nodi che vanno generati
     }
 
     idx = 0;
@@ -566,7 +565,7 @@ string ffcode::operator()(skel_node& n) {
         decls += red_declaration(*redn, env);
     }
 
-    n.accept(*this);    //TODO: chiama comp_pipe passando già pipe... non so se va proprio bene!
+    n.accept(*this);
     stringstream ss;
 
     /* mapping */

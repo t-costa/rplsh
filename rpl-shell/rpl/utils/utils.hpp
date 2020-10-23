@@ -43,9 +43,13 @@ namespace utils {
         return f.good();
     }
 
+ /*   bool directory_exists(const std::string& directory) {
+        return std::filesystem::is_directory(directory);
+    }*/
+
     std::string get_real_path(const std::string& str) {
         //unix only, do also for windows??
-        char * full_path = realpath(str.c_str(), nullptr);
+        char *full_path = realpath(str.c_str(), nullptr);
         if (full_path == nullptr) {
             //free(full_path);    //it does nothing
             return "";

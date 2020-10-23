@@ -70,16 +70,16 @@ void init(Iterator begin, Iterator end) {
 }
 
 inline void waste(const double& microsec) {
-        auto t1 = std::chrono::high_resolution_clock::now();
-        auto t2 = std::chrono::high_resolution_clock::now();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    auto t2 = std::chrono::high_resolution_clock::now();
 
-        auto elapsed = t2 - t1;
+    auto elapsed = t2 - t1;
 
-        while (std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() < microsec) {
-            t2 = std::chrono::high_resolution_clock::now();
-            elapsed = t2 - t1;
-        }
+    while (std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() < microsec) {
+        t2 = std::chrono::high_resolution_clock::now();
+        elapsed = t2 - t1;
     }
+}
 
 void print_vec_pair(vec_pair& vp) {
     for (size_t i=0; i<vp.size(); ++i) {

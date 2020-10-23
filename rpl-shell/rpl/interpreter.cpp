@@ -57,6 +57,7 @@ void interpreter::visit(assign_node& n) {
         //add id for tab completion
         tab_completion::add_id(n.id);
     } else if ( success ) {
+        tab_completion::add_id(n.id);
         env.clear(n.id);
         if (idnode->all) {
             auto range = env.range(idnode->id);
@@ -432,12 +433,44 @@ void interpreter::visit(load_node& n) {
     }
 }
 
+std::string get_formatted_directory(const std::string& directory) {
+    std::string formatted;
+
+    if (directory.empty()) {
+        formatted = utils::get_real_path("./");
+        return formatted+'/';
+    }
+
+    formatted = utils::get_real_path(directory);
+    if (formatted.empty()) {
+        std::cerr << "Cannot save in " << directory << ". Saving in the current directory" << std::endl;
+        formatted = utils::get_real_path("./");
+    }
+
+    return formatted+'/';
+}
+
+std::string get_unique_filename(const std::string& filename, const std::string& directory) {
+    int i = 0;
+    if (filename.empty()) {
+        while (utils::file_exists(directory+"ff_"+to_string(++i)+".cpp"));
+        return "ff_"+to_string((i))+".cpp";
+    }
+
+    if (utils::file_exists(directory+filename+".cpp")) {
+        while (utils::file_exists(directory+filename+to_string(++i)+".cpp"));
+        std::cerr << filename << " already exists, saving as " << filename+to_string(i) << std::endl;
+        return filename+to_string(i)+".cpp";
+    } else {
+        return filename+".cpp";
+    }
+}
+
 /**
  * Performs the generation of code
  * @param n gencode node
  */
 void interpreter::visit(gencode_node& n) {
-    int i = 0;
     string code;
     string fname;
     printer print;
@@ -450,13 +483,18 @@ void interpreter::visit(gencode_node& n) {
     if (ptr != nullptr) {
         // unrank and generate code
         unrank(*ptr);
-        //TODO: qui potrei mettere la chiamata al visitor per settare chi è dentro la map
-        //  o prima di unrank????
+
         code = ff(*ptr);
 
-        // find name and store
-        while ( utils::file_exists("ff"+to_string(++i)+".cpp") );
-        fname = "ff" + to_string(i) + ".cpp";
+        auto directory = n.get_location();
+        auto filename = n.get_name();
+        std::string formatted_directory = get_formatted_directory(directory);
+        std::string unique_filename = get_unique_filename(filename, formatted_directory);
+
+
+//        while ( utils::file_exists("ff"+to_string(++i)+".cpp") );
+//        fname = "ff" + to_string(i) + ".cpp";
+        fname = formatted_directory + unique_filename;
         cout << "-- " << fname << endl;
         std::ofstream out(fname);
         out << code;

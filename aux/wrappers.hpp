@@ -37,7 +37,7 @@ class map_stage_wrapper {
   //input lo prende per potersi creare il res di output,
   //in teoria non gli dovrebbe servire altro, perchè
   //è all'inizio della funzione e non c'è materialmente altro!
-  virtual Tout begin_hook(Tin input) {}
+  virtual void begin_hook(Tin& input) {}
 
   //per ora non ce lo metto, ma sarebbe una funzione di
   //cleanup alla fine, quindi forse prende Tin per farci la delete?
@@ -63,7 +63,7 @@ class reduce_stage_wrapper {
 
   virtual Tout_el op(Tin_el& input1, Tin_el& input2) = 0;
 
-  virtual Tout begin_hook(Tin input) {}
+  virtual void begin_hook(Tin& input) {}
 
   //virtual void end_hook(T input) {}
 

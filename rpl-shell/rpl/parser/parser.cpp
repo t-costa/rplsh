@@ -301,10 +301,34 @@ rpl_node* parser::import_rule(token& tok)
 rpl_node* parser::gencode_rule(token& tok)
 {
     pair<string,int> ident;
+    std::string name, location;
+    bool with_name = false, with_location = false;
     expect(tok, token::gencode);
     expect(tok, token::word, ident);
+
+    if (tok.kind == token::as) {
+        //there is a name
+        with_name = true;
+        expect(tok, token::as);
+        expect(tok, token::word, name);
+    }
+    if (tok.kind == token::in) {
+        //there is a location
+        with_location = true;
+        expect(tok, token::in);
+        expect(tok, token::file, location);
+    }
+
     expect(tok, token::eol);
-    return new gencode_node(ident.first, ident.second);
+
+    auto gn = new gencode_node(ident.first, ident.second);
+
+    if (with_name || with_location) {
+        gn->set_name(name);
+        gn->set_location(location);
+    }
+
+    return gn;
 }
 
 rpl_node* parser::expand_rule(token& tok)

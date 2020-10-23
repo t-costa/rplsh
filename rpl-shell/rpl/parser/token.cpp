@@ -27,6 +27,7 @@ map<string, token::type> token::st_map =
    {"with",     token::with},
    {"by",       token::by},
    {"in",       token::in},
+   {"as",       token::as},
 
    /* verbs */
    {"show",     token::show},
