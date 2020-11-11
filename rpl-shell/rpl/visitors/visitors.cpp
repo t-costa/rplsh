@@ -511,6 +511,8 @@ get_seq_wrappers::get_seq_wrappers( rpl_environment& env ) :
 void get_seq_wrappers::visit( seq_node& n ) {
     if (!inside_datap)
         seq_nodes.push_back(&n);
+    else
+        datap_nodes.push_back(&n);
 }
 
 /**
@@ -592,6 +594,13 @@ void get_seq_wrappers::visit( id_node& n ) {
  */
 vector<seq_node*> get_seq_wrappers::get_seq_nodes() {
     return seq_nodes;
+}
+
+/**
+ * @return list of nodes inside data parallel patterns
+ */
+vector<seq_node*> get_seq_wrappers::get_datap_nodes() {
+    return datap_nodes;
 }
 
 /**

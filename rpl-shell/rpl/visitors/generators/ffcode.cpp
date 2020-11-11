@@ -163,18 +163,19 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     gsw(n); // find the sequential wrappers
     auto src_nodes = gsw.get_source_nodes();
     auto drn_nodes = gsw.get_drain_nodes();
-    auto seq_nodes = gsw.get_seq_nodes();
-    if (!src_nodes.empty() || !drn_nodes.empty() || ((int) nw(n)) != n.pardegree)
+    auto datap_nodes = gsw.get_datap_nodes();
+    if (!src_nodes.empty() || !drn_nodes.empty() || ((int) nw(n)) != n.pardegree) {
         cout << "warning: two tier modeling application for generation of code" << endl;
+    }
 
     stringstream ss;
-    string typein  = seq_nodes.front()->typein;
-    string typeout = seq_nodes.back()->typeout;
+    string typein  = datap_nodes.front()->typein;
+    string typeout = datap_nodes.back()->typeout;
     string ffMap   = "ff_Map<"+typein+","+typeout+">";
     ss << "class map" << n.getid() << "_stage : public " << ffMap << " {\n";
     ss << "protected:\n";
-    for (size_t i = 0; i < seq_nodes.size(); i++)
-        ss << "\t" << seq_nodes[i]->name << " wrapper" << i << ";\n";
+    for (size_t i = 0; i < datap_nodes.size(); i++)
+        ss << "\t" << datap_nodes[i]->name << " wrapper" << i << ";\n";
 
     ss << "public:\n";
     ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree, false) << "\n";
@@ -196,7 +197,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     // TODO: lazy -> do better
     if (typein != typeout) {
         ss << "[this, &_task, &out](const long i) {\n";
-        for (i = 0; i < seq_nodes.size()-1; i++) {
+        for (i = 0; i < datap_nodes.size()-1; i++) {
             par = !i ? "_task[i]" : ("res" + to_string(i-1));
             ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
         }
@@ -205,7 +206,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
         ss << "\t\t}";
     } else {
         ss << "[this, &_task](const long i) {\n";
-        for (i = 0; i < seq_nodes.size()-1; i++) {
+        for (i = 0; i < datap_nodes.size()-1; i++) {
             // TODO this could be a problem...
             par = !i ? "_task[i]" : ("res" + to_string(i-1));
             ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
@@ -242,11 +243,13 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     // if stream/datap inside, ignore it when compile and show a warning
     pardegree nw(env);           // setup the pardegree visitor
     get_seq_wrappers gsw(env);   // setup the get_seq_wrappers visitor
+    bool is_pointer = false;
 
     gsw(n); // find the sequential wrappers
     auto src_nodes = gsw.get_source_nodes();
     auto drn_nodes = gsw.get_drain_nodes();
-    auto seq_nodes = gsw.get_seq_nodes();
+    //auto seq_nodes = gsw.get_seq_nodes();
+    auto datap_nodes = gsw.get_datap_nodes();
     if (((int) nw(n)) != n.pardegree)
         cout << "warning: two tier modeling will be applied for generation of code" << endl;
     if (!src_nodes.empty() || !drn_nodes.empty())
@@ -256,26 +259,27 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     // reduce(comp(a,b,c)) == pipe(map(comp(a,b)),c)
     // where c is the only node implementing a binary operation f: v1 x v2 -> res
     stringstream ss;
-    string typein  = seq_nodes.front()->typein;
-    string typeout = seq_nodes.back()->typeout;
+    string typein  = datap_nodes.front()->typein;
+    string typeout = datap_nodes.back()->typeout;
     string ffMap   = "ff_Map<"+typein+","+typeout+","+typeout+">";
 
     ss << "class reduce" << n.getid() << "_stage : public " << ffMap << " {\n";
     ss << "protected:\n";
-    for (size_t i = 0; i < seq_nodes.size(); i++)
-        ss << "\t" << seq_nodes[i]->name << " wrapper" << i << ";\n";
+    for (size_t i = 0; i < datap_nodes.size(); i++)
+        ss << "\t" << datap_nodes[i]->name << " wrapper" << i << ";\n";
     ss << "public:\n";
     ss << mapred_constructor("reduce" + to_string(n.getid()) + "_stage", n.pardegree, true) << "\n";
     ss << "\t" << typeout << "* svc("<< typein <<"* t) {\n";
     string task = "_task";
     ss << "\t\t" << typein << "& _task = *t;\n";
 
-    if ( seq_nodes.size() > 1) {
+    if ( datap_nodes.size() > 1) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
-        string mapout  = seq_nodes[seq_nodes.size()-2]->typeout;
+        string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
         ss << "\t\tmapout->resize(_task.size());\n"; //TODO really necessary?
         task = "mapout";
+        is_pointer = true;
 
         size_t i;
         string par;
@@ -283,7 +287,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(),";
         // begin lambda
         ss << "[this, &_task, &mapout](const long i) {\n";
-        for (i = 0; i < seq_nodes.size()-2; i++) {
+        for (i = 0; i < datap_nodes.size()-2; i++) {
             par = !i ? "_task[i]" : ("res" + to_string(i-1));
             ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
         }
@@ -293,14 +297,20 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         // end lambda
         ss << "," << to_string( nw(n) ) << ");\n";
         // end parallel for
-
     }
 
-    size_t idx = seq_nodes.size()-1;
-    ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx <<".identity);\n";
-    ss << "\t\tauto reduceF = [this]("<<typeout<<"& sum, "<<typeout<<" elem) {sum = wrapper"<<idx<<".op(sum, elem);};\n";
-    ss << "\t\tauto bodyF = [this,&_task](const long i, "<<typeout<<"& sum) {sum = wrapper"<<idx<<".op(sum, _task[i]);};\n";
-    ss << "\t\t" << ffMap <<"::parallel_reduce(*out, wrapper"<<idx<<".identity,0,"<<task<<".size(),bodyF,reduceF,"<<to_string( nw(n) )<<");\n";
+    size_t idx = datap_nodes.size()-1;
+    ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
+    ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
+    ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
+    ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,";
+    //TODO: controlla che quando è red(seq) task non sia effettivamente un puntatore
+    if (is_pointer) {
+        ss << task << "->size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+    } else {
+        ss << task << ".size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+    }
+
 
     //TODO memory leak of previous node
     ss << "\t\t" << "return out;\n";
@@ -428,7 +438,9 @@ void ffcode::visit( farm_node& n ) {
     }
 
     ss << "\n// add " << wvar << " to " << fvar << "\n";
-    ss << "ff_farm<> " << fvar << ";\n";
+    //FIXME: this does not compile, we need types of farm
+    //maybe fix: from farm<> to farm
+    ss << "ff_farm " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
     ss << fvar << ".add_collector(NULL);\n\n";
     //FIXME: what if collector and emitter are present?
@@ -523,13 +535,13 @@ string ffcode::operator()(skel_node& n) {
     queue<pair<string,string>> empty;
     swap( code_lines, empty );
 
-    gsw(n);       // start visit for getting seq wrappers
-    compseq(n);   // start visit for setting compseq nodes
+    gsw(n);       // start visit to get seq wrappers
+    compseq(n);   // start visit to set compseq nodes
     auto src_nodes = gsw.get_source_nodes();
     auto drn_nodes = gsw.get_drain_nodes();
     auto seq_nodes = gsw.get_seq_nodes();
 
-    tds(n);     // start visit for getting datap wrappers
+    tds(n);     // start visit to get datap wrappers
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
 
@@ -580,6 +592,13 @@ string ffcode::operator()(skel_node& n) {
     auto p = code_lines.front();
     ss << p.second << "\n";
 
+#ifdef DEBUG
+ss << "parameters::sequential = false;\n";
+ss << "utils::write(\"" << pr.print(n) << "\", \"./res_ff.txt\");\n";
+#endif
+
+
+
     /* run the program */
     ss << p.first << ".run_and_wait_end();\n";
 
@@ -590,6 +609,11 @@ string ffcode::operator()(skel_node& n) {
     ss << "std::cout << \"Stats: \" << std::endl;\n";
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
+
+#ifdef DEBUG
+ss << "utils::write(\"\\n---------------------\\n\", \"./res_ff.txt\");\n";
+#endif
+
     ss << "return 0;\n";
 
     code_lines.pop();

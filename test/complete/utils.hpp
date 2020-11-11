@@ -10,42 +10,13 @@
 
 namespace utils {
 
-  typedef double size_type ;
-  typedef std::vector<size_type> vec;
-  typedef std::vector<std::pair<double, double>> vec_pair;
+  //typedef double size_type ;
+  typedef int elem_type;
+  typedef std::vector<elem_type> vec;
+  typedef std::pair<elem_type, elem_type> pair;
+  typedef std::vector<pair> vec_pair;
 
   uint seed = 0;
-
-//   struct vec_pair {
-//     vec_pair(size_t size) {
-//       A.reserve(size);
-//       B.reserve(size);
-//     }
-//
-//     vec_pair(const vec& A, const vec& B) : A(A), B(B) {}
-//
-//     void push_back(double& a, double& b) {
-//       A.push_back(a);
-//       B.push_back(b);
-//     }
-//
-//     void push_back(std::pair<double, double> ab) {
-//       A.push_back(ab.first);
-//       B.push_back(ab.second);
-//     }
-//
-//     std::pair<double, double> operator[] (int x) {
-//         return std::make_pair(A[x], B[x]);
-//     }
-//
-//     std::size_t size() {
-//         return A.size();
-//     }
-//
-// private:
-//     vec A;
-//     vec B;
-//   };
 
   void init_random() {
     srand(0);
@@ -54,11 +25,11 @@ namespace utils {
   template <typename Iterator>
   void init(Iterator begin, Iterator end) {
   #ifdef DEBUG
-      double lower_bound = -9;
-      double upper_bound = 9;
+      elem_type lower_bound = -9;
+      elem_type upper_bound = 9;
   #else
-      double lower_bound = -999999;
-      double upper_bound = 999999;
+      elem_type lower_bound = -999999;
+      elem_type upper_bound = 999999;
   #endif
       std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
       std::default_random_engine re(seed);
@@ -82,7 +53,7 @@ namespace utils {
 
   void print_vec_pair(vec_pair& vp) {
       for (size_t i=0; i<vp.size(); ++i) {
-          std::cout << vp[i].first << "-" << vp[i].second << " ";
+          std::cout << vp[i].first << "/" << vp[i].second << " ";
       }
       std::cout << std::endl;
   }
@@ -111,6 +82,15 @@ namespace utils {
       }
 
       return true;
+  }
+
+  template <typename T>
+  void write(const T& name, const std::string& file_name) {
+
+    std::ofstream output_file(file_name, std::ios_base::app);
+    std::ostream_iterator<std::string> output_iterator(output_file, "\n");
+
+    output_file << name << "\n";
   }
 
   template <typename T>

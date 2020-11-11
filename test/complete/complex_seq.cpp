@@ -32,10 +32,16 @@ int main() {
   source_vecpair_stage source;
   drain_stage drain;
 
-  while (source.has_next()) {
-    auto vs = source.next();
+  utils::write("source_vecpair_stage, map_vecpair_vecpair_stage, "
+                "map_vecpair_vec_stage, map_vec_vec_stage, "
+                "seq_vec_vec_stage, map_vec_vec_stage, "
+                "map_vec_vec_stage, reduce_vec_double_stage, "
+                "drain_stage", "./res_seq.txt");
 
-    auto vd = d.compute(vs);
+  while (source.has_next()) {
+    utils::vec_pair* vs = source.next();
+
+    auto vd = d.compute(*vs);
     auto va = a.compute(vd);
     auto vb = b.compute(va);
 
@@ -43,10 +49,13 @@ int main() {
     vb = b.compute(ve);
 
     vb = b.compute(vb);
-    auto vc = c.compute(vb);
+    utils::elem_type* vc = new utils::elem_type();
+    *vc = c.compute(vb);
 
     drain.process(vc);
   }
+
+  utils::write("\n---------------------\n", "./res_seq.txt");
 
   return 0;
 }

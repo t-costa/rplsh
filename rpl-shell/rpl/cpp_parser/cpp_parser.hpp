@@ -15,7 +15,7 @@ struct wrapper_info;
 struct cpp_parser {
 public:
     typedef std::vector<wrapper_info>::iterator iterator;
-    explicit cpp_parser(const std::string& path);
+    explicit cpp_parser(std::string  path);
     std::pair<iterator,iterator> parse();
 private:
     std::vector<wrapper_info> vec;
@@ -37,13 +37,19 @@ public:
         drain
     } wrapper_type;
 
-    wrapper_info(const std::string& name, wrapper_type wtype,
-        const std::string& typein, const std::string& typeout);
+    wrapper_info(std::string  name, wrapper_type wtype,
+        std::string  typein, std::string  typeout);
+
+    wrapper_info(std::string  name, wrapper_type wtype,
+                 std::string  typein, std::string  typeout,
+                 std::string  typein_el, std::string  typeout_el);
 
     std::string name;
     wrapper_type wtype;
     std::string typein;
     std::string typeout;
+    std::string typein_el;
+    std::string typeout_el;
 };
 
 #endif

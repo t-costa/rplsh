@@ -58,6 +58,10 @@ private:
  */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
+
+    //test for the new code generation
+    seq_node( std::string name, std::string typein, std::string typeout, std::string typein_el, std::string typeout_el, std::string file );
+
     explicit seq_node( double servicetime, bool datap_flag = false );
     seq_node( const seq_node& other );
     skel_node* clone() override;
@@ -66,6 +70,8 @@ struct seq_node : public concrete_skel_node<seq_node> {
     std::string name;
     std::string typein;
     std::string typeout;
+    std::string typein_el;
+    std::string typeout_el;
     std::string file;
 };
 
@@ -153,8 +159,8 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
  * Id node
  */
 struct id_node : public concrete_skel_node<id_node> {
-    id_node( const std::string& id, const int& index, bool all );
-    explicit id_node( const std::string& id );
+    id_node( std::string  id, const int& index, bool all );
+    explicit id_node( std::string  id );
     id_node( const id_node& other );
     skel_node* clone() override;
     std::string id;
