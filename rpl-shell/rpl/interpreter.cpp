@@ -351,13 +351,9 @@ void interpreter::visit(import_node& n) {
                 sk = new source_node(name,tout, path);
             else if (it->wtype == wrapper_info::drain)
                 sk = new drain_node(name,tin, path);
-            else if (it->wtype == wrapper_info::map) {
-                sk = new seq_node(name, tin, tout, path);
-                ((seq_node*) sk)->datap_flag = true;
-            } else if (it->wtype == wrapper_info::reduce) {
-                sk = new seq_node(name, tin, tout, path);
-                ((seq_node*) sk)->datap_flag = true;
-            } else {
+            else if (it->wtype == wrapper_info::map || it->wtype == wrapper_info::reduce)
+                sk = new seq_node(name, tin, tout, it->typein_el, it->typeout_el, path);
+            else {
                 cerr << "Error: no type recognized for " << name << endl;
                 sk = nullptr;   //FIXME: what it should do?? -> maybe the logic error is for this branch?
             }
@@ -433,6 +429,11 @@ void interpreter::visit(load_node& n) {
     }
 }
 
+/**
+ * Builds a well formatted directory path starting from the one given from the user
+ * @param directory directory given by the user, empty if none is given
+ * @return a well formatted directory path
+ */
 std::string get_formatted_directory(const std::string& directory) {
     std::string formatted;
 
@@ -450,6 +451,12 @@ std::string get_formatted_directory(const std::string& directory) {
     return formatted+'/';
 }
 
+/**
+ * Builds a unique filename for the generated cpp file in the given directory
+ * @param filename name provided from the user, or empty if none is given
+ * @param directory directory provided from the user, or current directory if not given
+ * @return a unique name for the cpp file
+ */
 std::string get_unique_filename(const std::string& filename, const std::string& directory) {
     int i = 0;
     if (filename.empty()) {

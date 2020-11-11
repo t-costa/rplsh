@@ -125,6 +125,7 @@ struct get_seq_wrappers : public skel_visitor {
     void visit(id_node& n) override;
 
     std::vector<seq_node*> get_seq_nodes();
+    std::vector<seq_node*> get_datap_nodes();
     std::vector<drain_node*> get_drain_nodes();
     std::vector<source_node*> get_source_nodes();
 
@@ -132,6 +133,7 @@ struct get_seq_wrappers : public skel_visitor {
 private:
     rpl_environment& env;
     std::vector<seq_node*> seq_nodes;
+    std::vector<seq_node*> datap_nodes;
     std::vector<drain_node*> drn_nodes;
     std::vector<source_node*> src_nodes;
     bool inside_datap;

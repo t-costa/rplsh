@@ -1,0 +1,110 @@
+pipe(source_vec_stage,reduce(comp(map_vec_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)
+
+-9
+
+-9
+
+-9
+
+---------------------
+
+pipe(source_vecpair_stage,farm(map(comp(map_vecpair_vec_stage,map_vec_vec_stage)) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
+
+0 0 0 0 0 0 0 
+
+-21 63 -21 42 7 -63 0 
+
+-14 63 91 28 7 -56 -7 
+
+---------------------
+
+pipe(source_vecpair_stage,complex_farm,complex_comp,complex_reduce,drain_stage)
+
+0
+
+74431
+
+115248
+
+---------------------
+
+pipe(source_vecpair_stage,map(map_vecpair_vec_stage) with [ nw: 1],drain_vec_stage)
+
+0 0 0 0 0 0 0 
+
+-3 9 -3 6 1 -9 0 
+
+-2 9 13 4 1 -8 -1 
+
+---------------------
+
+pipe(source_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1],drain_stage)
+
+-9
+
+-9
+
+-9
+
+---------------------
+
+pipe(source_vecpair_stage,map(farm(map_vecpair_vec_stage) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
+
+0 0 0 0 0 0 0 
+
+-3 9 -3 6 1 -9 0 
+
+-2 9 13 4 1 -8 -1 
+
+---------------------
+
+pipe(source_vec_stage,reduce(farm(reduce_vec_double_stage) with [ nw: 1]) with [ nw: 1],drain_stage)
+
+-9
+
+-9
+
+-9
+
+---------------------
+
+pipe(source_vecpair_stage,map(comp(map_vecpair_vec_stage,map_vec_vec_stage)) with [ nw: 1],drain_vec_stage)
+
+0 0 0 0 0 0 0 
+
+-21 63 -21 42 7 -63 0 
+
+-14 63 91 28 7 -56 -7 
+
+---------------------
+
+pipe(source_vec_stage,reduce(comp(map_vec_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)
+
+-9
+
+-9
+
+-9
+
+---------------------
+
+pipe(source_vec_stage,reduce(comp(map_vec_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)
+
+-63
+
+-63
+
+-63
+
+---------------------
+
+pipe(source_vecpair_stage,complex_farm,complex_comp,complex_reduce,drain_stage)
+
+0
+
+521017
+
+806736
+
+---------------------
+

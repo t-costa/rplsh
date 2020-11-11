@@ -1,0 +1,41 @@
+import "/home/tommaso/forked/rplsh/test/complete/definition.hpp"
+
+# map(a)
+map_seq = pipe(source_vecpair_stage, map(map_vecpair_vec_stage), drain_vec_stage)
+gencode map_seq as map_seq_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# map(comp(a, b))
+map_comp = pipe(source_vecpair_stage, map(comp(map_vecpair_vec_stage, map_vec_vec_stage)), drain_vec_stage)
+gencode map_comp as map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(map(comp(a, b)))
+farm_map_comp = pipe(source_vecpair_stage, farm(map(comp(map_vecpair_vec_stage, map_vec_vec_stage))), drain_vec_stage)
+gencode farm_map_comp as farm_map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# map(farm(a))
+map_farm = pipe(source_vecpair_stage, map(farm(map_vecpair_vec_stage)), drain_vec_stage)
+gencode map_farm as map_farm_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# reduce(a)
+red_seq = pipe(source_vec_stage, reduce(reduce_vec_double_stage), drain_stage)
+gencode red_seq as red_seq_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# reduce(comp(a, b)) -> OCCHIO: uno dei due elementi della reduce non ha le op che servono
+red_comp = pipe(source_vec_stage, reduce(comp(map_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
+gencode red_comp as red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(reduce(comp(a, b))) -> OCCHIO: uno dei due elementi della reduce non ha le op che servono
+#farm_red_comp = pipe(source_vec_stage, reduce(comp(seq_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
+#gencode farm_red_comp as farm_red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+#non funziona, costruisce una map su a, e poi reduce su b, quindi a deve essere map e non seq
+
+# reduce(farm(a))
+red_farm = pipe(source_vec_stage, reduce(farm(reduce_vec_double_stage)), drain_stage)
+gencode red_farm as red_farm_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# pipe(farm(map(comp(d, a, b))), comp(e, b), reduce(comp(b, c)))
+complex_farm = farm(map(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage, map_vec_vec_stage)))
+complex_comp = comp(seq_vec_vec_stage, map_vec_vec_stage)
+complex_reduce = reduce(comp(map_vec_vec_stage, reduce_vec_double_stage))
+main = pipe(source_vecpair_stage, complex_farm, complex_comp, complex_reduce, drain_stage)
+gencode main as complex_ff in "/home/tommaso/forked/rplsh/test/complete"
