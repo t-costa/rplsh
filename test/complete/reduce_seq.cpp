@@ -1,4 +1,4 @@
-//reduce(seq)
+//seq with reduce node
 #include <iostream>
 #include <vector>
 

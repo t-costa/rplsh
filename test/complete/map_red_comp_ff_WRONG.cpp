@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1],drain_stage)
+// pipe(source_vec_stage,map(comp(map_vec_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1])) with [ nw: 1],drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -58,39 +58,42 @@ public:
 	}
 };
 
-class reduce0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type> {
+class map0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type> {
 protected:
-	reduce_vec_double_stage wrapper0;
+	map_vec_vec_stage wrapper0;
+	reduce_vec_double_stage wrapper1;
 public:
-	reduce0_stage() : ff_Map(1) {
-		pfr.disableScheduler(1);
+	map0_stage() : ff_Map(1) {
+		pfr.disableScheduler(0);
 	}
 
-	utils::elem_type* svc(std::vector<utils::elem_type>* t) {
+	utils::elem_type* svc(std::vector<utils::elem_type> *t) {
 		std::vector<utils::elem_type>& _task = *t;
-		utils::elem_type* out  = new utils::elem_type(wrapper0.identity);
-		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper0.op(sum, elem);};
-		auto bodyF = [this,&_task](const long i, utils::elem_type& sum) {sum = wrapper0.op(sum, _task[i]);};
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce(*out, wrapper0.identity,0,_task.size(),bodyF,reduceF,1);
+		utils::elem_type* out = new utils::elem_type();
+		out->resize(_task.size());
+		ff_Map<std::vector<utils::elem_type>,utils::elem_type>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
+			auto res0 = wrapper0.op(_task[i]);
+			(*out)[i] = wrapper1.op(res0);
+		},1);
 		return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
 	// worker mapping 
-	const char worker_mapping[] = "0,1,2";
+	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vec_stage_stage _source_vec_stage;
-	reduce0_stage _red0_;
+	map0_stage _map0_;
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_red0_);
+	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_stage);
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1],drain_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vec_stage,map(comp(map_vec_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1])) with [ nw: 1],drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	

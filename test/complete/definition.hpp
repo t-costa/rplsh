@@ -65,6 +65,8 @@ std::cout << "[source_vec_stage] result: ";
 utils::print_vec(*v);
 #endif
 
+    utils::waste(100*parameters::minimum_wait);
+
     return v;
   }
 
@@ -158,6 +160,56 @@ std::cout << (*in) << std::endl;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
+//ogni elemento + 2
+struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
+public:
+  explicit seq_vec_vec_stage() {}
+
+  std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
+    std::vector<utils::elem_type> out;
+    out.reserve(in.size());
+
+    for (size_t i=0; i<in.size(); ++i) {
+      out.emplace_back(in[i]+2);
+    }
+
+#ifdef DEBUG
+std::cout << "[seq_vec_vec_stage] compute: ";
+utils::print_vec(out);
+#endif
+
+    return out;
+  }
+};
+
+//ogni elemento + 2 (uguale a seq, ma per map)
+struct map_vec_vec_stage : public map_stage_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>, utils::elem_type, utils::elem_type> {
+public:
+  explicit map_vec_vec_stage() {}
+
+  std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
+    std::vector<utils::elem_type> out;
+    out.reserve(in.size());
+
+    for (auto& el: in) {
+      out.emplace_back(op(el));
+    }
+
+#ifdef DEBUG
+std::cout << "[map_vec_vec_stage] compute: ";
+utils::print_vec(out);
+#endif
+
+    return out;
+  }
+
+  utils::elem_type op(const utils::elem_type& in) override {
+    utils::waste(3*parameters::minimum_wait);
+    return in+2;
+  }
+};
+
 //somma di tutti gli elementi
 struct reduce_vec_double_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type, utils::elem_type, utils::elem_type> {
 public:
@@ -186,57 +238,7 @@ std::cout << out << std::endl;
   }
 };
 
-//moltiplica ogni elemento per 7
-struct map_vec_vec_stage : public map_stage_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>, utils::elem_type, utils::elem_type> {
-public:
-  explicit map_vec_vec_stage() {}
-
-  std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
-    std::vector<utils::elem_type> out;
-    out.reserve(in.size());
-
-    for (auto& el: in) {
-      out.emplace_back(op(el));
-    }
-
-#ifdef DEBUG
-std::cout << "[map_vec_vec_stage] compute: ";
-utils::print_vec(out);
-#endif
-
-    return out;
-  }
-
-  utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(3*parameters::minimum_wait);
-    return in*7;
-  }
-};
-
-//per ogni elemento fa il quadrato
-struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
-public:
-  explicit seq_vec_vec_stage() {}
-
-  std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
-    std::vector<utils::elem_type> out;
-    out.reserve(in.size());
-
-    for (size_t i=0; i<in.size(); ++i) {
-      out.emplace_back(in[i]*in[i]);
-    }
-
-#ifdef DEBUG
-std::cout << "[seq_vec_vec_stage] compute: ";
-utils::print_vec(out);
-#endif
-
-    return out;
-  }
-};
-
 //ogni coppia diventa la sua differenze
-//struct map_vecpair_vec_stage : public map_stage_wrapper<utils::vec_pair, std::vector<double>, std::pair<double, double>, double> {
 struct map_vecpair_vec_stage : public map_stage_wrapper<utils::vec_pair, std::vector<utils::elem_type>, utils::pair, utils::elem_type> {
 public:
   explicit map_vecpair_vec_stage() {}
@@ -264,7 +266,6 @@ utils::print_vec(out);
 };
 
 //inverte le coppie nell'array in input
-//struct map_vecpair_vecpair_stage : public map_stage_wrapper<utils::vec_pair, utils::vec_pair, std::pair<double, double>, std::pair<double, double>> {
 struct map_vecpair_vecpair_stage : public map_stage_wrapper<utils::vec_pair, utils::vec_pair, utils::pair, utils::pair> {
 public:
   explicit map_vecpair_vecpair_stage() {}

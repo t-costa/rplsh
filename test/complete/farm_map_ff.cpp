@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,map(farm(map_vec_vec_stage) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
+// pipe(source_vec_stage,farm(map(map_vec_vec_stage) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
 
 #include <iostream>
 #include <vector>
@@ -78,19 +78,31 @@ public:
 
 int main( int argc, char* argv[] ) {
 	// worker mapping 
-	const char worker_mapping[] = "0,1,2,3,4";
+	const char worker_mapping[] = "0,1,2,3,4,5,6";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vec_stage_stage _source_vec_stage;
+	
+	// vector of workers of farm
+	std::vector<ff_node*> workers;
+	
+	// farm's worker 1
 	map0_stage _map0_;
+	workers.push_back(&_map0_);
+	
+	// add workers to farm
+	ff_farm farm;
+	farm.add_workers(workers);
+	farm.add_collector(NULL);
+	
 	drain_vec_stage_stage _drain_vec_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_map0_);
+	pipe.add_stage(&farm);
 	pipe.add_stage(&_drain_vec_stage);
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vec_stage,map(farm(map_vec_vec_stage) with [ nw: 1]) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vec_stage,farm(map(map_vec_vec_stage) with [ nw: 1]) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	

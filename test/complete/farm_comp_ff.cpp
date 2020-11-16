@@ -1,4 +1,4 @@
-// pipe(source_vecpair_stage,map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)
+// pipe(source_vecpair_stage,farm(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)
 
 #include <iostream>
 #include <vector>
@@ -58,24 +58,43 @@ public:
 	}
 };
 
-class map0_stage : public ff_Map<utils::vec_pair,std::vector<utils::elem_type>> {
+class map_vecpair_vecpair_stage_stage : public ff_node {
 protected:
-	map_vecpair_vecpair_stage wrapper0;
-	map_vecpair_vec_stage wrapper1;
+	map_vecpair_vecpair_stage wrapper; 
 public:
-	map0_stage() : ff_Map(1) {
-		pfr.disableScheduler(0);
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- map_vecpair_vecpair_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
 	}
 
-	std::vector<utils::elem_type>* svc(utils::vec_pair *t) {
-		utils::vec_pair& _task = *t;
-		std::vector<utils::elem_type>* out = new std::vector<utils::elem_type>();
-		out->resize(_task.size());
-		ff_Map<utils::vec_pair,std::vector<utils::elem_type>>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
-			auto res0 = wrapper0.op(_task[i]);
-			(*out)[i] = wrapper1.op(res0);
-		},1);
-		return out;
+	void * svc(void *t) {
+		utils::vec_pair _in  = *((utils::vec_pair*) t);
+		utils::vec_pair* _out  = new utils::vec_pair();
+		*_out = wrapper.compute(_in);
+		delete ((utils::vec_pair*) t);
+		return (void*) _out;
+	}
+};
+
+class map_vecpair_vec_stage_stage : public ff_node {
+protected:
+	map_vecpair_vec_stage wrapper; 
+public:
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- map_vecpair_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
+	}
+
+	void * svc(void *t) {
+		utils::vec_pair _in  = *((utils::vec_pair*) t);
+		std::vector<utils::elem_type>* _out  = new std::vector<utils::elem_type>();
+		*_out = wrapper.compute(_in);
+		delete ((utils::vec_pair*) t);
+		return (void*) _out;
 	}
 };
 
@@ -84,16 +103,33 @@ int main( int argc, char* argv[] ) {
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vecpair_stage_stage _source_vecpair_stage;
-	map0_stage _map0_;
+	
+	// vector of workers of farm
+	std::vector<ff_node*> workers;
+	
+	// farm's worker 1
+	map_vecpair_vecpair_stage_stage _map_vecpair_vecpair_stage;
+	map_vecpair_vec_stage_stage _map_vecpair_vec_stage;
+	ff_comp comp;
+	comp.add_stage(&_map_vecpair_vecpair_stage);
+	comp.add_stage(&_map_vecpair_vec_stage);
+	
+	workers.push_back(&comp);
+	
+	// add workers to farm
+	ff_farm farm;
+	farm.add_workers(workers);
+	farm.add_collector(NULL);
+	
 	drain_vec_stage_stage _drain_vec_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_vecpair_stage);
-	pipe.add_stage(&_map0_);
+	pipe.add_stage(&farm);
 	pipe.add_stage(&_drain_vec_stage);
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vecpair_stage,map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vecpair_stage,farm(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	

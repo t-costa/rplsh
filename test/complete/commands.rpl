@@ -1,38 +1,107 @@
 import "/home/tommaso/forked/rplsh/test/complete/definition.hpp"
 
+# expected result: v0, v1, ... vn => v0+2, v1+2, ... vn+2
+# a
+simple_seq = pipe(source_vec_stage, seq_vec_vec_stage, drain_vec_stage)
+gencode simple_seq as seq_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(a)
+farm_seq = pipe(source_vec_stage, farm(seq_vec_vec_stage), drain_vec_stage)
+gencode farm_seq as farm_seq_ff in "/home/tommaso/forked/rplsh/test/complete"
+
 # map(a)
-map_seq = pipe(source_vecpair_stage, map(map_vecpair_vec_stage), drain_vec_stage)
+map_seq = pipe(source_vec_stage, map(map_vec_vec_stage), drain_vec_stage)
 gencode map_seq as map_seq_ff in "/home/tommaso/forked/rplsh/test/complete"
 
-# map(comp(a, b))
-map_comp = pipe(source_vecpair_stage, map(comp(map_vecpair_vec_stage, map_vec_vec_stage)), drain_vec_stage)
-gencode map_comp as map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+# farm(map(a))
+farm_map = pipe(source_vec_stage, farm(map(map_vec_vec_stage)), drain_vec_stage)
+gencode farm_map as farm_map_ff in "/home/tommaso/forked/rplsh/test/complete"
 
-# farm(map(comp(a, b)))
-farm_map_comp = pipe(source_vecpair_stage, farm(map(comp(map_vecpair_vec_stage, map_vec_vec_stage))), drain_vec_stage)
-gencode farm_map_comp as farm_map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
-
-# map(farm(a))
-map_farm = pipe(source_vecpair_stage, map(farm(map_vecpair_vec_stage)), drain_vec_stage)
+# map(farm(a)) -> technically wrong, not two tier model
+map_farm = pipe(source_vec_stage, map(farm(map_vec_vec_stage)), drain_vec_stage)
 gencode map_farm as map_farm_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+################################################################################
+
+#expected result: v0, v1, ... vn => (v0 + v1 + ... + vn)
+# seq_reduce
+seq_red = pipe(source_vec_stage, reduce_vec_double_stage, drain_stage)
+gencode seq_red as seq_red_node_ff in "/home/tommaso/forked/rplsh/test/complete"
 
 # reduce(a)
 red_seq = pipe(source_vec_stage, reduce(reduce_vec_double_stage), drain_stage)
-gencode red_seq as red_seq_ff in "/home/tommaso/forked/rplsh/test/complete"
+gencode red_seq as red_ff in "/home/tommaso/forked/rplsh/test/complete"
 
-# reduce(comp(a, b)) -> OCCHIO: uno dei due elementi della reduce non ha le op che servono
-red_comp = pipe(source_vec_stage, reduce(comp(map_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
-gencode red_comp as red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+# farm(reduce(a))
+farm_red = pipe(source_vec_stage, farm(reduce(reduce_vec_double_stage)), drain_stage)
+gencode farm_red as farm_red_ff in "/home/tommaso/forked/rplsh/test/complete"
 
-# farm(reduce(comp(a, b))) -> OCCHIO: uno dei due elementi della reduce non ha le op che servono
-#farm_red_comp = pipe(source_vec_stage, reduce(comp(seq_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
-#gencode farm_red_comp as farm_red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
-#non funziona, costruisce una map su a, e poi reduce su b, quindi a deve essere map e non seq
-
-# reduce(farm(a))
+# reduce(farm(a)) -> technically wrong, not two tier model
 red_farm = pipe(source_vec_stage, reduce(farm(reduce_vec_double_stage)), drain_stage)
 gencode red_farm as red_farm_ff in "/home/tommaso/forked/rplsh/test/complete"
 
+################################################################################
+
+#expected result: (v00, v01), (v10, v11), ... (vn0, vn1) => (v01-v00), (v11-v10), (vn1-vn0)
+# comp(a, b)
+datap_comp = pipe(source_vecpair_stage, comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage), drain_vec_stage)
+gencode datap_comp as comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# map(comp(a, b))
+map_comp = pipe(source_vecpair_stage, map(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage)), drain_vec_stage)
+gencode map_comp as map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(comp(a, b))
+farm_comp = pipe(source_vecpair_stage, farm(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage)), drain_vec_stage)
+gencode farm_comp as farm_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(map(comp(a, b)))
+farm_map_comp = pipe(source_vecpair_stage, farm(map(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage))), drain_vec_stage)
+gencode farm_map_comp as farm_map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+################################################################################
+
+# expected result: v0, v1, ... vn => (v0+2 + v1+2 + ... + vn+2)
+# comp(a, b) with reduce node
+seq_comp_red = pipe(source_vec_stage, comp(map_vec_vec_stage, reduce_vec_double_stage), drain_stage)
+gencode seq_comp_red as seq_comp_red_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# reduce(comp(a, b))
+red_comp = pipe(source_vec_stage, reduce(comp(map_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
+gencode red_comp as red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# farm(reduce(comp(a, b)))
+farm_red_comp = pipe(source_vec_stage, reduce(comp(map_vec_vec_stage, reduce_vec_double_stage)), drain_stage)
+gencode farm_red_comp as farm_red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+# reduce(comp(map(a), b)) -> NON SO COSA POTREBBE USCIRCI!
+#red_map_comp = pipe(source_vec_stage, reduce(comp(map(map_vec_vec_stage), reduce_vec_double_stage)), drain_stage)
+#gencode red_map_comp as red_map_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+# esce qualcosa che non compila!! controlla!
+
+# map(comp(a, reduce(b))) -> NON SO COSA POTREBBE USCIRCI!
+#map_red_comp = pipe(source_vec_stage, map(comp(map_vec_vec_stage, reduce(reduce_vec_double_stage))), drain_stage)
+#gencode map_red_comp as map_red_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+# esce qualcosa che non compila!! controlla!
+
+################################################################################
+
+# expected_result: (v00, v01), (v10, v11), ... (vn0, vn1) => ((v01 - v00) + (v11 - v10) + ... + (vn1 - vn0))
+# reduce(comp(a, b, c))
+red_big_comp = pipe(source_vecpair_stage, reduce(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage, reduce_vec_double_stage)), drain_stage)
+gencode red_big_comp as red_big_comp_ff in "/home/tommaso/forked/rplsh/test/complete"
+
+################################################################################
+
+#expected result:
+# (v00, v01), (v10, v11), ... (vn0, vn1) =>
+# (v01, v00), (v11, v10), ... (vn1, vn0) =>
+# (v01-v00), (v11-v10), ... (vn1-vn0) == a, b, ..., n =>
+# a+2, b+2, ... n+2 =>
+# a+4, b+4, ... n+4 =>
+# a+8, b+8, ... n+8 =>
+# a+16, b+16, ... n+16 =>
+# (a+16 + b+16 + ... + n+16)
 # pipe(farm(map(comp(d, a, b))), comp(e, b), reduce(comp(b, c)))
 complex_farm = farm(map(comp(map_vecpair_vecpair_stage, map_vecpair_vec_stage, map_vec_vec_stage)))
 complex_comp = comp(seq_vec_vec_stage, map_vec_vec_stage)

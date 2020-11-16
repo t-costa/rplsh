@@ -16,7 +16,7 @@ namespace utils {
   typedef std::pair<elem_type, elem_type> pair;
   typedef std::vector<pair> vec_pair;
 
-  uint seed = 0;
+  uint seed = 1;
 
   void init_random() {
     srand(0);
