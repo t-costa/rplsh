@@ -6,6 +6,7 @@
 #include <climits>
 #include <cstdlib>
 #include <fstream>
+#include <regex>
 
 namespace utils {
 
