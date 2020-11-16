@@ -1,4 +1,4 @@
-//reduce(seq, seq)
+//comp(seq_map, seq_red)
 #include <iostream>
 #include <vector>
 

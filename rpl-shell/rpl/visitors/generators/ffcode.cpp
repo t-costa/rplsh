@@ -180,11 +180,12 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     ss << "public:\n";
     ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree, false) << "\n";
     ss << "\t" << typeout << "* svc("<< typein << " *t) {\n";
+    //TODO: _task is useless
     ss << "\t\t" << typein << "& _task = *t;\n";
     if (typein != typeout) {
         // if two different "container" types, we need this
         ss << "\t\t" << typeout << "* out = new " << typeout << "();\n";
-        ss << "\t\tout->resize(_task.size());\n"; //TODO really necessary?
+        ss << "\t\tout->resize(_task.size());\n";
     } else {
         ss << "\t\t" << typeout << "* out = &_task;\n";
     }
@@ -193,29 +194,18 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     size_t i;
     string par;
     ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(),";
+
     // begin lambda
-    // TODO: lazy -> do better
-    if (typein != typeout) {
-        ss << "[this, &_task, &out](const long i) {\n";
-        for (i = 0; i < datap_nodes.size()-1; i++) {
-            par = !i ? "_task[i]" : ("res" + to_string(i-1));
-            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
-        }
+    ss << "[this, &_task, &out](const long i) {\n";
+    for (i = 0; i < datap_nodes.size()-1; i++) {
         par = !i ? "_task[i]" : ("res" + to_string(i-1));
-        ss << "\t\t\t(*out)[i] = wrapper" << i << ".op(" << par << ");\n";
-        ss << "\t\t}";
-    } else {
-        ss << "[this, &_task](const long i) {\n";
-        for (i = 0; i < datap_nodes.size()-1; i++) {
-            // TODO this could be a problem...
-            par = !i ? "_task[i]" : ("res" + to_string(i-1));
-            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
-        }
-        par = !i ? "_task[i]" : ("res" + to_string(i-1));
-        ss << "\t\t\twrapper" << i << ".op(" << par << ");\n";
-        ss << "\t\t}";
+        ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
     }
+    par = !i ? "_task[i]" : ("res" + to_string(i-1));
+    ss << "\t\t\t(*out)[i] = wrapper" << i << ".op(" << par << ");\n";
+    ss << "\t\t}";
     // end lambda
+
     ss << "," << to_string( nw(n) ) << ");\n";
     // end parallel for
 
@@ -243,7 +233,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     // if stream/datap inside, ignore it when compile and show a warning
     pardegree nw(env);           // setup the pardegree visitor
     get_seq_wrappers gsw(env);   // setup the get_seq_wrappers visitor
-    bool is_pointer = false;
+//    bool is_pointer = false;
 
     gsw(n); // find the sequential wrappers
     auto src_nodes = gsw.get_source_nodes();
@@ -257,6 +247,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 
     // in case of multiple sequential nodes:
     // reduce(comp(a,b,c)) == pipe(map(comp(a,b)),c)
+    // where a, b map nodes (must implement op)
     // where c is the only node implementing a binary operation f: v1 x v2 -> res
     stringstream ss;
     string typein  = datap_nodes.front()->typein;
@@ -273,13 +264,16 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     string task = "_task";
     ss << "\t\t" << typein << "& _task = *t;\n";
 
+    size_t idx = datap_nodes.size()-1;
+    ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
+    ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
+
     if ( datap_nodes.size() > 1) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
         string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
+        //FIXME: from new to unique pointer?
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
-        ss << "\t\tmapout->resize(_task.size());\n"; //TODO really necessary?
-        task = "mapout";
-        is_pointer = true;
+        ss << "\t\tmapout->resize(_task.size());\n";
 
         size_t i;
         string par;
@@ -293,27 +287,21 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         }
         par = !i ? "_task[i]" : ("res" + to_string(i-1));
         ss << "\t\t\t(*mapout)[i] = wrapper" << i << ".op(" << par << ");\n";
-        ss << "\t\t}\n";
+        ss << "\t\t}";
         // end lambda
         ss << "," << to_string( nw(n) ) << ");\n";
         // end parallel for
-    }
 
-    size_t idx = datap_nodes.size()-1;
-    ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
-    ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
-    ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
-    ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,";
-    //TODO: controlla che quando è red(seq) task non sia effettivamente un puntatore
-    if (is_pointer) {
-        ss << task << "->size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
+        ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+
+        ss << "\t\t\ndelete mapout;\n";
     } else {
-        ss << task << ".size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
+        ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
     }
 
-
-    //TODO memory leak of previous node
-    ss << "\t\t" << "return out;\n";
+    ss << "\t\t\n" << "return out;\n";
     ss << "\t}\n";
     ss << "};\n\n";
 

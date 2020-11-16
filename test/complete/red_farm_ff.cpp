@@ -72,7 +72,8 @@ public:
 		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper0.op(sum, elem);};
 		auto bodyF = [this,&_task](const long i, utils::elem_type& sum) {sum = wrapper0.op(sum, _task[i]);};
 		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce(*out, wrapper0.identity,0,_task.size(),bodyF,reduceF,1);
-		return out;
+		
+return out;
 	}
 };
 

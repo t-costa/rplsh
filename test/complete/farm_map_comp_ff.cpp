@@ -1,4 +1,4 @@
-// pipe(source_vecpair_stage,farm(map(comp(map_vecpair_vec_stage,map_vec_vec_stage)) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
+// pipe(source_vecpair_stage,farm(map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1]) with [ nw: 1],drain_vec_stage)
 
 #include <iostream>
 #include <vector>
@@ -60,8 +60,8 @@ public:
 
 class map0_stage : public ff_Map<utils::vec_pair,std::vector<utils::elem_type>> {
 protected:
-	map_vecpair_vec_stage wrapper0;
-	map_vec_vec_stage wrapper1;
+	map_vecpair_vecpair_stage wrapper0;
+	map_vecpair_vec_stage wrapper1;
 public:
 	map0_stage() : ff_Map(1) {
 		pfr.disableScheduler(0);
@@ -105,7 +105,7 @@ int main( int argc, char* argv[] ) {
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vecpair_stage,farm(map(comp(map_vecpair_vec_stage,map_vec_vec_stage)) with [ nw: 1]) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vecpair_stage,farm(map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1]) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	

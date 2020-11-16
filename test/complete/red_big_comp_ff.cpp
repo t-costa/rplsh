@@ -1,4 +1,4 @@
-// pipe(source_vecpair_stage,map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)
+// pipe(source_vecpair_stage,reduce(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -39,61 +39,69 @@ public:
 	}
 };
 
-class drain_vec_stage_stage : public ff_node {
+class drain_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_vec_stage> drn; 
+	std::unique_ptr<drain_stage> drn; 
 
 public:
-	drain_vec_stage_stage() : drn(new drain_vec_stage()) {}
+	drain_stage_stage() : drn(new drain_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- drain_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- drain_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
 
 	void * svc(void *t) {
-		drn->process((std::vector<utils::elem_type>*) t);
+		drn->process((utils::elem_type*) t);
 		return (GO_ON);
 	}
 };
 
-class map0_stage : public ff_Map<utils::vec_pair,std::vector<utils::elem_type>> {
+class reduce0_stage : public ff_Map<utils::vec_pair,utils::elem_type,utils::elem_type> {
 protected:
 	map_vecpair_vecpair_stage wrapper0;
 	map_vecpair_vec_stage wrapper1;
+	reduce_vec_double_stage wrapper2;
 public:
-	map0_stage() : ff_Map(1) {
-		pfr.disableScheduler(0);
+	reduce0_stage() : ff_Map(1) {
+		pfr.disableScheduler(1);
 	}
 
-	std::vector<utils::elem_type>* svc(utils::vec_pair *t) {
+	utils::elem_type* svc(utils::vec_pair* t) {
 		utils::vec_pair& _task = *t;
-		std::vector<utils::elem_type>* out = new std::vector<utils::elem_type>();
-		out->resize(_task.size());
-		ff_Map<utils::vec_pair,std::vector<utils::elem_type>>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
+		utils::elem_type* out  = new utils::elem_type(wrapper2.identity);
+		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper2.op(sum, elem);};
+		std::vector<utils::elem_type>* mapout = new std::vector<utils::elem_type>();
+		mapout->resize(_task.size());
+		ff_Map<utils::vec_pair,utils::elem_type,utils::elem_type>::parallel_for(0, _task.size(),[this, &_task, &mapout](const long i) {
 			auto res0 = wrapper0.op(_task[i]);
-			(*out)[i] = wrapper1.op(res0);
+			(*mapout)[i] = wrapper1.op(res0);
 		},1);
-		return out;
+		auto bodyF = [this,&mapout](const long i, utils::elem_type& sum) {sum = wrapper2.op(sum, (*mapout)[i]);};
+		ff_Map<utils::vec_pair,utils::elem_type,utils::elem_type>::parallel_reduce(*out, wrapper2.identity,0,mapout->size(),bodyF,reduceF,1);
+		
+delete mapout;
+		
+return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
 	// worker mapping 
-	const char worker_mapping[] = "0,1,2,3,4";
+	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vecpair_stage_stage _source_vecpair_stage;
-	map0_stage _map0_;
-	drain_vec_stage_stage _drain_vec_stage;
+	reduce0_stage _red0_;
+	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_vecpair_stage);
-	pipe.add_stage(&_map0_);
-	pipe.add_stage(&_drain_vec_stage);
+	pipe.add_stage(&_red0_);
+	pipe.add_stage(&_drain_stage);
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vecpair_stage,map(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage)) with [ nw: 1],drain_vec_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vecpair_stage,reduce(comp(map_vecpair_vecpair_stage,map_vecpair_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	

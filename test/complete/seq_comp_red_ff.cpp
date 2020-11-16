@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,reduce(comp(map_vec_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)
+// pipe(source_vec_stage,comp(map_vec_vec_stage,reduce_vec_double_stage),drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -58,30 +58,43 @@ public:
 	}
 };
 
-class reduce0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type> {
+class map_vec_vec_stage_stage : public ff_node {
 protected:
-	map_vec_vec_stage wrapper0;
-	reduce_vec_double_stage wrapper1;
+	map_vec_vec_stage wrapper; 
 public:
-	reduce0_stage() : ff_Map(1) {
-		pfr.disableScheduler(1);
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- map_vec_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
 	}
 
-	utils::elem_type* svc(std::vector<utils::elem_type>* t) {
-		std::vector<utils::elem_type>& _task = *t;
-		utils::elem_type* out  = new utils::elem_type(wrapper1.identity);
-		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper1.op(sum, elem);};
-		std::vector<utils::elem_type>* mapout = new std::vector<utils::elem_type>();
-		mapout->resize(_task.size());
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_for(0, _task.size(),[this, &_task, &mapout](const long i) {
-			(*mapout)[i] = wrapper0.op(_task[i]);
-		},1);
-		auto bodyF = [this,&mapout](const long i, utils::elem_type& sum) {sum = wrapper1.op(sum, (*mapout)[i]);};
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce(*out, wrapper1.identity,0,mapout->size(),bodyF,reduceF,1);
-		
-delete mapout;
-		
-return out;
+	void * svc(void *t) {
+		std::vector<utils::elem_type> _in  = *((std::vector<utils::elem_type>*) t);
+		std::vector<utils::elem_type>* _out  = new std::vector<utils::elem_type>();
+		*_out = wrapper.compute(_in);
+		delete ((std::vector<utils::elem_type>*) t);
+		return (void*) _out;
+	}
+};
+
+class reduce_vec_double_stage_stage : public ff_node {
+protected:
+	reduce_vec_double_stage wrapper; 
+public:
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- reduce_vec_double_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
+	}
+
+	void * svc(void *t) {
+		std::vector<utils::elem_type> _in  = *((std::vector<utils::elem_type>*) t);
+		utils::elem_type* _out  = new utils::elem_type();
+		*_out = wrapper.compute(_in);
+		delete ((std::vector<utils::elem_type>*) t);
+		return (void*) _out;
 	}
 };
 
@@ -90,16 +103,21 @@ int main( int argc, char* argv[] ) {
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vec_stage_stage _source_vec_stage;
-	reduce0_stage _red0_;
+	map_vec_vec_stage_stage _map_vec_vec_stage;
+	reduce_vec_double_stage_stage _reduce_vec_double_stage;
+	ff_comp comp;
+	comp.add_stage(&_map_vec_vec_stage);
+	comp.add_stage(&_reduce_vec_double_stage);
+	
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_red0_);
+	pipe.add_stage(&comp);
 	pipe.add_stage(&_drain_stage);
 	
 	
 	parameters::sequential = false;
-	utils::write("pipe(source_vec_stage,reduce(comp(map_vec_vec_stage,reduce_vec_double_stage)) with [ nw: 1],drain_stage)", "./res_ff.txt");
+	utils::write("pipe(source_vec_stage,comp(map_vec_vec_stage,reduce_vec_double_stage),drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	
