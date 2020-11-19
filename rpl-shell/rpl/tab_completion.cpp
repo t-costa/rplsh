@@ -92,9 +92,20 @@ void tab_completion::match_env_parameters(const std::string& textstr, std::vecto
     }
 }
 
+void tab_completion::match_show_parameters(const std::string &textsr, std::vector<std::string> &matches) {
+    for (const auto& word : show_parameters) {
+        add_match(word, textsr, matches);
+    }
+}
+
 void tab_completion::match_nfun_parameters(const std::string &textstr, std::vector<std::string> &matches) {
-    //TODO: qui in realtà datap non va bene per show!
     for (const auto& word : non_functional_parameters) {
+        add_match(word, textstr, matches);
+    }
+}
+
+void tab_completion::match_grain_parameters(const std::string &textstr, std::vector<std::string> &matches) {
+    for (const auto& word : grain_parameters) {
         add_match(word, textstr, matches);
     }
 }
@@ -265,7 +276,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
                     }
                 }
 
-                if (splitted[0] == "show" || splitted[0] == "annotate") {
+                if (splitted[0] == "show") {
                     switch (count_word) {
                         case 0 :
                         case 1 :
@@ -273,14 +284,42 @@ char* tab_completion::character_name_generator(const char *text, int state){
                             match_identifier(textstr, matches);
                             break;
                         case 3 :
-                            if (splitted[0] == "show") {
-                                match_by(textstr, matches);
-                            } else {
-                                match_with(textstr, matches);
+                            match_by(textstr, matches);
+                            break;
+                        default:
+                            match_show_parameters(textstr, matches);
+                            break;
+                    }
+                }
+
+                if (splitted[0] == "annotate") {
+                    switch (count_word) {
+                        case 0 :
+                        case 1 :
+                        case 2 :
+                            match_identifier(textstr, matches);
+                            break;
+                        case 3 :
+                            match_with(textstr, matches);
+                            break;
+                        case 4:
+
+                                match_nfun_parameters(textstr, matches);
+                            break;
+                        case 5:
+                            //number
+                            break;
+                        case 6:
+                            if (splitted[3] == "grain") {
+                                match_as(textstr, matches);
+                            }
+                            break;
+                        case 7:
+                            if (splitted[3] == "grain") {
+                                match_grain_parameters(textstr, matches);
                             }
                             break;
                         default:
-                            //TODO: per show va eliminato il datap
                             match_nfun_parameters(textstr, matches);
                             break;
                     }

@@ -93,4 +93,16 @@ private:
     std::string type;
 };
 
+struct ann_grain : public ann_visitor
+{
+    explicit ann_grain(rpl_environment& env);
+    void visit (seq_node& n) override;
+
+    bool operator() (skel_node& n, ann_node& a) override;
+
+private:
+    long value;
+    std::string scheduling_type;
+};
+
 #endif

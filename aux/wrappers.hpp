@@ -18,18 +18,15 @@ public:
 //degli hooks per init/cleanup alla fine...
 //non obbligatori e li lasci vuoti in caso...
 
-//TODO: e se la map ha più wrappers dentro? funziona tutto??
 template<typename Tin,
           typename Tout,
-          typename Tin_el, //se è vector, preso come tipo interno, altrimenti è = Tout
-          typename Tout_el>  //Tin è per forza vector (o container comunque)
+          typename Tin_el, //tipo degli elementi di Tin
+          typename Tout_el>  //tipo degli elementi di Tout, o direttamente Tout se non è un vettore
           //typename T>
 class map_stage_wrapper {
 
   //lascio la compute perchè così lo stadio può essere
   //messo dentro un qualsiasi pattern (farm, pipe, seq...)
-  //TODO: devo rivedere come vengono i presi/come
-  //fa rplsh a capire dal nodo cosa ci deve cacciare
   virtual Tout compute(Tin& input) = 0;
 
   virtual Tout_el op(const Tin_el& input) = 0;

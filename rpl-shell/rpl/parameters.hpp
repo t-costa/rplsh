@@ -45,7 +45,8 @@ namespace par
     const std::string pardegree      = "pardegree";
     const std::string resources      = "resources";
     const std::string datap          = "datap";
-    const std::string inside_data_parallel = "inside_data_parallel";
+//    const std::string inside_data_parallel = "inside_data_parallel";
+    const std::string grain          = "grain";
 
     const std::string typein  = "typein";
     const std::string typeout = "typeout";
@@ -66,6 +67,10 @@ namespace par
     const std::string unranked       = "unrank";
     const std::string noann          = "noann";
     const std::string full           = "full";
+
+    /* optional flags for grain */
+    const std::string static_grain   = "static";
+    const std::string dynamic_grain  = "dynamic";
 }
 
 #endif

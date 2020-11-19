@@ -33,10 +33,10 @@ ff:	$(FFBIN)
 sequential: $(SEQBIN)
 
 $(FFBIN): $(FFSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(FF) -I$(RPL) -o $@ $@.cpp $(LIBS)
+	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -o $@ $@.cpp $(LIBS)
 
 $(SEQBIN): $(SEQSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
+	$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
 #per opt
 #$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
 

@@ -68,6 +68,7 @@ map<string, token::type> token::st_map =
    {par::pardegree,     token::parameter},
    {par::resources,     token::parameter},
    {par::datap,         token::parameter},
+   {par::grain,         token::parameter},
 
    {par::emitter_time,  token::parameter},
    {par::collector_time,token::parameter},
@@ -83,6 +84,8 @@ map<string, token::type> token::st_map =
    {par::unranked,      token::parameter},
    {par::noann,         token::parameter},
    {par::full,          token::parameter},
+   {par::static_grain,  token::parameter},
+   {par::dynamic_grain, token::parameter},
 
    /* future stuff? */
    {par::arch,          token::parameter}
