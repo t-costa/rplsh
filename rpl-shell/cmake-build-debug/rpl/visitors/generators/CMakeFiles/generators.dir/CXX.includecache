@@ -70,6 +70,12 @@ visitor_interface.hpp
 utils/printable.hpp
 ../rpl/visitors/utils/printable.hpp
 
+/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/compseq_setter.cpp
+compseq_setter.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/compseq_setter.hpp
+iostream
+-
+
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/compseq_setter.hpp
 visitors/visitor_interface.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/visitors/visitor_interface.hpp
@@ -112,6 +118,16 @@ utility
 sstream
 -
 string
+-
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffmapper.cpp
+ffmapper.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffmapper.hpp
+vector
+-
+algorithm
+-
+iostream
 -
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/generators/ffmapper.hpp

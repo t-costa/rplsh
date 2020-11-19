@@ -65,13 +65,27 @@ const std::unordered_set<std::string> optimization_rules {
         "mapmapopt"
 };
 
+const std::unordered_set<std::string> show_parameters {
+        "servicetime",
+        "latency",
+        "pardegree",
+        "compltime",
+        "resources"
+};
+
 const std::unordered_set<std::string> non_functional_parameters {
         "servicetime",
         "latency",
         "pardegree",
         "compltime",
         "resources",
-        "datap"
+        "datap",
+        "grain"
+};
+
+const std::unordered_set<std::string> grain_parameters {
+        "static",
+        "dynamic"
 };
 
 const std::unordered_set<std::string> environmental_parameters {

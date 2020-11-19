@@ -193,6 +193,13 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     // start parallel for
     size_t i;
     string par;
+    //TODO: qui dovrò aggiungere il grain del nodo come argomento,
+    //  se diverso da valore di default. In caso di comp???
+    //  penso le uniche possibilità siano il minimo o il massimo dei
+    //  due grain, non so bene quale a questo punto...
+    //  => serve controllare ff
+    //  NO NON é VERO! potrei sempre fare due parallel_for diversi ognuno
+    //  con il grain specificato! (però più overhead)
     ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(),";
 
     // begin lambda

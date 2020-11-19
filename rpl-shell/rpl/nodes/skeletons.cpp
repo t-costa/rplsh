@@ -147,11 +147,11 @@ seq_node::seq_node( double servicetime, bool datap_flag ) :
     datap_flag(datap_flag)
 {}
 
-//TODO: why all the strings passed by value (also source and drain)?? TC
 seq_node::seq_node( std::string name, std::string typein, std::string typeout, std::string file ) :
     concrete_skel_node( *this ),
     servicetime(1.0),
     datap_flag(false),
+    grain(0),  //FIXME: valore di default?
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),
@@ -163,6 +163,7 @@ seq_node::seq_node(std::string name, std::string typein, std::string typeout, st
     concrete_skel_node<seq_node>(*this),
     servicetime(1.0),
     datap_flag(true),   //it's for a map or reduce
+    grain(0),    //FIXME: valore di default?
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),

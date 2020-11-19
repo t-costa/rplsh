@@ -224,8 +224,21 @@ rpl_node* parser::ann_rule(token& tok)
     expect(tok, token::parameter, par);
     if ( tok.kind == token::word )
         expect(tok, token::word, word);
-    else if ( tok.kind == token::integer )
+    else if ( tok.kind == token::integer ) {
         expect(tok, token::integer, value);
+        //for grain
+        if (tok.kind == token::as) {
+            expect(tok, token::as);
+            //only two options, static or dynamic
+            expect(tok, token::parameter, word);
+            /*
+             * par = grain
+             * id = (nome_stage, indice_stage)
+             * value = valore_grain
+             * word = static/dynamic
+             * */
+        }
+    }
     else if (tok.kind == token::number)
         expect(tok, token::number, value);
     else {
@@ -405,7 +418,6 @@ skel_node* parser::pattexp_rule(token& tok)
 }
 
 //  <seq> ::= 'seq' '(' <word> [ ',' <number> ] ')'
-//  TODO maybe also <word> should be optional -> possibility to do "a = seq()"
 skel_node* parser::seq_rule(token& tok)
 {
     bool bool_value = false;
@@ -464,7 +476,6 @@ skel_node* parser::drain_rule(token& tok) {
     return new drain_node(ts);
 
 }
-
 
 //  <comp_pipe> ::= ('comp' | 'pipe') '(' <pattexp> (',' <pattexp>)+ ')'
 skel_node* parser::comp_pipe_rule(token& tok)

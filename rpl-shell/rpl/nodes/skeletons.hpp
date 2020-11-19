@@ -67,6 +67,10 @@ struct seq_node : public concrete_skel_node<seq_node> {
     skel_node* clone() override;
     double servicetime;
     bool datap_flag;
+
+    //test for grain -> long perchè così è definito su ff
+    long grain;
+
     std::string name;
     std::string typein;
     std::string typeout;

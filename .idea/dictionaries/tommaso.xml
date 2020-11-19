@@ -13,17 +13,20 @@
       <w>compltime</w>
       <w>compofmap</w>
       <w>compseq</w>
+      <w>cout</w>
       <w>datap</w>
       <w>decl</w>
       <w>decls</w>
       <w>delset</w>
       <w>disp</w>
+      <w>endl</w>
       <w>exprecurse</w>
       <w>farmelim</w>
       <w>farmfarmelim</w>
       <w>farmfarmopt</w>
       <w>farmintro</w>
       <w>farmopt</w>
+      <w>fastflow</w>
       <w>ffcode</w>
       <w>ffmap</w>
       <w>ffmapper</w>
@@ -34,6 +37,7 @@
       <w>fvar</w>
       <w>gdispatch</w>
       <w>gencode</w>
+      <w>getcpu</w>
       <w>getid</w>
       <w>getline</w>
       <w>getres</w>
@@ -42,6 +46,7 @@
       <w>ifdef</w>
       <w>inputsize</w>
       <w>interpr</w>
+      <w>iostream</w>
       <w>ivisitor</w>
       <w>latencytime</w>
       <w>longestrun</w>
@@ -58,6 +63,7 @@
       <w>maxresources</w>
       <w>mnodes</w>
       <w>modifytree</w>
+      <w>msecs</w>
       <w>mytuple</w>
       <w>newnode</w>
       <w>newptr</w>
@@ -106,6 +112,7 @@
       <w>strrep</w>
       <w>subarray</w>
       <w>subexp</w>
+      <w>task;</w>
       <w>templated</w>
       <w>textstr</w>
       <w>toclone</w>
@@ -120,6 +127,8 @@
       <w>unranks</w>
       <w>unranktorank</w>
       <w>unrnk</w>
+      <w>varfrom</w>
+      <w>varto</w>
       <w>vdispatch</w>
       <w>wpos</w>
       <w>wtype</w>

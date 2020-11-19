@@ -46,7 +46,7 @@ void usage(const token& tok) {
         }
         case token::annotate : {
             std::cout << "Annotate usage: ";
-            std::cout << "annotate <identifier> with <parameter value>" << std::endl;
+            std::cout << "annotate <identifier> with <parameter> <value> [optional for grain: as <static/dynamic>]" << std::endl;
             break;
         }
         case token::rewrite : {
