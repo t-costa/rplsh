@@ -11,9 +11,9 @@ namespace aux{
     }
 
     template <typename T>
-    double time_elapsed(time_point<high_resolution_clock> t2, time_point<high_resolution_clock> t1) {
+    double time_elapsed(time_point<high_resolution_clock> t1, time_point<high_resolution_clock> t2) {
 
-        auto diff = duration_cast<T>( t2 - t1 );
+        auto diff = duration_cast<std::chrono::milliseconds>( t2 - t1 );
         return diff.count();
 
     }

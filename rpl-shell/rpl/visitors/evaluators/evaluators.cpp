@@ -2,7 +2,6 @@
 #include "nodes/skeletons.hpp"
 #include "visitors/visitors.hpp"
 #include <iostream>
-#include <functional>
 #include <algorithm>
 #include <tuple>
 #include <cmath>
@@ -98,7 +97,8 @@ void servicetime::visit(farm_node& n) {
  * @param n map node
  */
 void servicetime::visit(map_node& n) {
-    res = (*this)(*n.get(0));
+    //TODO: check
+    res = (*this)(*n.get(0)) / n.pardegree;
 }
 
 /**
@@ -107,11 +107,11 @@ void servicetime::visit(map_node& n) {
  * @param n reduce node
  */
 void servicetime::visit(reduce_node& n) {
-    // assuming Tf is the servicetime  of the reduce function f:
+    // assuming Tf is the servicetime  of the reduce function f (datap):
     // ts(n) = Tf / nw + log2(nw) * Tf
 
     int nw = n.pardegree;
-    res = (*this)(*n.get(0));            // res == Tf / nw TODO: are you sure?? When do we divide by nw? TC
+    res = (*this)(*n.get(0));            // res == Tf / nw
     res = res + log2(n.pardegree) * (res/nw);   //  Tf == res*nw
 }
 
@@ -213,7 +213,8 @@ void latencytime::visit(farm_node& n) {
  * @param n map node
  */
 void latencytime::visit(map_node& n) {
-    res = env.get_scatter_time() + (*this)( *n.get(0) ) + env.get_gather_time();
+    //TODO: check -> prima era sernza il /nw ma non mi tornava
+    res = env.get_scatter_time() + (*this)( *n.get(0) ) / n.pardegree + env.get_gather_time();
 }
 
 /**
@@ -227,7 +228,7 @@ void latencytime::visit(reduce_node& n) {
 
     int nw = n.pardegree;
     res = (*this)(*n.get(0));                   // res == Tf / nw
-    res = res + log2(n.pardegree) * (res/nw);   // Tf == res*nw TODO: code and comments don't match!
+    res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
 }
 
 /**
@@ -328,7 +329,7 @@ void completiontime::visit( pipe_node& n ) {
 }
 
 /**
- * Computes the latency of n and sets res
+ * Computes the completion time of n and sets res
  * @param n farm node
  */
 void completiontime::visit( farm_node& n ) {
@@ -337,11 +338,13 @@ void completiontime::visit( farm_node& n ) {
 }
 
 /**
- * Computes latency of n and sets res
+ * Computes completion time of n and sets res
  * @param n map node
  */
 void completiontime::visit( map_node& n ) {
-    res = env.get_dim() * lat(n);
+    //TODO: non mi torna come era definito
+    //res = env.get_dim() * lat(n);
+    res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
 /**
@@ -349,7 +352,9 @@ void completiontime::visit( map_node& n ) {
  * @param n reduce node
  */
 void completiontime::visit( reduce_node& n ) {
-    res = env.get_dim() * lat(n);
+    //TODO: anche qui, stessa cosa di map
+    //res = env.get_dim() * lat(n);
+    res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
 /**
@@ -551,6 +556,7 @@ void resources::visit( farm_node& n ) {
  * @param n map node
  */
 void resources::visit( map_node& n ) {
+    //TODO: with dynamic grain, do I have one more resource for the scheduler?
     res = n.pardegree * (*this)(*n.get(0)) + 2;  //scatter + gather
 }
 
@@ -559,6 +565,8 @@ void resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void resources::visit( reduce_node& n ) {
+    //TODO: la reduce non ha scatter e gather???
+    //TODO: with dynamic grain, do I have one more resource for the scheduler?
     res = n.pardegree * (*this)(*n.get(0));
 }
 

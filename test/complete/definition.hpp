@@ -174,6 +174,9 @@ public:
       out.emplace_back(in[i]+2);
     }
 
+    //stessa attesa di versione map
+    utils::waste(3*in.size()*parameters::minimum_wait);
+
 #ifdef DEBUG
 std::cout << "[seq_vec_vec_stage] compute: ";
 utils::print_vec(out);

@@ -68,9 +68,6 @@ struct seq_node : public concrete_skel_node<seq_node> {
     double servicetime;
     bool datap_flag;
 
-    //test for grain -> long perchè così è definito su ff
-    long grain;
-
     std::string name;
     std::string typein;
     std::string typeout;
@@ -146,6 +143,8 @@ struct map_node : public concrete_skel_node<map_node> {
     map_node( const map_node& other );
     skel_node* clone() override;
     int pardegree;
+    //test for grain -> long perchè così è definito su ff
+    long grain;
 };
 
 /**
@@ -157,6 +156,8 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
     reduce_node( const reduce_node& other );
     skel_node* clone() override;
     int pardegree;
+    //test for grain -> long perchè così è definito su ff
+    long grain;
 };
 
 /**

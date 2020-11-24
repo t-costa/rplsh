@@ -1,0 +1,65 @@
+import "test/map_reduce_grain/seq_definition.hpp"
+
+m1 = map(map_minus_stage)
+m2 = map(map_plus_stage)
+m3 = map(comp(map_minus_stage, map_plus_stage))
+r1 = reduce(reduce_stage)
+r2 = reduce(comp(map_minus_stage, reduce_stage))
+r3 = reduce(comp(map_plus_stage, reduce_stage))
+
+annotate m1 with pardegree 4
+annotate m2 with pardegree 4
+annotate m3 with pardegree 4
+annotate r1 with pardegree 4
+annotate r2 with pardegree 4
+annotate r3 with pardegree 4
+
+#map generations
+main1 = pipe(source_unbalanced_vec_stage, m1, drain_vec_stage)
+main2 = pipe(source_vec_stage, m2, drain_vec_stage)
+main3 = pipe(source_unbalanced_vec_stage, m3, drain_vec_stage)
+
+gencode main1 as map_minus_ff in "test/map_reduce_grain"
+gencode main2 as map_plus_ff in "test/map_reduce_grain"
+gencode main3 as map_comp_ff in "test/map_reduce_grain"
+
+annotate m1 with grain 100 as static
+annotate m2 with grain 100 as static
+annotate m3 with grain 100 as static
+
+gencode main1 as map_minus_static_ff in "test/map_reduce_grain"
+gencode main2 as map_plus_static_ff in "test/map_reduce_grain"
+gencode main3 as map_comp_static_ff in "test/map_reduce_grain"
+
+annotate m1 with grain 100 as dynamic
+annotate m2 with grain 100 as dynamic
+annotate m3 with grain 100 as dynamic
+
+gencode main1 as map_minus_dynamic_ff in "test/map_reduce_grain"
+gencode main2 as map_plus_dynamic_ff in "test/map_reduce_grain"
+gencode main3 as map_comp_dynamic_ff in "test/map_reduce_grain"
+
+#reduce generations
+main4 = pipe(source_vec_stage, r1, drain_stage)
+main5 = pipe(source_unbalanced_vec_stage, r2, drain_stage)
+main6 = pipe(source_vec_stage, r3, drain_stage)
+
+gencode main4 as red_ff in "test/map_reduce_grain"
+gencode main5 as red_comp_minus_ff in "test/map_reduce_grain"
+gencode main6 as red_comp_plus_ff in "test/map_reduce_grain"
+
+annotate r1 with grain 100 as static
+annotate r2 with grain 100 as static
+annotate r3 with grain 100 as static
+
+gencode main4 as red_static_ff in "test/map_reduce_grain"
+gencode main5 as red_comp_minus_static_ff in "test/map_reduce_grain"
+gencode main6 as red_comp_plus_static_ff in "test/map_reduce_grain"
+
+annotate r1 with grain 100 as dynamic
+annotate r2 with grain 100 as dynamic
+annotate r3 with grain 100 as dynamic
+
+gencode main4 as red_dynamic_ff in "test/map_reduce_grain"
+gencode main5 as red_comp_minus_dynamic_ff in "test/map_reduce_grain"
+gencode main6 as red_comp_plus_dynamic_ff in "test/map_reduce_grain"
