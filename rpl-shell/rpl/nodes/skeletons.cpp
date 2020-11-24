@@ -151,7 +151,6 @@ seq_node::seq_node( std::string name, std::string typein, std::string typeout, s
     concrete_skel_node( *this ),
     servicetime(1.0),
     datap_flag(false),
-    grain(0),  //FIXME: valore di default?
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),
@@ -163,7 +162,6 @@ seq_node::seq_node(std::string name, std::string typein, std::string typeout, st
     concrete_skel_node<seq_node>(*this),
     servicetime(1.0),
     datap_flag(true),   //it's for a map or reduce
-    grain(0),    //FIXME: valore di default?
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),
@@ -299,16 +297,16 @@ skel_node* farm_node::clone() {
 // map_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 map_node::map_node(initializer_list<skel_node*> init)
-    : concrete_skel_node( *this, init ), pardegree(1) {}
+    : concrete_skel_node( *this, init ), pardegree(1), grain(0) {}
 
 map_node::map_node(skel_node* pattexp, int pardegree)
-        : concrete_skel_node( *this ), pardegree( pardegree ) {
+        : concrete_skel_node( *this ), pardegree( pardegree ), grain(0) {
     add(pattexp);
 
 }
 
 map_node::map_node(const map_node& other)
-        : concrete_skel_node( *this, other ), pardegree(other.pardegree) {}
+        : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node * map_node::clone() {
     return new map_node(*this);
@@ -319,15 +317,15 @@ skel_node * map_node::clone() {
 // reduce_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 reduce_node::reduce_node(initializer_list<skel_node*> init)
-    : concrete_skel_node( *this, init ), pardegree(1) {}
+    : concrete_skel_node( *this, init ), pardegree(1), grain(0) {}
 
 reduce_node::reduce_node( skel_node* pattexp, int pardegree )
-        : concrete_skel_node( *this ), pardegree(pardegree) {
+        : concrete_skel_node( *this ), pardegree(pardegree), grain(0) {
     add(pattexp);
 }
 
 reduce_node::reduce_node( const reduce_node& other )
-    : concrete_skel_node( *this, other ), pardegree(other.pardegree) {}
+    : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node* reduce_node::clone() {
     return new reduce_node(*this);

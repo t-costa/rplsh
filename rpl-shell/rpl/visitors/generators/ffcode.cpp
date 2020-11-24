@@ -200,7 +200,17 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     //  => serve controllare ff
     //  NO NON é VERO! potrei sempre fare due parallel_for diversi ognuno
     //  con il grain specificato! (però più overhead)
-    ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(),";
+
+
+    if (n.grain > 0) {
+        //dynamic
+        //start, end, step, grain
+        ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+    } else {
+        //static
+        //start, end, step, grain
+        ss << "\t\t" << ffMap << "::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+    }
 
     // begin lambda
     ss << "[this, &_task, &out](const long i) {\n";
@@ -223,6 +233,8 @@ string map_declaration( map_node& n, rpl_environment& env ) {
 
     return ss.str();
 }
+
+//TODO: meglio mettere una funzione separata per la dichiarazione di parallel_for
 
 /**
  * Creates an ff_map class for the reduce node
@@ -285,7 +297,13 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         size_t i;
         string par;
         // start parallel for
-        ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(),";
+        if (n.grain > 0) {
+            //dynamic: first, last, step, grain, fun, nw
+            ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+        } else {
+            //static: first, last, step, grain, fun, nw
+            ss << "\t\t"<<ffMap<<"::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+        }
         // begin lambda
         ss << "[this, &_task, &mapout](const long i) {\n";
         for (i = 0; i < datap_nodes.size()-2; i++) {
@@ -300,12 +318,28 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         // end parallel for
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
-        ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        if (n.grain > 0) {
+            //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+            ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
+                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        } else {
+            //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+            ss << "\t\t" << ffMap << "::parallel_reduce_static(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
+               << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        }
 
         ss << "\t\t\ndelete mapout;\n";
     } else {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
-        ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(),bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        if (n.grain > 0) {
+            //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+            ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
+                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        } else {
+            //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+            ss << "\t\t" << ffMap << "::parallel_reduce_static(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
+               << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
+        }
     }
 
     ss << "\t\t\n" << "return out;\n";
