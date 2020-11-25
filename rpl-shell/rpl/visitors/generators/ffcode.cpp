@@ -193,23 +193,17 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     // start parallel for
     size_t i;
     string par;
-    //TODO: qui dovrò aggiungere il grain del nodo come argomento,
-    //  se diverso da valore di default. In caso di comp???
-    //  penso le uniche possibilità siano il minimo o il massimo dei
-    //  due grain, non so bene quale a questo punto...
-    //  => serve controllare ff
-    //  NO NON é VERO! potrei sempre fare due parallel_for diversi ognuno
-    //  con il grain specificato! (però più overhead)
-
 
     if (n.grain > 0) {
         //dynamic
         //start, end, step, grain
-        ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+//        ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << n.grain << ", ";
     } else {
         //static
         //start, end, step, grain
-        ss << "\t\t" << ffMap << "::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+//        ss << "\t\t" << ffMap << "::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
     }
 
     // begin lambda
@@ -299,10 +293,12 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         // start parallel for
         if (n.grain > 0) {
             //dynamic: first, last, step, grain, fun, nw
-            ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+//            ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
+            ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << n.grain << ", ";
         } else {
             //static: first, last, step, grain, fun, nw
-            ss << "\t\t"<<ffMap<<"::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+//            ss << "\t\t"<<ffMap<<"::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+            ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
         }
         // begin lambda
         ss << "[this, &_task, &mapout](const long i) {\n";
@@ -320,11 +316,11 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
         if (n.grain > 0) {
             //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
+            ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
                 << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
         } else {
             //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << ffMap << "::parallel_reduce_static(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
+            ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
         }
 
@@ -333,11 +329,11 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
         if (n.grain > 0) {
             //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << ffMap << "::parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
+            ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
                 << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
         } else {
             //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << ffMap << "::parallel_reduce_static(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
+            ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
         }
     }

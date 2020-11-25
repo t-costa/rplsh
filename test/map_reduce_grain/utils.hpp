@@ -43,16 +43,6 @@ namespace utils {
 
   template <typename Iterator>
   void init_unbalanced(Iterator begin, Iterator end) {
-  #ifdef DEBUG
-      elem_type lower_bound = 1;
-      elem_type upper_bound = 9;
-  #else
-      elem_type lower_bound = 50;
-      elem_type upper_bound = 100;
-  #endif
-      std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
-      std::default_random_engine re(seed);
-      seed++;
       int i = 0;
       auto size = end-begin;
       while (i < size / 2) {
