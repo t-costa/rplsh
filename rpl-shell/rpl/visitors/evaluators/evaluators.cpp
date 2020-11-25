@@ -556,8 +556,8 @@ void resources::visit( farm_node& n ) {
  * @param n map node
  */
 void resources::visit( map_node& n ) {
-    //TODO: with dynamic grain, do I have one more resource for the scheduler?
     res = n.pardegree * (*this)(*n.get(0)) + 2;  //scatter + gather
+    if (n.grain > 0) res++; //dynamic scheduler
 }
 
 /**
@@ -565,9 +565,8 @@ void resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void resources::visit( reduce_node& n ) {
-    //TODO: la reduce non ha scatter e gather???
-    //TODO: with dynamic grain, do I have one more resource for the scheduler?
-    res = n.pardegree * (*this)(*n.get(0));
+    res = n.pardegree * (*this)(*n.get(0)) + 2; //scatter + gather
+    if (n.grain > 0) res++; //dynamic scheduler
 }
 
 /**
