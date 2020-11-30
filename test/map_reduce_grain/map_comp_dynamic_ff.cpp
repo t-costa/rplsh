@@ -74,6 +74,7 @@ public:
 			auto res0 = wrapper0.op(_task[i]);
 			(*out)[i] = wrapper1.op(res0);
 		},4);
+
 		return out;
 	}
 };

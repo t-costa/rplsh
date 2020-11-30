@@ -77,11 +77,13 @@ public:
 			(*mapout)[i] = wrapper0.op(_task[i]);
 		},4);
 		auto bodyF = [this,&mapout](const long i, utils::elem_type& sum) {sum = wrapper1.op(sum, (*mapout)[i]);};
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce_static(*out, wrapper1.identity,0,mapout->size(), 1, -100, bodyF,reduceF,4);
-		
-delete mapout;
-		
-return out;
+		pfr.parallel_reduce_static(*out, wrapper1.identity, 0, mapout->size(), 1, -100, bodyF, reduceF, 4);
+
+		delete mapout;
+
+		delete t;
+
+		return out;
 	}
 };
 
