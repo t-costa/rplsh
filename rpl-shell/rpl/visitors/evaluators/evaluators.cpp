@@ -240,7 +240,6 @@ void latencytime::visit(id_node& n) {
         assignres(*ptr, n.inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
-        //TODO handle in a better way
         cout << "error, not found: " << n.id << endl;
     }
 }

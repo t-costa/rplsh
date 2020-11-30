@@ -12,7 +12,6 @@ protected:
     rpl_environment& env;
 };
 
-//TODO: con il grain map questo cambia?????
 struct servicetime: public eval_visitor
 {
     explicit servicetime(rpl_environment& env);
@@ -32,7 +31,6 @@ private:
     double res;
 };
 
-//TODO: con il grain map questo cambia?????
 struct latencytime: public eval_visitor
 {
     explicit latencytime(rpl_environment& env);
@@ -52,7 +50,6 @@ protected:
     double res;
 };
 
-//TODO: con il grain map questo cambia?????
 struct completiontime: public eval_visitor
 {
     explicit completiontime(rpl_environment& env);
@@ -74,7 +71,6 @@ protected:
     double res;
 };
 
-//TODO: con il grain map questo NON dovrebbe cambiare
 struct pardegree: public eval_visitor
 {
     explicit pardegree(rpl_environment& env);
@@ -94,7 +90,6 @@ protected:
     std::size_t res;
 };
 
-//TODO: con il grain map questo NON dovrebbe cambiare
 struct resources: public eval_visitor
 {
     explicit resources(rpl_environment& env);

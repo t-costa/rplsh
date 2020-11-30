@@ -279,8 +279,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     stringstream ss;
     string typein  = datap_nodes.front()->typein;
     string typeout = datap_nodes.back()->typeout;
-    //FIXME: perchè è messo due volte typeout????
-    string ffMap   = "ff_Map<"+typein+","+typeout+","+typeout+">";
+    string ffMap   = "ff_Map<" + typein + "," + typeout + ">";
 
     ss << "class reduce" << n.getid() << "_stage : public " << ffMap << " {\n";
     ss << "protected:\n";
@@ -442,7 +441,6 @@ void ffcode::visit( farm_node& n ) {
     ss << "ff_farm " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
     ss << fvar << ".add_collector(NULL);\n\n";
-    //FIXME: what if collector and emitter are present?
 
     assert(code_lines.empty());
     code_lines.push({fvar, ss.str()});
@@ -479,7 +477,6 @@ void ffcode::visit( id_node& n ) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else {
-        //TODO: add err_repo?
         std::cout << n.id << " unexpected error in ffcode visit" << std::endl;
     }
 }

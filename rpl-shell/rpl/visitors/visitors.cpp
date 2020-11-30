@@ -253,9 +253,6 @@ void single_node_cloner::visit( id_node& n ) {
     tmp = new id_node(n.id);
 }
 
-//FIXME: the nodes are actually the same or just the same type?
-//  should probably use shared pointer?
-
 /**
  * Creates a new skeleton node f the same type of sk
  * @param sk node to be cloned
@@ -357,7 +354,6 @@ void reduce_resources::visit( pipe_node& n ) {
 void reduce_resources::visit( farm_node& n ) {
     int dim = env.get_dim();
     res = n.pardegree > 1;
-    //TODO: these ifs shouldn't be in the opposite order? TC
     if ( n.pardegree > dim )
         n.pardegree = dim;
     else if ( res )
