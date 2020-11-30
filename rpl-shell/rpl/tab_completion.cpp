@@ -11,7 +11,7 @@ static std::unordered_set<std::string> identifiers;
 
 char** tab_completion::character_name_completion(const char *text, int start, int end) {
     //if not commented, it's not searching on filesystem
-    rl_attempted_completion_over = 1; //Commented because I need also the directory completion
+    rl_attempted_completion_over = 1;
     return rl_completion_matches(text, &tab_completion::character_name_generator);
 }
 
@@ -20,15 +20,14 @@ void tab_completion::add_id(const std::string &id) {
 }
 
 /**
- *
- * @param str
- * @param v
+ * Divedes a string in all his words
+ * @param str string to be divided
+ * @param v vector where to put the found words
  * @return the number of the expected word, first, second, third...
  */
 int tab_completion::split_string(const std::string& str, std::vector<std::string>& v) {
 
     int end_pos = 0;
-    //TODO: se inizia con una sequenza di spazi mi fotte tutto!
     std::string word;
     for (auto c : str) {
         if (c == ' ') {
@@ -43,24 +42,11 @@ int tab_completion::split_string(const std::string& str, std::vector<std::string
     if (!word.empty()) {
         v.push_back(word);
     }
-    //incremento sia se c'è stato un nuovo spazio (inizio n+1 parola)
-    //sia se non c'è stato (deve finire la parola n)
+
+    //incremented when there has been a new space (start of n+1 word)
+    //and also if there was no space (ending of nth word)
     end_pos++;
     return end_pos;
-
-//    // Used to split string around spaces.
-//    std::istringstream ss(str);
-//
-//    // Traverse through all words
-//    do {
-//        // Read a word
-//        std::string word;
-//        ss >> word;
-//
-//        v.push_back(word);
-//
-//        // While there is more to read
-//    } while (ss);
 }
 
 inline void tab_completion::add_match(const std::string& word, const std::string& textstr, std::vector<std::string>& matches) {
@@ -160,10 +146,6 @@ void tab_completion::match_file_search(const std::string& textstr, std::vector<s
     add_match("\"", textstr, matches);
 }
 
-void complete_assignment(const std::string& textstr, std::vector<std::string>& matches) {
-
-}
-
 bool check_leaf_pattern() {
     std::string test(rl_line_buffer);
 
@@ -176,23 +158,13 @@ bool check_leaf_pattern() {
     auto pos_drain = test.find("drain", std::max((size_t) 0, test.size() - 6));
     auto pos_source = test.find("source", std::max((size_t) 0, test.size() - 7));
 
-//    std::cout << "stringa test -> " << test << std::endl;
-//    std::cout << "lunghezza test -> " << test.size() << std::endl;
-//    std::cout << pos_seq << std::endl;
-//    std::cout << pos_drain << std::endl;
-//    std::cout << pos_source << std::endl;
-
-
     if (pos_seq != std::string::npos) {
-        //std::cout << "è seq!" << std::endl;
         return true;
     }
     if (pos_drain != std::string::npos) {
-        //std::cout << "è drain!" << std::endl;
         return true;
     }
     if (pos_source != std::string::npos) {
-        //std::cout << "è source!" << std::endl;
         return true;
     }
 
@@ -212,9 +184,27 @@ char* tab_completion::character_name_generator(const char *text, int state){
 
         std::string textstr = std::string(text);
         int count_word = split_string(rl_line_buffer, splitted);
+
+        /**
+         *  first word  |  second word  |  rest
+         *  ---------------------------------------------------
+         *  annotate    |  identifier   |  with parameter value
+         *  rewrite     |  identifier   |  with rewrules
+         *  optimize    |  identifier   |  with optrules
+         *  expand      |  identifier   |  [in identifier]
+         *  add         |  identifier   |  in identifier
+         *  show        |  identifier   |  [by parameters]
+         *  gencode     |  identifier   | [as name] [as name in directory] [in directory]
+         *  ---------------------------------------------------
+         *  import      |  "file"
+         *  load        |  "file"       |  boolean
+         *  ---------------------------------------------------
+         *  set         |  parameter    |  with number
+         *  history     |  [            |  identifier]
+         *  identifier  |  =            |  pattern [patterns/identifiers]
+         * */
+
         if (rl_end == 0 || (count_word <= 1 && textstr.find('=') != std::string::npos)) {
-            //FIXME: io posso comunque scrivere a= ... e in quel caso
-            //  voglio pattern, non verbi!
             //no input or partial input, it's looking for the first word
             match_verb(textstr, matches);
             match_identifier(textstr, matches);
@@ -303,8 +293,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
                             match_with(textstr, matches);
                             break;
                         case 4:
-
-                                match_nfun_parameters(textstr, matches);
+                            match_nfun_parameters(textstr, matches);
                             break;
                         case 5:
                             //number
@@ -371,43 +360,12 @@ char* tab_completion::character_name_generator(const char *text, int state){
                         match_identifier(textstr, matches);
                     }
                     //else it's seq/source/drain, nothing inside
-                    /*
-                     * TODO:
-                     *  seq, drain e source -> vogliono solo numeri dentro, quindi non vanno più completati
-                     *  comp, farm, pipe, map, reduce -> dentro ci possono essere:
-                     *      1 o più id
-                     *      1 o più pattern (con regole come sopra)
-                     *      miscuglio dei due
-                     *      mai vuoti!
-                     *  penso che i pattern vogliano sempre le (), quindi forse conviene averceli già
-                     *  con le parentesi tra le opzioni...
-                     * */
-
                 } else {
                     //probably error or ill formatted, match all
                     match_all(textstr, matches);
                 }
             }
         }
-
-        /**
-         *  first word  |  second word  |  rest
-         *  ---------------------------------------------------
-         *  annotate    |  identifier   |  with parameter value
-         *  rewrite     |  identifier   |  with rewrules
-         *  optimize    |  identifier   |  with optrules
-         *  expand      |  identifier   |  [in identifier]
-         *  add         |  identifier   |  in identifier
-         *  show        |  identifier   |  [by parameters]
-         *  gencode     |  identifier   | [as name] [as name in directory] [in directory]
-         *  ---------------------------------------------------
-         *  import      |  "file"
-         *  load        |  "file"       |  boolean
-         *  ---------------------------------------------------
-         *  set         |  parameter    |  with number
-         *  history     |  [            |  identifier]
-         *  identifier  |  =            |  pattern [patterns/identifiers]
-         * */
     }
 
     if (match_index >= matches.size()) {

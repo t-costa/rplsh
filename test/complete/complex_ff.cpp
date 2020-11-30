@@ -21,7 +21,7 @@
 
 class source_vecpair_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vecpair_stage> src; 
+	std::unique_ptr<source_vecpair_stage> src;
 
 public:
 	source_vecpair_stage_stage() : src(new source_vecpair_stage()) {}
@@ -41,7 +41,7 @@ public:
 
 class drain_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_stage> drn; 
+	std::unique_ptr<drain_stage> drn;
 
 public:
 	drain_stage_stage() : drn(new drain_stage()) {}
@@ -60,7 +60,7 @@ public:
 
 class seq_vec_vec_stage_stage : public ff_node {
 protected:
-	seq_vec_vec_stage wrapper; 
+	seq_vec_vec_stage wrapper;
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
@@ -80,7 +80,7 @@ public:
 
 class map_vec_vec_stage_stage : public ff_node {
 protected:
-	map_vec_vec_stage wrapper; 
+	map_vec_vec_stage wrapper;
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
@@ -112,11 +112,14 @@ public:
 		utils::vec_pair& _task = *t;
 		std::vector<utils::elem_type>* out = new std::vector<utils::elem_type>();
 		out->resize(_task.size());
-		ff_Map<utils::vec_pair,std::vector<utils::elem_type>>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
+		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
 			auto res0 = wrapper0.op(_task[i]);
 			auto res1 = wrapper1.op(res0);
 			(*out)[i] = wrapper2.op(res1);
 		},1);
+
+		delete t;
+
 		return out;
 	}
 };
@@ -136,42 +139,44 @@ public:
 		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper1.op(sum, elem);};
 		std::vector<utils::elem_type>* mapout = new std::vector<utils::elem_type>();
 		mapout->resize(_task.size());
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_for(0, _task.size(),[this, &_task, &mapout](const long i) {
+		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &mapout](const long i) {
 			(*mapout)[i] = wrapper0.op(_task[i]);
 		},1);
 		auto bodyF = [this,&mapout](const long i, utils::elem_type& sum) {sum = wrapper1.op(sum, (*mapout)[i]);};
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce(*out, wrapper1.identity,0,mapout->size(),bodyF,reduceF,1);
-		
-delete mapout;
-		
-return out;
+		pfr.parallel_reduce_static(*out, wrapper1.identity, 0, mapout->size(), 1, 0, bodyF, reduceF, 1);
+
+		delete mapout;
+
+		delete t;
+
+		return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4,5,6,7,8";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vecpair_stage_stage _source_vecpair_stage;
-	
+
 	// vector of workers of farm
 	std::vector<ff_node*> workers;
-	
+
 	// farm's worker 1
 	map0_stage _map0_;
 	workers.push_back(&_map0_);
-	
+
 	// add workers to farm
 	ff_farm farm;
 	farm.add_workers(workers);
 	farm.add_collector(NULL);
-	
+
 	seq_vec_vec_stage_stage _seq_vec_vec_stage;
 	map_vec_vec_stage_stage _map_vec_vec_stage;
 	ff_comp comp;
 	comp.add_stage(&_seq_vec_vec_stage);
 	comp.add_stage(&_map_vec_vec_stage);
-	
+
 	reduce0_stage _red0_;
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
@@ -180,18 +185,18 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&comp);
 	pipe.add_stage(&_red0_);
 	pipe.add_stage(&_drain_stage);
-	
-	
+
+
 	parameters::sequential = false;
 	utils::write("pipe(source_vecpair_stage,complex_farm,complex_comp,complex_reduce,drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	utils::write("\n---------------------\n", "./res_ff.txt");
 	return 0;
-	
+
 }

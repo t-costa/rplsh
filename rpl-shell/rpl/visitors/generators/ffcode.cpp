@@ -137,7 +137,8 @@ string drain_declaration( const drain_node& n ) {
 string mapred_constructor( const string& name, int nw, bool value ) {
     stringstream ss;
     ss << "\t" << name << "() : ff_Map(" << nw << ") {\n";
-    ss << "\t\tpfr.disableScheduler(" << value << ");\n";
+    //I don't think we need it
+//    ss << "\t\tpfr.disableScheduler(" << value << ");\n";
     ss << "\t}\n";
     return ss.str();
 }
@@ -438,8 +439,6 @@ void ffcode::visit( farm_node& n ) {
     }
 
     ss << "\n// add " << wvar << " to " << fvar << "\n";
-    //FIXME: this does not compile, we need types of farm
-    //maybe fix: from farm<> to farm
     ss << "ff_farm " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
     ss << fvar << ".add_collector(NULL);\n\n";

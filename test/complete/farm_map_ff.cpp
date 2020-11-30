@@ -69,9 +69,10 @@ public:
 	std::vector<utils::elem_type>* svc(std::vector<utils::elem_type> *t) {
 		std::vector<utils::elem_type>& _task = *t;
 		std::vector<utils::elem_type>* out = &_task;
-		ff_Map<std::vector<utils::elem_type>,std::vector<utils::elem_type>>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
+		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
 			(*out)[i] = wrapper0.op(_task[i]);
 		},1);
+
 		return out;
 	}
 };

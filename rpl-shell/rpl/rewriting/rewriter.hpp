@@ -103,7 +103,6 @@ node_set rewriter::apply_allrules ( Iterator& begin, Iterator& end, rr_dispatche
  * a clone of the original node with modified children otherwise
  */
 skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
-    //FIXME: probably should use unique pointers? -> newptr is returned, so maybe shared?
     skel_node* newptr = r.rewrite(n);
     skel_node* tmp;
 
@@ -158,7 +157,7 @@ node_set rewriter::fullrecrewrite( skel_node& n, rewrule& r ) {
  */
 void rewriter::insert_or_delete( node_set& set, skel_node* rn ) {
     if (rn != nullptr) {
-        auto p = set.insert({print(*rn), rn});  //TODO: unnecessary copy?
+        auto p = set.insert({print(*rn), rn});
         if (!p.second)
             delete rn;
     }
@@ -247,7 +246,6 @@ node_set merge(node_set& s1, node_set& s2) {
     return s1;
 }
 
-//TODO don't clone and avoid memory leaks... -> or maybe change the clone to shared pointer? TC
 /**
  * Removes all the elements in the two sets and inserts them
  * in a new vector of all the possible pairs (node in s1, node in s2)

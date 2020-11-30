@@ -5,10 +5,6 @@
 #ifndef RPL_SHELL_TAB_COMPLETION_HPP
 #define RPL_SHELL_TAB_COMPLETION_HPP
 
-//TODO: forse mi conviene mettere tutto dove stanno interpreter/parameters/history,
-//  così faccio hpp/cpp e modifico il makefile corrispondente aggiungendo il cpp
-
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

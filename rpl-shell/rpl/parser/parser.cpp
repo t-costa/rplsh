@@ -60,11 +60,12 @@ bool parser::expect(token& tok, token::type exp, string& data)
 }
 
 bool parser::expect(token& tok, token::type exp, pair<string, int>& el) {
-    string w = "";
+    string w;
     int s = -1;
 
     bool rtv = expect(tok, exp, w);
     if ( rtv && tok.kind == token::open_square ) {
+        //the first rtv is always true, keep it just for symmetry
         rtv = rtv && expect(tok, token::open_square);
         rtv = rtv && expect(tok, token::integer, s);
         rtv = rtv && expect(tok, token::close_square);
@@ -83,7 +84,6 @@ bool parser::expect(token& tok, token::type exp, int& data)
 
 bool parser::expect(token& tok, token::type exp, double& data)
 {
-    //TODO: check correctness!
     data = exp == tok.kind ? stod(tok.data) : 0;
     return expect(tok, exp);
 }
@@ -216,7 +216,7 @@ rpl_node* parser::ann_rule(token& tok)
 {
     string par;
     double value  = -1;
-    string word   = "";
+    string word;
     pair<string,int> id;
     expect(tok, token::annotate);
     expect(tok, token::word, id);
@@ -400,13 +400,10 @@ skel_node* parser::pattexp_rule(token& tok)
         case token::drain:
             return drain_rule(tok);
         case token::comp:
-            return comp_pipe_rule(tok);
         case token::pipe:
             return comp_pipe_rule(tok);
         case token::farm:
-            return farm_map_reduce_rule(tok);
         case token::map:
-            return farm_map_reduce_rule(tok);
         case token::reduce:
             return farm_map_reduce_rule(tok);
         case token::word:

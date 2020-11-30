@@ -3,8 +3,6 @@
 // Basically almost all these classes have only constructors
 ///////////////////////////////////////////////////////////////////////////////
 
-//TODO: does it need ifdef guards?
-
 #include "verbs.hpp"
 #include "visitors/visitor_interface.hpp"
 

@@ -71,10 +71,13 @@ public:
 		utils::vec_pair& _task = *t;
 		std::vector<utils::elem_type>* out = new std::vector<utils::elem_type>();
 		out->resize(_task.size());
-		ff_Map<utils::vec_pair,std::vector<utils::elem_type>>::parallel_for(0, _task.size(),[this, &_task, &out](const long i) {
+		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
 			auto res0 = wrapper0.op(_task[i]);
 			(*out)[i] = wrapper1.op(res0);
 		},1);
+
+		delete t;
+
 		return out;
 	}
 };
