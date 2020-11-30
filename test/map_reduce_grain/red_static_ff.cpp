@@ -71,9 +71,11 @@ public:
 		utils::elem_type* out  = new utils::elem_type(wrapper0.identity);
 		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper0.op(sum, elem);};
 		auto bodyF = [this,&_task](const long i, utils::elem_type& sum) {sum = wrapper0.op(sum, _task[i]);};
-		ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type>::parallel_reduce_static(*out, wrapper0.identity,0,_task.size(), 1, -100, bodyF,reduceF,4);
-		
-return out;
+		pfr.parallel_reduce_static(*out, wrapper0.identity, 0, _task.size(), 1, -100, bodyF, reduceF, 4);
+
+		delete t;
+
+		return out;
 	}
 };
 

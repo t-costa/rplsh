@@ -72,6 +72,7 @@ public:
 		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
 			(*out)[i] = wrapper0.op(_task[i]);
 		},4);
+
 		return out;
 	}
 };

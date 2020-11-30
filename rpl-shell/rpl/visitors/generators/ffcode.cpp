@@ -142,6 +142,51 @@ string mapred_constructor( const string& name, int nw, bool value ) {
     return ss.str();
 }
 
+
+string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw) {
+    stringstream ss;
+    if (grain > 0) {
+        //dynamic
+        //start, end, step, grain
+        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << grain << ", ";
+    } else {
+        //static
+        //start, end, step, grain
+        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << grain << ", ";
+    }
+    size_t i = 0;
+    string par;
+    // begin lambda
+    ss << "[this, &_task, &" << out_name << "](const long i) {\n";
+    for (i = 0; i < n_wrappers; i++) {
+        par = !i ? "_task[i]" : ("res" + to_string(i-1));
+        ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
+    }
+    par = !i ? "_task[i]" : ("res" + to_string(i-1));
+    ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+    ss << "\t\t}";
+    // end lambda
+
+    ss << "," << nw << ");\n";
+    return ss.str();
+}
+
+string parallel_for_reduce_declaration(const long grain, const string& task_size, const size_t wrapper_idx , const string& nw ) {
+    stringstream ss;
+
+    if (grain > 0) {
+        //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+        ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << wrapper_idx << ".identity, 0, " << task_size << ", 1, "
+           << grain << ", bodyF, reduceF, " << nw << ");\n";
+    } else {
+        //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+        ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << wrapper_idx << ".identity, 0, " << task_size << ", 1, "
+           << grain << ", bodyF, reduceF, " << nw << ");\n";
+    }
+
+    return ss.str();
+}
+
 /**
  * Creates the ff_map class for the given node.
  * Works only with two tier model! Inside map
@@ -151,8 +196,6 @@ string mapred_constructor( const string& name, int nw, bool value ) {
  * @return working code as string
  */
 string map_declaration( map_node& n, rpl_environment& env ) {
-
-    //FIXME: all TODOs not mine! TC
 
     // two-tier model: inside map nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
@@ -180,7 +223,6 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     ss << "public:\n";
     ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree, false) << "\n";
     ss << "\t" << typeout << "* svc("<< typein << " *t) {\n";
-    //TODO: _task is useless
     ss << "\t\t" << typein << "& _task = *t;\n";
     if (typein != typeout) {
         // if two different "container" types, we need this
@@ -191,44 +233,18 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     }
 
     // start parallel for
-    size_t i;
-    string par;
+    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)));
 
-    if (n.grain > 0) {
-        //dynamic
-        //start, end, step, grain
-//        ss << "\t\t" << ffMap << "::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
-        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << n.grain << ", ";
-    } else {
-        //static
-        //start, end, step, grain
-//        ss << "\t\t" << ffMap << "::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
-        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
+    if (typein != typeout) {
+        //delete old received pointer
+        ss << "\n\t\tdelete t;\n";
     }
-
-    // begin lambda
-    ss << "[this, &_task, &out](const long i) {\n";
-    for (i = 0; i < datap_nodes.size()-1; i++) {
-        par = !i ? "_task[i]" : ("res" + to_string(i-1));
-        ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
-    }
-    par = !i ? "_task[i]" : ("res" + to_string(i-1));
-    ss << "\t\t\t(*out)[i] = wrapper" << i << ".op(" << par << ");\n";
-    ss << "\t\t}";
-    // end lambda
-
-    ss << "," << to_string( nw(n) ) << ");\n";
-    // end parallel for
-
-    //TODO memory leak of previous node
-    ss << "\t\t" << "return out;\n";
+    ss << "\n\t\t" << "return out;\n";
     ss << "\t}\n";
     ss << "};\n\n";
 
     return ss.str();
 }
-
-//TODO: meglio mettere una funzione separata per la dichiarazione di parallel_for
 
 /**
  * Creates an ff_map class for the reduce node
@@ -239,9 +255,6 @@ string map_declaration( map_node& n, rpl_environment& env ) {
  * @return working code as string
  */
 string red_declaration( reduce_node& n, rpl_environment& env ) {
-
-    //FIXME: probably same issues of map, need refactoring TC
-
     // two-tier model: inside reduce nodes only seq or compseq are allowed:
     // if stream/datap inside, ignore it when compile and show a warning
     pardegree nw(env);           // setup the pardegree visitor
@@ -265,6 +278,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     stringstream ss;
     string typein  = datap_nodes.front()->typein;
     string typeout = datap_nodes.back()->typeout;
+    //FIXME: perchè è messo due volte typeout????
     string ffMap   = "ff_Map<"+typein+","+typeout+","+typeout+">";
 
     ss << "class reduce" << n.getid() << "_stage : public " << ffMap << " {\n";
@@ -284,61 +298,22 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     if ( datap_nodes.size() > 1) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
         string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
-        //FIXME: from new to unique pointer?
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
         ss << "\t\tmapout->resize(_task.size());\n";
-
-        size_t i;
-        string par;
-        // start parallel for
-        if (n.grain > 0) {
-            //dynamic: first, last, step, grain, fun, nw
-//            ss << "\t\t"<<ffMap<<"::parallel_for(0, _task.size(), 1, " << n.grain << ", ";
-            ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << n.grain << ", ";
-        } else {
-            //static: first, last, step, grain, fun, nw
-//            ss << "\t\t"<<ffMap<<"::parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
-            ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << n.grain << ", ";
-        }
-        // begin lambda
-        ss << "[this, &_task, &mapout](const long i) {\n";
-        for (i = 0; i < datap_nodes.size()-2; i++) {
-            par = !i ? "_task[i]" : ("res" + to_string(i-1));
-            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
-        }
-        par = !i ? "_task[i]" : ("res" + to_string(i-1));
-        ss << "\t\t\t(*mapout)[i] = wrapper" << i << ".op(" << par << ");\n";
-        ss << "\t\t}";
-        // end lambda
-        ss << "," << to_string( nw(n) ) << ");\n";
-        // end parallel for
+        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)));
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
-        if (n.grain > 0) {
-            //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
-                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
-        } else {
-            //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << idx << ".identity,0,mapout->size(), 1, "
-               << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
-        }
-
-        ss << "\t\t\ndelete mapout;\n";
+        ss << parallel_for_reduce_declaration(n.grain, "mapout->size()", idx, to_string(nw(n)));
+        ss << "\n\t\tdelete mapout;\n";
     } else {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
-        if (n.grain > 0) {
-            //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
-                << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
-        } else {
-            //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-            ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << idx << ".identity,0,_task.size(), 1, "
-               << n.grain << ", bodyF,reduceF," << to_string( nw(n) ) << ");\n";
-        }
+        ss << parallel_for_reduce_declaration(n.grain, "_task.size()", idx, to_string(nw(n)));
     }
 
-    ss << "\t\t\n" << "return out;\n";
+    //delete received ptr
+    ss << "\n\t\tdelete t;\n";
+
+    ss << "\n\t\treturn out;\n";
     ss << "\t}\n";
     ss << "};\n\n";
 
