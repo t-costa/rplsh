@@ -10,10 +10,12 @@
  */
 struct skel_node : public rvalue_node {
 
+    //TODO: rule of five?
     skel_node(std::initializer_list<skel_node*> init);
     virtual ~skel_node();
 
     void accept(visitor& v)                 override = 0;
+    //TODO: use make_shared in clone to avoid memory leaks?
     virtual skel_node* clone()                      = 0;
     virtual bool operator==( const skel_node& rhs ) = 0;
     virtual bool operator!=( const skel_node& rhs ) = 0;

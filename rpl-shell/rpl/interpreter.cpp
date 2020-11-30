@@ -16,6 +16,7 @@
 #include "parser/lexer.hpp"
 #include "parser/parser.hpp"
 
+//TODO: there's a lot of stuff here, keep an eye
 
 using namespace std;
 
@@ -23,8 +24,6 @@ single_node_cloner snc;
 void exprecurse(skel_node* n, rpl_environment& env);
 
 ///////////////////////////////////////////////////////////////////////////////
-
-//TODO: vedere bene che sono i vari dispatcher
 
 interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     env(env),
@@ -51,7 +50,6 @@ void interpreter::visit(assign_node& n) {
     n.rvalue->accept(*this);
 
     if ( success && !idnode) {
-        //TODO: why there is this unrank? TC
         unranktorank2(*n.rvalue, snc);
         env.put(n.id, n.rvalue);
         //add id for tab completion
@@ -83,7 +81,6 @@ void interpreter::visit(show_node& n) {
 
         if ( n.id.empty() && n.parameters.size() == 1) {
             last_index_access = n.parameters[0];
-            //TODO: I don't get this line... TC
             cout << utils::to_string( gdispatch[n.parameters[0]]() ) << endl;
             return;
         }
@@ -156,13 +153,12 @@ void interpreter::visit(show_node& n) {
                 return t1.compare(t2, i);
             });
 
-        //TODO: where does lines_to_print come from?? TC
         if (n.lines_to_print >= 0) {
             int max = n.lines_to_print;
             for (auto it_loop = tuples.begin(); it_loop != tuples.end() && max-- > 0; it_loop++)
                 cout << it_loop->tostring() << endl;
         } else {
-            size_t max = -n.lines_to_print; //TODO: what??? TC
+            size_t max = -n.lines_to_print;
             size_t start = tuples.size() < max ? 0 : tuples.size() - max;
             for (auto it_loop = tuples.begin() + start; it_loop != tuples.end(); it_loop++)
                 cout << it_loop->tostring() << endl;
@@ -191,7 +187,6 @@ void interpreter::visit(ann_node& n) {
     std::size_t i = n.index < 0 ? 0 : n.index;
     auto ptr = env.get(n.id, i);
     if (ptr != nullptr) {
-        //TODO: la chiamata quindi è praticamente come questa
         bool b = (*adispatch[ n.prop ])( *ptr, n );
         cout << "response: " << (b? "annotated!" : "not annotated!") << endl;
     }
@@ -355,7 +350,7 @@ void interpreter::visit(import_node& n) {
                 sk = new seq_node(name, tin, tout, it->typein_el, it->typeout_el, path);
             else {
                 cerr << "Error: no type recognized for " << name << endl;
-                sk = nullptr;   //FIXME: what it should do?? -> maybe the logic error is for this branch?
+                sk = nullptr;
             }
 
             //performs the assignment to the new node

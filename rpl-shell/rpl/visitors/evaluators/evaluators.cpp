@@ -97,7 +97,6 @@ void servicetime::visit(farm_node& n) {
  * @param n map node
  */
 void servicetime::visit(map_node& n) {
-    //TODO: check
     res = (*this)(*n.get(0)) / n.pardegree;
 }
 
@@ -128,7 +127,6 @@ void servicetime::visit(id_node& n) {
         assignres(*ptr, n.inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
-        //TODO handle in a better way
         cout << "error, not found: " << n.id << endl;
     }
 }
@@ -213,7 +211,6 @@ void latencytime::visit(farm_node& n) {
  * @param n map node
  */
 void latencytime::visit(map_node& n) {
-    //TODO: check -> prima era sernza il /nw ma non mi tornava
     res = env.get_scatter_time() + (*this)( *n.get(0) ) / n.pardegree + env.get_gather_time();
 }
 
@@ -267,11 +264,6 @@ double latencytime::operator()(skel_node& sk){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-// TODO here the stream size is something "global"
-//  user should set it through some shell verbs
-//  like "set_dimension(_)" and get with "get_dimension"
-//  better ideas?
 
 completiontime::completiontime( rpl_environment& env ) :
     eval_visitor( env ),
@@ -333,8 +325,9 @@ void completiontime::visit( pipe_node& n ) {
  * @param n farm node
  */
 void completiontime::visit( farm_node& n ) {
-    // latency + ts TODO: comment and code don't match
-    res = static_cast<double>(env.get_dim())/n.pardegree*lat(n);
+    //    res = static_cast<double>(env.get_dim())/n.pardegree*lat(n);  //old definition (I think wrong)
+    //1 emitter at the beginning, nw-1 emitters + 1 collector at the end + ts of farm*dimension
+    res = n.pardegree*env.get_emitter_time() + env.get_dim() * ts(n) + env.get_collector_time();
 }
 
 /**
@@ -342,8 +335,7 @@ void completiontime::visit( farm_node& n ) {
  * @param n map node
  */
 void completiontime::visit( map_node& n ) {
-    //TODO: non mi torna come era definito
-    //res = env.get_dim() * lat(n);
+    //res = env.get_dim() * lat(n); //old definition (I think wrong)
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
@@ -352,8 +344,7 @@ void completiontime::visit( map_node& n ) {
  * @param n reduce node
  */
 void completiontime::visit( reduce_node& n ) {
-    //TODO: anche qui, stessa cosa di map
-    //res = env.get_dim() * lat(n);
+    //res = env.get_dim() * lat(n); //old definition (I think wrong)
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
@@ -369,7 +360,6 @@ void completiontime::visit( id_node& n ) {
         assignres(*ptr, n.inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
-        //TODO handle in a better way
         cout << "error, not found: " << n.id << endl;
     }
 }
@@ -379,7 +369,7 @@ void completiontime::visit( id_node& n ) {
  * @return returns a string representation of the completion time of sk
  */
 string completiontime::print( skel_node& n ){
-    return std::to_string( (*this)( n ));;
+    return std::to_string( (*this)( n ));
 }
 
 /**
@@ -474,7 +464,6 @@ void pardegree::visit( id_node& n ) {
         auto ptr = env.get(n.id, n.index);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
-        //TODO handle in a better way
         cout << "error, not found: " << n.id << endl;
     }
 }
@@ -484,7 +473,7 @@ void pardegree::visit( id_node& n ) {
  * @return a string representation of the parallelism degree fo n
  */
 string pardegree::print( skel_node& n ){
-    return std::to_string( (*this)( n ) );;
+    return std::to_string( (*this)( n ) );
 }
 
 /**
@@ -578,7 +567,6 @@ void resources::visit( id_node& n ) {
         auto ptr = env.get(n.id, n.index);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
-        //TODO handle in a better way
         cout << "error, not found: " << n.id << endl;
     }
 }
@@ -588,7 +576,7 @@ void resources::visit( id_node& n ) {
  * @return a string representation of the resources of n
  */
 string resources::print( skel_node& n ){
-    return std::to_string( (*this)( n ) );;
+    return std::to_string( (*this)( n ) );
 }
 
 /**

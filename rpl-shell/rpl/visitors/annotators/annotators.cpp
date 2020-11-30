@@ -49,7 +49,6 @@ void ann_visitor::visit( reduce_node& n ) {
 void ann_visitor::visit( id_node& n ) {
     result = false;
 }
-//TODO: qui dovrò aggiungere anche divide and conquer
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -211,17 +210,6 @@ bool ann_typeout::operator()( skel_node& n, ann_node& a ) {
 ann_grain::ann_grain(rpl_environment &env) :
     ann_visitor(env), value(0)
 {}
-
-/*void ann_grain::visit(seq_node &n) {
-    //TODO: se grain negativo era per statico o dinamico?, controlla
-    n.grain = scheduling_type == "static" ? -value : value;
-    std::cout << n.grain << std::endl;
-    result = true;
-
-    if (!n.datap_flag) {
-        std::cout << "Warning: annotate grain for a non data parallel node is useless" << std::endl;
-    }
-}*/
 
 void ann_grain::visit(map_node &n) {
     n.grain = scheduling_type == "static" ? -value : value;

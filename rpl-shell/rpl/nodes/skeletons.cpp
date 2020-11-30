@@ -170,7 +170,6 @@ seq_node::seq_node(std::string name, std::string typein, std::string typeout, st
     file(std::move(file))
 {}
 
-//TODO: check rule of three
 seq_node::seq_node( const seq_node& other ) :
     concrete_skel_node( *this, other ),
     servicetime(other.servicetime),
@@ -309,6 +308,7 @@ map_node::map_node(const map_node& other)
         : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node * map_node::clone() {
+    //Clion says "endless loop", but it's a bug of Clion
     return new map_node(*this);
 }
 
@@ -328,6 +328,7 @@ reduce_node::reduce_node( const reduce_node& other )
     : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node* reduce_node::clone() {
+    //Clion says "endless loop", but it's a bug of Clion
     return new reduce_node(*this);
 }
 
@@ -345,7 +346,7 @@ id_node::id_node( const id_node& other )
     : concrete_skel_node( *this, other ), id( other.id ), index(other.index), all(other.all) {}
 
 skel_node* id_node::clone() {
-    //FIXME: clion says "endless loop", but I don't see it
+    //Clion says "endless loop", but it's a bug of Clion
     return new id_node(*this);
 }
 

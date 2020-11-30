@@ -71,7 +71,7 @@ std::pair<set_iterator<V>, set_iterator<V>> environment<K,V>::range( const K& ke
 template <typename K, typename V>
 ptr<V> environment<K,V>::get( const K& key, std::size_t pos ) const
 {
-    //FIXME: manca controllo su pos < max size
+    //FIXME: I don't like the catch with exception
     auto it = env.find(key);
     try {
         if (it != env.end()) {
