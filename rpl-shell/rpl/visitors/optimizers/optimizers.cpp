@@ -177,10 +177,8 @@ void reduceopt::visit( reduce_node& n ) {
 
     //std::cout << "reduceopt second: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* compute the optimal number of workers */
-    //questa cosa non mi torna per niente, se intende l'altezza dell'albero al più
-    //dovrebbe essere log2(inputsize), provo a cambiarlo con quello TC
-    n.pardegree = static_cast<int>( log2(n.inputsize));
-    //n.pardegree = static_cast<int>( ((double) n.inputsize) * log(2) );
+    //TODO: I don't get it... TC
+    n.pardegree = static_cast<int>( ((double) n.inputsize) * log(2) );
     assignres(n, n.inputsize);
     //std::cout << "npardegree : " << n.pardegree << std::endl;
     //std::cout << "reduceopt third: " << n.pardegree << " - " << n.inputsize << std::endl;
@@ -586,7 +584,6 @@ skel_node* modifytree( skel_node& n, rewrule& r ) {
     }
 
 
-    /* TODO really lazy now, should be written in a more concise way */
 //    if ( newptr && newptr->size() == 1) {
 //        newptr->set( modifytree(*newptr->get(0), r), 0 );
 //    } else if ( newptr && newptr->size() == 2) {
