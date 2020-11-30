@@ -88,7 +88,7 @@ void servicetime::visit(pipe_node& n) {
  * @param n farm node
  */
 void servicetime::visit(farm_node& n) {
-    res = (*this)(*n.get(0)) / n.pardegree;
+    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_emitter_time());
 }
 
 /**
@@ -97,7 +97,7 @@ void servicetime::visit(farm_node& n) {
  * @param n map node
  */
 void servicetime::visit(map_node& n) {
-    res = (*this)(*n.get(0)) / n.pardegree;
+    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_scatter_time());
 }
 
 /**
@@ -444,8 +444,6 @@ void pardegree::visit( map_node& n ) {
     res = n.pardegree * (*this)(*n.get(0));
 }
 
-// TODO also reduce should be have a configurable
-//  parallelism degree like farm and map!! -> I get the comment, but why here??? TC
 /**
  * Computes pardegree of child and sets res
  * @param n reduce node
@@ -537,7 +535,7 @@ void resources::visit( pipe_node& n ) {
  * @param n farm node
  */
 void resources::visit( farm_node& n ) {
-    res = n.pardegree * (*this)(*n.get(0)) + 2;  //emitter + collector
+    res = n.pardegree * (*this)(*n.get(0)) + 2; //emitter + collector
 }
 
 /**
@@ -545,7 +543,7 @@ void resources::visit( farm_node& n ) {
  * @param n map node
  */
 void resources::visit( map_node& n ) {
-    res = n.pardegree * (*this)(*n.get(0)) + 2;  //scatter + gather
+    res = n.pardegree * (*this)(*n.get(0)) + 2; //scatter + gather
     if (n.grain > 0) res++; //dynamic scheduler
 }
 
