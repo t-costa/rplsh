@@ -108,6 +108,7 @@ void servicetime::visit(map_node& n) {
 void servicetime::visit(reduce_node& n) {
     // assuming Tf is the servicetime  of the reduce function f (datap):
     // ts(n) = Tf / nw + log2(nw) * Tf
+    //FIXME: trying empirically it seems pretty much the same as map...
 
     int nw = n.pardegree;
     res = (*this)(*n.get(0));            // res == Tf / nw

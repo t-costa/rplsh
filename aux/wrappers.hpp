@@ -7,16 +7,43 @@ template <typename Tin, typename Tout>
 class seq_wrapper {
 public:
   virtual Tout compute(Tin& input) = 0;
-  // user should implement also the following methods
-  // in order to generate data paralel skeletons
-  // for map:    type_out op(type_in t)
-  // for reduce: type op(type t1, type t2)
-  // otherwise it will not compile
 };
 
-//TODO: forse conviene aggiungere a tutti i wrapper
-//degli hooks per init/cleanup alla fine...
-//non obbligatori e li lasci vuoti in caso...
+template <typename Tin, typename Tout>
+class dc_stage_wrapper {
+public:
+  virtual Tout compute(Tin& input) {
+    Tout res;
+    DC_algo(input, res);
+    return res;
+  }
+
+  virtual void divide(const Tin& in, std::vector<Tin>& in_vec) = 0;
+
+  virtual void combine(std::vector<Tout>& out_vec, Tout& out) = 0;
+
+  virtual void seq(const Tin& in, Tout& out) = 0;
+
+  virtual bool cond(const Tin& in) = 0;
+
+private:
+  void DC_algo(const Tin& p, Tout& r) override {
+    if (!cond(p)) {
+        std::vector<Tin> sub_p;
+
+        divide(p, sub_p);
+
+        std::vector<Tout> res(sub_p.size());
+        for (size_t i=0; i<sub_p.size(); ++i) {
+            DC_algo(sub_p[i], res[i]);
+        }
+
+        combine(res, r);
+    } else {
+        base(p, r);
+    }
+  }
+}
 
 template<typename Tin,
           typename Tout,
@@ -30,22 +57,6 @@ class map_stage_wrapper {
   virtual Tout compute(Tin& input) = 0;
 
   virtual Tout_el op(const Tin_el& input) = 0;
-
-  //input lo prende per potersi creare il res di output,
-  //in teoria non gli dovrebbe servire altro, perchè
-  //è all'inizio della funzione e non c'è materialmente altro!
-  virtual void begin_hook(Tin& input) {}
-
-  //per ora non ce lo metto, ma sarebbe una funzione di
-  //cleanup alla fine, quindi forse prende Tin per farci la delete?
-  //comunque gli unici argomenti che potrebbe sfruttare sono quelli
-  //già presenti nella classe, funzione o globale. Non dovrebbe mai
-  //servire un tipo nuovo. Il return è void perchè non deve restituire
-  //niente di logica per la compute (dovrebbe essere tutto in op),
-  //però potrebbe essere che in par uso new, e quindi serve la delete,
-  //ma nel seq no e non metterei niente dentro... => quindi ci sarebbe
-  //comunque roba che dovrebbe fare da 0 rplsh...
-  //virtual void end_hook(T input) {}
 };
 
 //stessi discorsi che per la map
@@ -59,10 +70,6 @@ class reduce_stage_wrapper {
   virtual Tout compute(Tin& input) = 0;
 
   virtual Tout_el op(Tin_el& input1, Tin_el& input2) = 0;
-
-  virtual void begin_hook(Tin& input) {}
-
-  //virtual void end_hook(T input) {}
 
 protected:
   Tout identity{};
