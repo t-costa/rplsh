@@ -120,12 +120,6 @@ void tab_completion::match_verb(const std::string& textstr, std::vector<std::str
     }
 }
 
-void tab_completion::match_id_def(const std::string& textstr, std::vector<std::string>& matches) {
-    for (const auto& word : id_def) {
-        add_match(word, textstr, matches);
-    }
-}
-
 void tab_completion::match_with(const std::string& textstr, std::vector<std::string>& matches) {
     add_match("with", textstr, matches);
 }
@@ -140,10 +134,6 @@ void tab_completion::match_in(const std::string& textstr, std::vector<std::strin
 
 void tab_completion::match_as(const std::string &textstr, std::vector<std::string> &matches) {
     add_match("as", textstr, matches);
-}
-
-void tab_completion::match_file_search(const std::string& textstr, std::vector<std::string>& matches) {
-    add_match("\"", textstr, matches);
 }
 
 bool check_leaf_pattern() {
