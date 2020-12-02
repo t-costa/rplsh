@@ -10,32 +10,32 @@
 namespace par
 {
     /* rewriting rules parameter names */
-    const std::string farmintro = "farmintro";
-    const std::string farmelim  = "farmelim";
-    const std::string pipeintro = "pipeintro";
-    const std::string pipeelim  = "pipeelim";
-    const std::string pipeassoc = "pipeassoc";
-    const std::string compassoc = "compassoc";
-    const std::string mapofcomp = "mapofcomp";
-    const std::string compofmap = "compofmap";
-    const std::string mapofpipe = "mapofpipe";
-    const std::string pipeofmap = "pipeofmap";
-    const std::string mapelim   = "mapelim";
-    const std::string reduceelim = "reduceelim";
-    const std::string mapmapelim = "mapmapelim";
-    const std::string farmfarmelim = "farmfarmelim";
-    const std::string compdel = "compdel";
-    const std::string pipedel = "pipedel";
+    const std::string farmintro      = "farmintro";
+    const std::string farmelim       = "farmelim";
+    const std::string pipeintro      = "pipeintro";
+    const std::string pipeelim       = "pipeelim";
+    const std::string pipeassoc      = "pipeassoc";
+    const std::string compassoc      = "compassoc";
+    const std::string mapofcomp      = "mapofcomp";
+    const std::string compofmap      = "compofmap";
+    const std::string mapofpipe      = "mapofpipe";
+    const std::string pipeofmap      = "pipeofmap";
+    const std::string mapelim        = "mapelim";
+    const std::string reduceelim     = "reduceelim";
+    const std::string mapmapelim     = "mapmapelim";
+    const std::string farmfarmelim   = "farmfarmelim";
+    const std::string compdel        = "compdel";
+    const std::string pipedel        = "pipedel";
 
     /* optimization parameter names */
-    const std::string farmopt      = "farmopt";
-    const std::string pipeopt      = "pipeopt";
-    const std::string mapopt       = "mapopt";
-    const std::string reduceopt    = "reduceopt";
-    const std::string maxresources = "maxresources";
-    const std::string twotier = "twotier";
-    const std::string farmfarmopt = "farmfarmopt";
-    const std::string mapmapopt = "mapmapopt";
+    const std::string farmopt        = "farmopt";
+    const std::string pipeopt        = "pipeopt";
+    const std::string mapopt         = "mapopt";
+    const std::string reduceopt      = "reduceopt";
+    const std::string maxresources   = "maxresources";
+    const std::string twotier        = "twotier";
+    const std::string farmfarmopt    = "farmfarmopt";
+    const std::string mapmapopt      = "mapmapopt";
 
     /* non functional name parameters used for performance evaluation */
     const std::string servicetime    = "servicetime";
@@ -45,11 +45,11 @@ namespace par
     const std::string pardegree      = "pardegree";
     const std::string resources      = "resources";
     const std::string datap          = "datap";
-//    const std::string inside_data_parallel = "inside_data_parallel";
     const std::string grain          = "grain";
 
-    const std::string typein  = "typein";
-    const std::string typeout = "typeout";
+    /* types for seq/source/drain */
+    const std::string typein         = "typein";
+    const std::string typeout        = "typeout";
 
     /* environment variables */
     const std::string emitter_time   = "emitter_time";
