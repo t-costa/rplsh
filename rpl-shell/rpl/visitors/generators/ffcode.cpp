@@ -588,13 +588,6 @@ string ffcode::operator()(skel_node& n) {
     auto p = code_lines.front();
     ss << p.second << "\n";
 
-#ifdef DEBUG
-ss << "parameters::sequential = false;\n";
-ss << "utils::write(\"" << pr.print(n) << "\", \"./res_ff.txt\");\n";
-#endif
-
-
-
     /* run the program */
     ss << p.first << ".run_and_wait_end();\n";
 
@@ -605,11 +598,7 @@ ss << "utils::write(\"" << pr.print(n) << "\", \"./res_ff.txt\");\n";
     ss << "std::cout << \"Stats: \" << std::endl;\n";
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
-
-#ifdef DEBUG
-ss << "utils::write(\"\\n---------------------\\n\", \"./res_ff.txt\");\n";
-#endif
-
+    
     ss << "return 0;\n";
 
     code_lines.pop();
