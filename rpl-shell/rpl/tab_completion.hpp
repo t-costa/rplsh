@@ -16,19 +16,14 @@
 #include <sstream>
 
 #include "names_completion.hpp"
-//char **character_name_completion(const char *, int, int);
-//char *character_name_generator(const char *, int);
 
 struct tab_completion {
 public:
     static char** character_name_completion(const char *text, int start, int end);
 
     static void add_id(const std::string& id);
-    //explicit tab_completion(rpl_environment* t_env) : m_env(t_env) {}
 
 private:
-    //rpl_environment* m_env;
-
     static int split_string(const std::string& str, std::vector<std::string>& v);
 
     static inline void add_match(const std::string& word, const std::string& textstr, std::vector<std::string>& matches);
@@ -55,8 +50,6 @@ private:
 
     static void match_verb(const std::string& textstr, std::vector<std::string>& matches);
 
-    static void match_id_def(const std::string& textstr, std::vector<std::string>& matches);
-
     static void match_by(const std::string& textstr, std::vector<std::string>& matches);
 
     static void match_with(const std::string& textstr, std::vector<std::string>& matches);
@@ -64,7 +57,5 @@ private:
     static void match_in(const std::string& textstr, std::vector<std::string>& matches);
 
     static void match_as(const std::string& textstr, std::vector<std::string>& matches);
-
-    static void match_file_search(const std::string& textstr, std::vector<std::string>& matches);
 };
 #endif //RPL_SHELL_TAB_COMPLETION_HPP
