@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,r3,drain_stage)
+// pipe(source_vec_stage,r,drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -16,7 +16,7 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/map_reduce_grain/seq_definition.hpp>
+#include </home/tommaso/forked/rplsh/test/tricky_evaluators/seq_definition.hpp>
 
 
 class source_vec_stage_stage : public ff_node {
@@ -58,28 +58,19 @@ public:
 	}
 };
 
-class reduce0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type,utils::elem_type> {
+class reduce0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type> {
 protected:
-	map_plus_stage wrapper0;
-	reduce_stage wrapper1;
+	reduce_stage wrapper0;
 public:
-	reduce0_stage() : ff_Map(4) {
-		pfr.disableScheduler(1);
+	reduce0_stage() : ff_Map(2) {
 	}
 
 	utils::elem_type* svc(std::vector<utils::elem_type>* t) {
 		std::vector<utils::elem_type>& _task = *t;
-		utils::elem_type* out  = new utils::elem_type(wrapper1.identity);
-		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper1.op(sum, elem);};
-		std::vector<utils::elem_type>* mapout = new std::vector<utils::elem_type>();
-		mapout->resize(_task.size());
-		pfr.parallel_for_static(0, _task.size(), 1, -100, [this, &_task, &mapout](const long i) {
-			(*mapout)[i] = wrapper0.op(_task[i]);
-		},4);
-		auto bodyF = [this,&mapout](const long i, utils::elem_type& sum) {sum = wrapper1.op(sum, (*mapout)[i]);};
-		pfr.parallel_reduce_static(*out, wrapper1.identity, 0, mapout->size(), 1, -100, bodyF, reduceF, 4);
-
-		delete mapout;
+		utils::elem_type* out  = new utils::elem_type(wrapper0.identity);
+		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper0.op(sum, elem);};
+		auto bodyF = [this,&_task](const long i, utils::elem_type& sum) {sum = wrapper0.op(sum, _task[i]);};
+		pfr.parallel_reduce_static(*out, wrapper0.identity, 0, _task.size(), 1, 0, bodyF, reduceF, 2);
 
 		delete t;
 
@@ -89,7 +80,7 @@ public:
 
 int main( int argc, char* argv[] ) {
 	// worker mapping 
-	const char worker_mapping[] = "0,1,2,3,4,5";
+	const char worker_mapping[] = "0,1,2,3";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vec_stage_stage _source_vec_stage;
 	reduce0_stage _red0_;
@@ -100,8 +91,6 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_drain_stage);
 	
 	
-	parameters::sequential = false;
-	utils::write("pipe(source_vec_stage,r3,drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 	
@@ -109,7 +98,6 @@ int main( int argc, char* argv[] ) {
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
-	utils::write("\n---------------------\n", "./res_ff.txt");
 	return 0;
 	
 }

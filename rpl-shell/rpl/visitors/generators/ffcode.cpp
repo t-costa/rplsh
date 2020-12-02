@@ -598,7 +598,7 @@ string ffcode::operator()(skel_node& n) {
     ss << "std::cout << \"Stats: \" << std::endl;\n";
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
-    
+
     ss << "return 0;\n";
 
     code_lines.pop();
