@@ -33,6 +33,7 @@ public:
         seq,
         map,
         reduce,
+        dc,
         source,
         drain
     } wrapper_type;

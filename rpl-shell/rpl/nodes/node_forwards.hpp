@@ -31,6 +31,7 @@ struct pipe_node;
 struct farm_node;
 struct map_node;
 struct reduce_node;
+struct dc_node;
 struct id_node;
 struct _;
 
