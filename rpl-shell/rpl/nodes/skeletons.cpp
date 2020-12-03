@@ -144,13 +144,15 @@ bool concrete_skel_node<skeleton>::operator!=( const skel_node& rhs ) {
 seq_node::seq_node( double servicetime, bool datap_flag ) :
     concrete_skel_node( *this ),
     servicetime(servicetime),
-    datap_flag(datap_flag)
+    datap_flag(datap_flag),
+    dc_flag(false)
 {}
 
 seq_node::seq_node( std::string name, std::string typein, std::string typeout, std::string file ) :
     concrete_skel_node( *this ),
     servicetime(1.0),
     datap_flag(false),
+    dc_flag(false),
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),
@@ -162,6 +164,7 @@ seq_node::seq_node(std::string name, std::string typein, std::string typeout, st
     concrete_skel_node<seq_node>(*this),
     servicetime(1.0),
     datap_flag(true),   //it's for a map or reduce
+    dc_flag(false),
     name(std::move(name)),
     typein(std::move(typein)),
     typeout(std::move(typeout)),
@@ -174,6 +177,7 @@ seq_node::seq_node( const seq_node& other ) :
     concrete_skel_node( *this, other ),
     servicetime(other.servicetime),
     datap_flag(other.datap_flag),
+    dc_flag(other.dc_flag),
     name(other.name),
     typein(other.typein),
     typeout(other.typeout),
@@ -280,7 +284,7 @@ farm_node::farm_node(initializer_list<skel_node*> init)
     : concrete_skel_node( *this, init ), pardegree(1) {}
 
 farm_node::farm_node( skel_node* pattexp, int pardegree )
-        : concrete_skel_node( *this ), pardegree( pardegree ) {
+    : concrete_skel_node( *this ), pardegree( pardegree ) {
     add(pattexp);
 }
 
@@ -299,13 +303,13 @@ map_node::map_node(initializer_list<skel_node*> init)
     : concrete_skel_node( *this, init ), pardegree(1), grain(0) {}
 
 map_node::map_node(skel_node* pattexp, int pardegree)
-        : concrete_skel_node( *this ), pardegree( pardegree ), grain(0) {
+    : concrete_skel_node( *this ), pardegree( pardegree ), grain(0) {
     add(pattexp);
 
 }
 
 map_node::map_node(const map_node& other)
-        : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
+    : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node * map_node::clone() {
     //Clion says "endless loop", but it's a bug of Clion
@@ -320,7 +324,7 @@ reduce_node::reduce_node(initializer_list<skel_node*> init)
     : concrete_skel_node( *this, init ), pardegree(1), grain(0) {}
 
 reduce_node::reduce_node( skel_node* pattexp, int pardegree )
-        : concrete_skel_node( *this ), pardegree(pardegree), grain(0) {
+    : concrete_skel_node( *this ), pardegree(pardegree), grain(0) {
     add(pattexp);
 }
 
@@ -332,6 +336,21 @@ skel_node* reduce_node::clone() {
     return new reduce_node(*this);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// dc_node implementation
+///////////////////////////////////////////////////////////////////////////////
+dc_node::dc_node(std::initializer_list<skel_node *> init)
+    : concrete_skel_node(*this, init), pardegree(1) {}
+
+dc_node::dc_node(skel_node *pattexp, int pardegree)
+    : concrete_skel_node(*this), pardegree(pardegree) {}
+
+dc_node::dc_node(const dc_node &other)
+    : concrete_skel_node(*this, other), pardegree(other.pardegree) {}
+
+skel_node* dc_node::clone() {
+    return new dc_node(*this);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // id_node implementation

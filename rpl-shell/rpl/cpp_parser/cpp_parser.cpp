@@ -39,6 +39,8 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
     regex map_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)map_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
     regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
+    // name: $3, typein: $9, typeout: $12
+    regex dc_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)dc_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
 
     string line;
     smatch match;
@@ -59,6 +61,9 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
         } else if ( std::regex_search(line, match, red_regex) ) {
             vec.emplace_back(trim(match[3]), wrapper_info::reduce,
                 match[9], match[12], match[15], match[18]);
+        } else if (std::regex_search(line, match, dc_regex)) {
+            vec.emplace_back(trim(match[3]), wrapper_info::dc,
+                             match[9], match[12]);
         }
     }
 

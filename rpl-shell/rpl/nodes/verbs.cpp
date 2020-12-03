@@ -8,34 +8,23 @@
 
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
-// assign_node implementation
-///////////////////////////////////////////////////////////////////////////////
-assign_node::assign_node(const string& id, skel_node* rvalue)
-    : id(id), rvalue(rvalue) {}
-
-void assign_node::accept(visitor &v) {
-    v.visit( *this );
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
 // verb_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 template <typename verb>
 verb_node<verb>::verb_node( verb& _verb, const string& id, const string& prop )
-    : _verb(_verb), id(id), index(0), prop(prop), parameters({}) {}
+        : _verb(_verb), id(id), index(0), prop(prop), parameters({}) {}
 
 template <typename verb>
 verb_node<verb>::verb_node( verb& _verb, const string& id, const std::vector<string>& parameters )
-    : _verb(_verb), id(id), index(0), prop(""), parameters(parameters) {}
+        : _verb(_verb), id(id), index(0), prop(""), parameters(parameters) {}
 
 template <typename verb>
 verb_node<verb>::verb_node( verb& _verb, const pair<string,int>& id, const string& prop )
-    : _verb(_verb), id(id.first), index(id.second), prop(prop), parameters({}) {}
+        : _verb(_verb), id(id.first), index(id.second), prop(prop), parameters({}) {}
 
 template <typename verb>
 verb_node<verb>::verb_node( verb& _verb, const pair<string,int>& id, const std::vector<string>& parameters )
-    : _verb(_verb), id(id.first), index(id.second), prop(""), parameters(parameters) {}
+        : _verb(_verb), id(id.first), index(id.second), prop(""), parameters(parameters) {}
 
 /**
  * Calls the visit operation on the passed visitor for this verb node
@@ -45,6 +34,17 @@ verb_node<verb>::verb_node( verb& _verb, const pair<string,int>& id, const std::
 template <typename verb>
 void verb_node<verb>::accept( visitor& v ) {
     v.visit( _verb );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// assign_node implementation
+///////////////////////////////////////////////////////////////////////////////
+assign_node::assign_node(const string& id, skel_node* rvalue)
+    : id(id), rvalue(rvalue) {}
+
+void assign_node::accept(visitor &v) {
+    v.visit( *this );
 }
 
 

@@ -15,7 +15,6 @@ struct skel_node : public rvalue_node {
     virtual ~skel_node();
 
     void accept(visitor& v)                 override = 0;
-    //TODO: use make_shared in clone to avoid memory leaks?
     virtual skel_node* clone()                      = 0;
     virtual bool operator==( const skel_node& rhs ) = 0;
     virtual bool operator!=( const skel_node& rhs ) = 0;
@@ -56,20 +55,23 @@ private:
 };
 
 /**
- * Sequential node
+ * Sequential nod
+ * TODO: per ora lascio questo anche per il seq dentro dc,
+ * e mi creo quindi un nuovo nodo solo per il pattern effettivo,
+ * però non ne sono sicurissimo di questa cosa
  */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
-
-    //test for the new code generation
-    seq_node( std::string name, std::string typein, std::string typeout, std::string typein_el, std::string typeout_el, std::string file );
+    seq_node( std::string name, std::string typein, std::string typeout,
+              std::string typein_el, std::string typeout_el, std::string file );
 
     explicit seq_node( double servicetime, bool datap_flag = false );
     seq_node( const seq_node& other );
     skel_node* clone() override;
+
     double servicetime;
     bool datap_flag;
-
+    bool dc_flag;   //TODO: non sono sicuro che mi serva, ma probabilmente sì
     std::string name;
     std::string typein;
     std::string typeout;
@@ -77,6 +79,7 @@ struct seq_node : public concrete_skel_node<seq_node> {
     std::string typeout_el;
     std::string file;
 };
+
 
 /**
  * Source node for stream
@@ -86,6 +89,7 @@ struct source_node : public concrete_skel_node<source_node> {
     explicit source_node( double servicetime );
     source_node( const source_node& other );
     skel_node* clone() override;
+
     double servicetime;
     std::string name;
     std::string typeout;
@@ -100,6 +104,7 @@ struct drain_node : public concrete_skel_node<drain_node> {
     explicit drain_node( double servicetime );
     drain_node( const drain_node& other );
     skel_node* clone() override;
+
     double servicetime;
     std::string name;
     std::string typein;
@@ -113,6 +118,7 @@ struct comp_node : public concrete_skel_node<comp_node> {
     comp_node( std::initializer_list<skel_node*> init );
     comp_node( const comp_node& other );
     skel_node* clone() override;
+
     bool compseq;   //default false
 };
 
@@ -133,6 +139,7 @@ struct farm_node : public concrete_skel_node<farm_node> {
     explicit farm_node( skel_node* pattexp, int pardegree = 1 );
     farm_node( const farm_node& other );
     skel_node* clone() override;
+
     int pardegree;
 };
 
@@ -144,8 +151,8 @@ struct map_node : public concrete_skel_node<map_node> {
     explicit map_node( skel_node* pattexp, int pardegree = 1 );
     map_node( const map_node& other );
     skel_node* clone() override;
+
     int pardegree;
-    //test for grain -> long perchè così è definito su ff
     long grain;
 };
 
@@ -157,9 +164,20 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
     explicit reduce_node( skel_node* pattexp, int pardegree = 1 );
     reduce_node( const reduce_node& other );
     skel_node* clone() override;
+
     int pardegree;
-    //test for grain -> long perchè così è definito su ff
     long grain;
+};
+
+struct dc_node : public concrete_skel_node<dc_node> {
+    dc_node(std::initializer_list<skel_node*> init);
+    explicit dc_node(skel_node* pattexp, int pardegree = 1 );
+    dc_node(const dc_node& other);
+    skel_node* clone() override;
+
+    //TODO: potrebbe essere interessante una funzione per controllare
+    // se il nodo inserito come figlio è corretto? o lo faccio altrove?
+    int pardegree;
 };
 
 /**
@@ -170,6 +188,7 @@ struct id_node : public concrete_skel_node<id_node> {
     explicit id_node( std::string  id );
     id_node( const id_node& other );
     skel_node* clone() override;
+
     std::string id;
     int index;
     bool all;
