@@ -109,9 +109,9 @@ void ffmapper::visit(farm_node& n) {
 void ffmapper::visit(map_node& n) {
     // don't recurse here: two-tier model will
     // be applied if stream parallelism inside
-    pardegree par(env);                      // setup pardegree visitor
-    size_t numworkers = par(n)+2;            // compute number of workers (considering scatter+gather)
-    for (size_t i = 0; i < numworkers; i++)  // cpu mapping for all workers
+    pardegree par(env);                         // setup pardegree visitor
+    size_t numworkers = par(n) + 2;             // compute number of workers (considering scatter+gather)
+    for (size_t i = 0; i < numworkers; i++)        // cpu mapping for all workers
         mw.push_back(startID++ % endID);
 }
 
@@ -124,9 +124,9 @@ void ffmapper::visit(map_node& n) {
 void ffmapper::visit(reduce_node& n) {
     // don't recurse here: two-tier model will
     // be applied if stream parallelism inside
-    pardegree par(env);                      // setup pardegree visitor
-    size_t numworkers = par(n);              // compute number of workers
-    for (size_t i = 0; i < numworkers; i++)  // cpu mapping for all workers
+    pardegree par(env);                         // setup pardegree visitor
+    size_t numworkers = par(n) + 2;             // compute number of workers (considering scatter+gather)
+    for (size_t i = 0; i < numworkers; i++)        // cpu mapping for all workers
         mw.push_back(startID++ % endID);
 }
 
