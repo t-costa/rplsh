@@ -5,14 +5,13 @@ using namespace std;
 
 bool result;
 
-/*
+/**
  *
  * The only modification that I see is on the value of the
  * field n.compseq when n is a comp node, basically I think
  * it checks if the composition contains only seq nodes
  *
- * */
-
+ */
 compseq_setter::compseq_setter(rpl_environment& env) :
     env(env)
 {}
