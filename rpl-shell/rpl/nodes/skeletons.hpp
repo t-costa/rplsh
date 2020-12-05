@@ -55,7 +55,7 @@ private:
 };
 
 /**
- * Sequential nod
+ * Sequential node
  * TODO: per ora lascio questo anche per il seq dentro dc,
  * e mi creo quindi un nuovo nodo solo per il pattern effettivo,
  * però non ne sono sicurissimo di questa cosa
@@ -71,7 +71,7 @@ struct seq_node : public concrete_skel_node<seq_node> {
 
     double servicetime;
     bool datap_flag;
-    bool dc_flag;   //TODO: non sono sicuro che mi serva, ma probabilmente sì
+    bool dc_flag;
     std::string name;
     std::string typein;
     std::string typeout;

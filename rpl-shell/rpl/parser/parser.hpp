@@ -42,12 +42,14 @@ private:
     rpl_node* load_rule(token& tok);
 
     skel_node* pattexp_rule(token& tok);
+    skel_node* restricted_pattexp_rule(token& tok);
     skel_node* id_rule(token& tok);
     skel_node* seq_rule(token& tok);
     skel_node* source_rule(token& tok);
     skel_node* drain_rule(token& tok);
     skel_node* comp_pipe_rule(token& tok);
     skel_node* farm_map_reduce_rule(token& tok);
+    skel_node* div_conq_rule(token& tok);
 
     bool expect(token& tok, token::type exp);
     bool expect(token& tok, token::type exp, std::pair<std::string, int>& el);
