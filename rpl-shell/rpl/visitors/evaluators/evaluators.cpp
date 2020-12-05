@@ -115,6 +115,12 @@ void servicetime::visit(reduce_node& n) {
     res = res + log2(n.pardegree) * (res/nw);   //  Tf == res*nw
 }
 
+void servicetime::visit(dc_node &n) {
+    //TODO: non so quale sia la formula generica!
+    //  per ora faccio solo un ts_figlio / nw
+    res = (*this)(*n.get(0)) / n.pardegree;
+}
+
 /**
  * Searches for the node in the environment,
  * propagates input size and sets res calling the visit
@@ -229,6 +235,12 @@ void latencytime::visit(reduce_node& n) {
     res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
 }
 
+void latencytime::visit(dc_node &n) {
+    //TODO: non so quale sia la formula!
+    //  per ora faccio un semplice lat_figlio / nw
+    res = (*this)(*n.get(0)) / n.pardegree;
+}
+
 /**
  * Searches for n in the environment, propagates inputsize
  * and calls the visit assigning res
@@ -258,7 +270,7 @@ string latencytime::print( skel_node& sk ){
  * @param sk skeleton root
  * @return value of latency of sk
  */
-double latencytime::operator()(skel_node& sk){
+double latencytime::operator()(skel_node& sk) {
     sk.accept(*this);
     return res;
 }
@@ -346,6 +358,11 @@ void completiontime::visit( map_node& n ) {
 void completiontime::visit( reduce_node& n ) {
     //res = env.get_dim() * lat(n); //old definition (I think wrong)
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
+}
+
+void completiontime::visit(dc_node &n) {
+    //TODO: non so nemmeno questo...
+    res = ts(n);
 }
 
 /**
@@ -452,6 +469,10 @@ void pardegree::visit( reduce_node& n ) {
     res = n.pardegree * (*this)(*n.get(0));
 }
 
+void pardegree::visit(dc_node &n) {
+    res = n.pardegree * (*this)(*n.get(0));
+}
+
 /**
  * Searches n in the environment, starts the visit
  * and sets res
@@ -554,6 +575,10 @@ void resources::visit( map_node& n ) {
 void resources::visit( reduce_node& n ) {
     res = n.pardegree * (*this)(*n.get(0)) + 2; //scatter + gather
     if (n.grain > 0) res++; //dynamic scheduler
+}
+
+void resources::visit(dc_node &n) {
+    res = n.pardegree * (*this)(*n.get(0));
 }
 
 /**

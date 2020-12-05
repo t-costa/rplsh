@@ -99,6 +99,11 @@ void compseq_setter::visit(reduce_node& n) {
     result = false;
 }
 
+void compseq_setter::visit(dc_node &n) {
+    //TODO: non so se è giusto
+    result = false;
+}
+
 /**
  * If the node exists in the environment, the accept
  * is called on the node

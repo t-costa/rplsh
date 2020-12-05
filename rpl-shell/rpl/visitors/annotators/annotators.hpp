@@ -18,6 +18,7 @@ struct ann_visitor : public skel_visitor
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
 
     /**
@@ -54,6 +55,7 @@ struct ann_pardegree : public ann_visitor
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
 
     bool operator()( skel_node& n, ann_node& a ) override ;
 
@@ -97,7 +99,6 @@ private:
 struct ann_grain : public ann_visitor
 {
     explicit ann_grain(rpl_environment& env);
-//    void visit (seq_node& n) override;
     void visit (map_node& n) override;
     void visit (reduce_node& n) override;
 

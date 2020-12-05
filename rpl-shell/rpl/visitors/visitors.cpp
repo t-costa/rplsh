@@ -57,6 +57,10 @@ void printer::visit(reduce_node& n) {
     tostring("reduce", n);
 }
 
+void printer::visit(dc_node &n) {
+    tostring("divide_and_conquer", n);
+}
+
 void printer::visit(id_node& n) {
     res += n.id;
 }
@@ -145,6 +149,10 @@ void ann_printer::visit(reduce_node& n) {
     tostring("reduce", "with [ nw: " + to_string(n.pardegree) + "]", n);
 }
 
+void ann_printer::visit(dc_node &n) {
+    tostring("divide_and_conquer", "with [nw " + to_string(n.pardegree) + "]", n);
+}
+
 void ann_printer::visit(id_node& n) {
     res += n.id;
 }
@@ -202,6 +210,10 @@ void label_printer::visit( reduce_node& n ) {
     str = "reduce";
 }
 
+void label_printer::visit(dc_node &n) {
+    str = "divide_and_conquer";
+}
+
 void label_printer::visit( id_node& n ) {
     str = n.id;
 }
@@ -247,6 +259,10 @@ void single_node_cloner::visit( map_node& n ) {
 
 void single_node_cloner::visit( reduce_node& n ) {
     tmp = new reduce_node{};
+}
+
+void single_node_cloner::visit(dc_node &n) {
+    tmp = new dc_node{};
 }
 
 void single_node_cloner::visit( id_node& n ) {
@@ -394,6 +410,18 @@ void reduce_resources::visit( reduce_node& n ) {
         (*this)( *n.get(0) );
 }
 
+void reduce_resources::visit(dc_node &n) {
+    //TODO: controlla correttezza!
+    assign_resources assignres;
+    res = n.pardegree > 1;
+    if (res) {
+        n.pardegree--;
+        assignres(n, n.inputsize);
+    } else {
+        (*this)(*n.get(0));
+    }
+}
+
 /**
  * If the sub expressions should be checked, it
  * continues the visit searching n in the env,
@@ -470,6 +498,11 @@ void assign_resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void assign_resources::visit( reduce_node& n ) {
+    (*this)(*n.get(0), n.inputsize/n.pardegree);
+}
+
+void assign_resources::visit(dc_node &n) {
+    //TODO: controlla correttezza
     (*this)(*n.get(0), n.inputsize/n.pardegree);
 }
 
@@ -571,6 +604,11 @@ void get_seq_wrappers::visit( reduce_node& n ) {
     inside_datap = true;
     n.get(0)->accept(*this);
     inside_datap = false;
+}
+
+void get_seq_wrappers::visit(dc_node &n) {
+    //not considered datap
+    n.get(0)->accept(*this);
 }
 
 /**
@@ -701,6 +739,10 @@ void top_datap_skeletons::visit( reduce_node& n ) {
     red_nodes.push_back(&n);
 }
 
+void top_datap_skeletons::visit(dc_node &n) {
+    n.get(0)->accept(*this);
+}
+
 /**
  * If n exists in the environment, calls the visit for n
  * @param n id node
@@ -791,6 +833,10 @@ void ranker::visit( reduce_node& n ) {
     n.get(0)->accept(*this);
 }
 
+void ranker::visit(dc_node &n) {
+    n.get(0)->accept(*this);
+}
+
 /**
  * If the node exists in the environment,
  * unranks the node and continues the visit
@@ -867,6 +913,11 @@ void unranker::visit( map_node& n ) {
  * @param n reduce node
  */
 void unranker::visit( reduce_node& n ) {
+    n.get(0)->accept(*this);
+}
+
+void unranker::visit(dc_node &n) {
+    //TODO: controlla correttezza
     n.get(0)->accept(*this);
 }
 
@@ -962,6 +1013,10 @@ void count_stages::visit( map_node& n ) {
  * @param n reduce node
  */
 void count_stages::visit( reduce_node& n ) {
+    res += 1;
+}
+
+void count_stages::visit(dc_node &n) {
     res += 1;
 }
 

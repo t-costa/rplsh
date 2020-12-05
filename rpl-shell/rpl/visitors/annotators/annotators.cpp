@@ -46,6 +46,10 @@ void ann_visitor::visit( reduce_node& n ) {
     result = false;
 }
 
+void ann_visitor::visit(dc_node &n) {
+    result = false;
+}
+
 void ann_visitor::visit( id_node& n ) {
     result = false;
 }
@@ -105,6 +109,11 @@ void ann_pardegree::visit( map_node& n ) {
 
 //prima non c'era, non so perchè...
 void ann_pardegree::visit(reduce_node &n) {
+    n.pardegree = nw;
+    result      = true;
+}
+
+void ann_pardegree::visit(dc_node &n) {
     n.pardegree = nw;
     result      = true;
 }

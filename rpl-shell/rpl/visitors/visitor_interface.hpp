@@ -31,6 +31,7 @@ struct visitor
     virtual void visit(farm_node& n)    = 0;
     virtual void visit(map_node& n)     = 0;
     virtual void visit(reduce_node& n)  = 0;
+    virtual void visit(dc_node& n)      = 0;
     virtual void visit(id_node& n)      = 0;
 
     virtual void visit(_& n) {}

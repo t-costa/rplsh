@@ -130,6 +130,15 @@ void ffmapper::visit(reduce_node& n) {
         mw.push_back(startID++ % endID);
 }
 
+void ffmapper::visit(dc_node &n) {
+    //TODO: non so se va bene
+    pardegree par(env);
+    size_t numworkers = par(n);
+    for (size_t i = 0; i < numworkers; ++i) {
+        mw.push_back(startID ++ %endID);
+    }
+}
+
 /**
  * If the nodes exists in the environment, calls the accept,
  * otherwise error
