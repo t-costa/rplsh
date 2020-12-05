@@ -67,6 +67,10 @@ void optrule::visit( reduce_node& n ) {
     (*this)( *n.get(0) );
 }
 
+void optrule::visit(dc_node &n) {
+    (*this)(*n.get(0));
+}
+
 /**
  * If the option is enabled, recovers
  * n from the environment and calls the visit
@@ -362,6 +366,10 @@ void maxresources::visit( map_node& n ) {
  * @param n reduce node
  */
 void maxresources::visit( reduce_node& n ) {
+    while ( res(n) > maxres && reduce_res(n) );
+}
+
+void maxresources::visit(dc_node &n) {
     while ( res(n) > maxres && reduce_res(n) );
 }
 

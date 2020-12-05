@@ -649,3 +649,7 @@ void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
     assert(code_lines.empty());
     code_lines.push({var, ss.str()});
 }
+
+void ffcode::visit(dc_node &n) {
+    //TODO:
+}

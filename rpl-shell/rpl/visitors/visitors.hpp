@@ -21,6 +21,7 @@ struct printer : public skel_visitor, public printable
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
 
     std::string print(skel_node& sk) override;
@@ -40,6 +41,7 @@ struct ann_printer : public skel_visitor, public printable
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
 
     std::string print(skel_node& sk) override;
@@ -60,6 +62,7 @@ struct label_printer : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     std::string operator()(skel_node& n);
 private:
@@ -75,6 +78,7 @@ struct single_node_cloner : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     skel_node* operator()(skel_node& n);
 private:
@@ -91,6 +95,7 @@ struct reduce_resources : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     bool operator()(skel_node& n);
     bool subexp;
@@ -108,6 +113,7 @@ struct assign_resources : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     void operator()(skel_node& n, double inputsize);
 };
@@ -122,6 +128,7 @@ struct get_seq_wrappers : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
 
     std::vector<seq_node*> get_seq_nodes();
@@ -149,6 +156,7 @@ struct top_datap_skeletons : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
 
     std::vector<map_node*> get_map_nodes();
@@ -169,6 +177,7 @@ struct ranker : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     void operator()(skel_node& n);
 private:
@@ -184,6 +193,7 @@ struct unranker : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     void operator()(skel_node& n);
 private:
@@ -200,6 +210,7 @@ struct count_stages : public skel_visitor {
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
     void visit(id_node& n) override;
     std::size_t operator()(skel_node& n);
 private:
