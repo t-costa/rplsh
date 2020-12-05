@@ -39,6 +39,7 @@ struct token
         farm,
         map,
         reduce,
+        divide_conquer,
         integer,
         number,
         bool_true,

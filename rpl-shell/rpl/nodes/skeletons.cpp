@@ -296,6 +296,10 @@ skel_node* farm_node::clone() {
 }
 
 
+//TODO: per map, reduce e dc potrei fare costruttori più specifici,
+//  che prendono seq, datap, farm/pipe per poter controllare la correttezza
+//  poi per la generazione => id potrebbe comunque essere un problema
+
 ///////////////////////////////////////////////////////////////////////////////
 // map_node implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -305,14 +309,12 @@ map_node::map_node(initializer_list<skel_node*> init)
 map_node::map_node(skel_node* pattexp, int pardegree)
     : concrete_skel_node( *this ), pardegree( pardegree ), grain(0) {
     add(pattexp);
-
 }
 
 map_node::map_node(const map_node& other)
     : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node * map_node::clone() {
-    //Clion says "endless loop", but it's a bug of Clion
     return new map_node(*this);
 }
 
@@ -332,7 +334,6 @@ reduce_node::reduce_node( const reduce_node& other )
     : concrete_skel_node( *this, other ), pardegree(other.pardegree), grain(other.grain) {}
 
 skel_node* reduce_node::clone() {
-    //Clion says "endless loop", but it's a bug of Clion
     return new reduce_node(*this);
 }
 
@@ -343,7 +344,9 @@ dc_node::dc_node(std::initializer_list<skel_node *> init)
     : concrete_skel_node(*this, init), pardegree(1) {}
 
 dc_node::dc_node(skel_node *pattexp, int pardegree)
-    : concrete_skel_node(*this), pardegree(pardegree) {}
+    : concrete_skel_node(*this), pardegree(pardegree) {
+    add(pattexp);
+}
 
 dc_node::dc_node(const dc_node &other)
     : concrete_skel_node(*this, other), pardegree(other.pardegree) {}
@@ -365,7 +368,6 @@ id_node::id_node( const id_node& other )
     : concrete_skel_node( *this, other ), id( other.id ), index(other.index), all(other.all) {}
 
 skel_node* id_node::clone() {
-    //Clion says "endless loop", but it's a bug of Clion
     return new id_node(*this);
 }
 

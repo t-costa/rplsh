@@ -6,7 +6,7 @@
 #include "visitors/evaluators/evaluators.hpp"
 #include "environment/rpl_environment.hpp"
 
-/*
+/**
     interface for each optimize rule: recursively
     apply the optimization rule for each children
     of a visited node, excluding the sequential

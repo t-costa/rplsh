@@ -132,7 +132,6 @@ rpl_node* parser::start_rule(token& tok)
     }
 }
 
-//  TODO add possibility to put rewriting/opt rules as functions in the right part
 rpl_node* parser::assign_rule(token& tok)
 {
     string word = tok.data;
@@ -406,10 +405,26 @@ skel_node* parser::pattexp_rule(token& tok)
         case token::map:
         case token::reduce:
             return farm_map_reduce_rule(tok);
+        case token::divide_conquer:
+            return div_conq_rule(tok);
         case token::word:
             return id_rule(tok);
         default:
             err_repo.add( make_shared<error_unexp>(tok.data, tok.pos) );
+            return nullptr;
+    }
+}
+
+skel_node* parser::restricted_pattexp_rule(token &tok)
+{
+    switch(tok.kind)
+    {
+        case token::seq:
+            return seq_rule(tok);
+        case token::word:
+            return id_rule(tok);
+        default:
+            err_repo.add(make_shared<error_unexp>(tok.data, tok.pos));
             return nullptr;
     }
 }
@@ -474,7 +489,7 @@ skel_node* parser::drain_rule(token& tok) {
 
 }
 
-//  <comp_pipe> ::= ('comp' | 'pipe') '(' <pattexp> (',' <pattexp>)+ ')'
+//  <comp_pipe> ::= ('comp' | 'pipe') '(' <pattexp> [',' <pattexp>]+ ')'
 skel_node* parser::comp_pipe_rule(token& tok)
 {
     skel_node* pattexp;
@@ -505,7 +520,7 @@ skel_node* parser::farm_map_reduce_rule(token& tok)
 {
     skel_node* pattexp;
     token::type kind = tok.kind;
-    int nw           = 1;                   // default number of workers
+    int nw = 1;                   // default number of workers
 
     if (tok.kind == token::reduce)
         expect(tok, token::reduce);
@@ -524,6 +539,26 @@ skel_node* parser::farm_map_reduce_rule(token& tok)
     if (kind == token::reduce)
         return new reduce_node(pattexp, nw);
     return new map_node(pattexp, nw);
+}
+
+//  <divide_conq> ::= 'divide_conquer' '(' <pattexp> [',' <integer> ')'
+skel_node* parser::div_conq_rule(token &tok)
+{
+    skel_node* pattexp;
+    int nw = 1;
+
+    expect(tok, token::divide_conquer);
+    expect(tok, token::open);
+    pattexp = restricted_pattexp_rule(tok);
+    //TODO: dovremmo verificare quale pattexp viene sputato fuori?
+    //  in caso, posso accettare solo id/seq annotati come dc
+    if (tok.kind == token::comma) {
+        expect(tok, token::comma);
+        expect(tok, token::integer, nw);
+    }
+    expect(tok, token::close);
+
+    return new dc_node(pattexp, nw);
 }
 
 //  Identifier parse rule, it just eat the id token
