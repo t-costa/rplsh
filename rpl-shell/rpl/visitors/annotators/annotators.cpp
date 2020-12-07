@@ -236,3 +236,20 @@ bool ann_grain::operator()(skel_node &n, ann_node &a) {
     n.accept(*this);
     return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+ann_dc_capable::ann_dc_capable(rpl_environment &env) :
+    ann_visitor(env), dc_flag(false)
+{}
+
+void ann_dc_capable::visit(seq_node &n) {
+    n.dc_flag = dc_flag;
+    result = true;
+}
+
+bool ann_dc_capable::operator()(skel_node &n, ann_node &a) {
+    dc_flag = (a.value != 0);
+    n.accept(*this);
+    return result;
+}
