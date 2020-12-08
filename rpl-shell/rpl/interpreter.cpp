@@ -772,6 +772,10 @@ void interpreter::visit(reduce_node& n) {
     n.get(0)->accept(*this);
 }
 
+void interpreter::visit(dc_node &n) {
+    n.get(0)->accept((*this));
+}
+
 /**
  * Checks if n exists in the environment
  * @param n
