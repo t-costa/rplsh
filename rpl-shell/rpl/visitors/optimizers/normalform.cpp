@@ -55,6 +55,11 @@ void normalform::visit( reduce_node& n ) {
     success = false;
 }
 
+//FIXME: non so cosa dovrebbe fare, messo giusto per compilare
+void normalform::visit(dc_node &n) {
+    success = false;
+}
+
 /**
  * Get range of n and checks what to do based on the type of n
  * @param n id node

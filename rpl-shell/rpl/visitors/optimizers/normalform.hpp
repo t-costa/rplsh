@@ -15,6 +15,7 @@ struct normalform : public skel_visitor
     void visit(farm_node& n) override    ;
     void visit(map_node& n) override     ;
     void visit(reduce_node& n) override  ;
+    void visit(dc_node& n) override      ;
     void visit(id_node& n) override      ;
 
     skel_node* operator()( skel_node& n );

@@ -46,6 +46,7 @@ namespace par
     const std::string resources      = "resources";
     const std::string datap          = "datap";
     const std::string grain          = "grain";
+    const std::string dc_capable     = "dc_capable";
 
     /* types for seq/source/drain */
     const std::string typein         = "typein";

@@ -79,8 +79,6 @@ visitors/visitors.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/evaluators/visitors/visitors.hpp
 iostream
 -
-functional
--
 algorithm
 -
 tuple
