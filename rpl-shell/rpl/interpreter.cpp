@@ -38,6 +38,24 @@ interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     success(true)
 {}
 
+void interpreter::check_correct_assignment(skel_node& n) {
+    check_dc dc_v(env);
+    check_datap datap_v(env);
+
+    if (!dc_v(n)) {
+        std::cerr << "WARNING: the code generation for divide and conquer will not work if"
+                     " the node inside is not a single sequential node that implements dc_wrapper."
+                     " Annotate the node as dc_capable to solve this issue." << std::endl;
+    }
+
+    if (!datap_v(n)) {
+        std::cerr << "WARNING: the code generation for data parallel patterns will not work if"
+                     " the nodes inside do not implement the correct datap wrapper or if it does"
+                     " not respect the two tier model. Annotate the nodes as datap or use the"
+                     " rewrite commands to solve this issue." << std::endl;
+    }
+}
+
 /**
  * Performs the assignment operation and adds the new node
  * in the environment
@@ -54,8 +72,10 @@ void interpreter::visit(assign_node& n) {
         env.put(n.id, n.rvalue);
         //add id for tab completion
         tab_completion::add_id(n.id);
+        check_correct_assignment(*n.rvalue);
     } else if ( success ) {
         tab_completion::add_id(n.id);
+        check_correct_assignment(*n.rvalue);
         env.clear(n.id);
         if (idnode->all) {
             auto range = env.range(idnode->id);

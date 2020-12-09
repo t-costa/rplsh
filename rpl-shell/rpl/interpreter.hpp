@@ -60,6 +60,8 @@ struct interpreter : public visitor
     history& get_history();
 
 private:
+    void check_correct_assignment(skel_node& n);
+
     rpl_environment& env;
     error_container& err_repo;
     rr_dispatcher rdispatch;
