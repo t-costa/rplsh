@@ -218,4 +218,43 @@ private:
     std::size_t res;
 };
 
+struct check_datap : public skel_visitor {
+    explicit check_datap(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
+    void visit(id_node& n) override;
+    bool operator()(skel_node& n);
+private:
+    rpl_environment& env;
+    bool inside_datap;
+    bool res;
+};
+
+struct check_dc : public skel_visitor {
+    explicit check_dc(rpl_environment& env);
+    void visit(seq_node& n) override;
+    void visit(source_node& n) override;
+    void visit(drain_node& n) override;
+    void visit(comp_node& n) override;
+    void visit(pipe_node& n) override;
+    void visit(farm_node& n) override;
+    void visit(map_node& n) override;
+    void visit(reduce_node& n) override;
+    void visit(dc_node& n) override;
+    void visit(id_node& n) override;
+    bool operator()(skel_node& n);
+private:
+    rpl_environment& env;
+    bool inside_dc;
+    bool res;
+};
+
+
 #endif

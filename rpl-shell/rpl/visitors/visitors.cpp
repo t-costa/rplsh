@@ -1040,3 +1040,183 @@ size_t count_stages::operator()( skel_node& n ) {
     n.accept(*this);
     return res;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Checks if nodes inside data parallel pattern
+ * are annotate accordingly
+ * @param env
+ */
+check_datap::check_datap(rpl_environment &env) :
+    env(env), inside_datap(false), res(true) { }
+
+void check_datap::visit(source_node &n) {
+    res = !inside_datap;
+}
+
+void check_datap::visit(drain_node &n) {
+    res = !inside_datap;
+}
+
+void check_datap::visit(seq_node &n) {
+    res = !inside_datap || n.datap_flag;
+}
+
+void check_datap::visit(pipe_node &n) {
+    //TODO: questo in realtà controlla il two-tier,
+    // che ok, può comunque essere utile, ma forse non qui
+    if (!inside_datap) {
+        for (size_t i = 0; i < n.size() && res; i++)
+            n.get(i)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_datap::visit(comp_node &n) {
+    //map/reduce(comp(seq, seq)) it's ok
+    for (size_t i = 0; i < n.size() && res; i++)
+        n.get(i)->accept(*this);
+}
+
+void check_datap::visit(farm_node &n) {
+    //TODO: questo in realtà controlla il two-tier,
+    // che ok, può comunque essere utile, ma forse non qui
+    if (!inside_datap) {
+        n.get(0)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_datap::visit(map_node &n) {
+    inside_datap = true;
+    n.get(0)->accept(*this);
+    inside_datap = false;
+}
+
+void check_datap::visit(reduce_node &n) {
+    inside_datap = true;
+    n.get(0)->accept(*this);
+    inside_datap = false;
+}
+
+void check_datap::visit(dc_node &n) {
+    //TODO: è possibile in realtà?
+    if (!inside_datap) {
+        n.get(0)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_datap::visit(id_node &n) {
+    auto ptr = env.get(n.id, n.index);
+    if (ptr != nullptr)
+        ptr->accept(*this);
+}
+
+/**
+ * true iff there are NO map/reduce nodes OR
+ * there are map/reduce && the contain
+ * ONLY seq nodes with datap==true
+ * (NO source/drain/farm/pipe/dc)
+ * @param n
+ * @return
+ */
+bool check_datap::operator()(skel_node &n) {
+    res = true;
+    n.accept(*this);
+    return res;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Checks if the node inside the divide and conquer
+ * node is annotated accordingly
+ * @param env
+ */
+check_dc::check_dc(rpl_environment &env) :
+    env(env), inside_dc(false), res(true) {}
+
+void check_dc::visit(seq_node &n) {
+    res = !inside_dc || n.dc_flag;
+}
+
+void check_dc::visit(source_node &n) {
+    res = !inside_dc;
+}
+
+void check_dc::visit(drain_node &n) {
+    res = !inside_dc;
+}
+
+void check_dc::visit(comp_node &n) {
+    if (!inside_dc) {
+        for (size_t i = 0; i < n.size() && res; i++)
+            n.get(i)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_dc::visit(pipe_node &n) {
+    if (!inside_dc) {
+        for (size_t i = 0; i < n.size() && res; i++)
+            n.get(i)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_dc::visit(farm_node &n) {
+    if (!inside_dc) {
+        n.get(0)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_dc::visit(map_node &n) {
+    if (!inside_dc) {
+        n.get(0)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_dc::visit(reduce_node &n) {
+    if (!inside_dc) {
+        n.get(0)->accept(*this);
+    } else {
+        res = false;
+    }
+}
+
+void check_dc::visit(dc_node &n) {
+    inside_dc = true;
+    n.get(0)->accept(*this);
+    inside_dc = false;
+}
+
+void check_dc::visit(id_node &n) {
+    auto ptr = env.get(n.id, n.index);
+    if (ptr != nullptr)
+        ptr->accept(*this);
+}
+
+/**
+ * Returns true iff there are NO dc nodes
+ * OR there are dc nodes && they contain
+ * only a single sequential node annotated
+ * accordingly
+ * @param n
+ * @return
+ */
+bool check_dc::operator()(skel_node &n) {
+    res = true;
+    n.accept(*this);
+    return res;
+}
