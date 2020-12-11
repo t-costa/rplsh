@@ -159,19 +159,19 @@ seq_node::seq_node( std::string name, std::string typein, std::string typeout, s
     file(std::move(file))
 {}
 
-seq_node::seq_node(std::string name, std::string typein, std::string typeout, std::string typein_el,
-                   std::string typeout_el, std::string file) :
-    concrete_skel_node<seq_node>(*this),
-    servicetime(1.0),
-    datap_flag(true),   //it's for a map or reduce
-    dc_flag(false),
-    name(std::move(name)),
-    typein(std::move(typein)),
-    typeout(std::move(typeout)),
-    typein_el(std::move(typein_el)),
-    typeout_el(std::move(typeout_el)),
-    file(std::move(file))
-{}
+//seq_node::seq_node(std::string name, std::string typein, std::string typeout, std::string typein_el,
+//                   std::string typeout_el, std::string file) :
+//    concrete_skel_node<seq_node>(*this),
+//    servicetime(1.0),
+//    datap_flag(true),   //it's for a map or reduce
+//    dc_flag(false),
+//    name(std::move(name)),
+//    typein(std::move(typein)),
+//    typeout(std::move(typeout)),
+//    typein_el(std::move(typein_el)),
+//    typeout_el(std::move(typeout_el)),
+//    file(std::move(file))
+//{}
 
 seq_node::seq_node( const seq_node& other ) :
     concrete_skel_node( *this, other ),
@@ -181,8 +181,8 @@ seq_node::seq_node( const seq_node& other ) :
     name(other.name),
     typein(other.typein),
     typeout(other.typeout),
-    typein_el(other.typein_el),
-    typeout_el(other.typeout_el),
+//    typein_el(other.typein_el),
+//    typeout_el(other.typeout_el),
     file(other.file)
 {}
 

@@ -45,6 +45,9 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
     string line;
     smatch match;
 
+    //TODO: in map and reduce we don't need to take typein/out_el...
+    // but we need them in the code
+
     while (std::getline(file, line)) {
         if ( std::regex_search(line, match, seq_regex) ) {
             vec.emplace_back(trim(match[3]), wrapper_info::seq,
