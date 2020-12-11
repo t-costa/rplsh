@@ -35,7 +35,8 @@ interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     vdispatch(env),
     normform(env),
     ff(env),
-    success(true)
+    success(true),
+    imported(false)
 {}
 
 void interpreter::check_correct_assignment(skel_node& n) {
@@ -72,10 +73,15 @@ void interpreter::visit(assign_node& n) {
         env.put(n.id, n.rvalue);
         //add id for tab completion
         tab_completion::add_id(n.id);
-        check_correct_assignment(*n.rvalue);
+        //if user has imported code, he probably wants to
+        //generate code, otherwise he probably doesn't care
+        //about the practicality of it's skeleton tree
+        if (imported)
+            check_correct_assignment(*n.rvalue);
     } else if ( success ) {
         tab_completion::add_id(n.id);
-        check_correct_assignment(*n.rvalue);
+        if (imported)
+            check_correct_assignment(*n.rvalue);
         env.clear(n.id);
         if (idnode->all) {
             auto range = env.range(idnode->id);
@@ -366,8 +372,14 @@ void interpreter::visit(import_node& n) {
                 sk = new source_node(name,tout, path);
             else if (it->wtype == wrapper_info::drain)
                 sk = new drain_node(name,tin, path);
-            else if (it->wtype == wrapper_info::map || it->wtype == wrapper_info::reduce)
-                sk = new seq_node(name, tin, tout, it->typein_el, it->typeout_el, path);
+            else if (it->wtype == wrapper_info::map || it->wtype == wrapper_info::reduce) {
+                sk = new seq_node(name, tin, tout, path);
+                ((seq_node*) sk)->datap_flag = true;
+            }
+            else if (it->wtype == wrapper_info::dc) {
+                sk = new seq_node(name, tin, tout, path);
+                ((seq_node*) sk)->dc_flag = true;
+            }
             else {
                 cerr << "Error: no type recognized for " << name << endl;
                 sk = nullptr;
@@ -377,6 +389,7 @@ void interpreter::visit(import_node& n) {
             assign_node a ( name, sk );
             visit(a);
         }
+        imported = true;
     } catch (std::logic_error&) {
         cerr << "impossible import code from " << n.id << endl;
     }

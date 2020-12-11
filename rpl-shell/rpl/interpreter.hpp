@@ -75,6 +75,7 @@ private:
     ffcode ff;
     history phistory;
     bool success;
+    bool imported;
 };
 
 #endif

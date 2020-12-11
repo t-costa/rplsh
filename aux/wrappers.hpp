@@ -43,7 +43,7 @@ private:
         base(p, r);
     }
   }
-}
+};
 
 template<typename Tin,
           typename Tout,
