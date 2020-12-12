@@ -42,7 +42,7 @@ private:
     rpl_node* load_rule(token& tok);
 
     skel_node* pattexp_rule(token& tok);
-    skel_node* restricted_pattexp_rule(token& tok);
+//    skel_node* restricted_pattexp_rule(token& tok);
     skel_node* id_rule(token& tok);
     skel_node* seq_rule(token& tok);
     skel_node* source_rule(token& tok);
