@@ -27,7 +27,7 @@ public:
   virtual bool cond(const Tin& in) = 0;
 
 private:
-  void DC_algo(const Tin& p, Tout& r) override {
+  void DC_algo(const Tin& p, Tout& r) {
     if (!cond(p)) {
         std::vector<Tin> sub_p;
 
@@ -40,7 +40,7 @@ private:
 
         combine(res, r);
     } else {
-        base(p, r);
+        seq(p, r);
     }
   }
 };
