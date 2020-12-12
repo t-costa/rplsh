@@ -30,7 +30,8 @@ const std::unordered_set<std::string> patterns = {
     "pipe(",
     "farm(",
     "map(",
-    "reduce("
+    "reduce(",
+    "divide_conquer("
 };
 
 const std::unordered_set<std::string> refactoring_rules {
@@ -78,7 +79,8 @@ const std::unordered_set<std::string> non_functional_parameters {
     "compltime",
     "resources",
     "datap",
-    "grain"
+    "grain",
+    "dc_capable"
 };
 
 const std::unordered_set<std::string> grain_parameters {
