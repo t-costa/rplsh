@@ -286,7 +286,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
                             match_nfun_parameters(textstr, matches);
                             break;
                         case 5:
-                            //number
+                            //number || bool
                             break;
                         case 6:
                             if (splitted[3] == "grain") {
