@@ -415,7 +415,7 @@ skel_node* parser::pattexp_rule(token& tok)
     }
 }
 
-skel_node* parser::restricted_pattexp_rule(token &tok)
+/*skel_node* parser::restricted_pattexp_rule(token &tok)
 {
     switch(tok.kind)
     {
@@ -427,7 +427,7 @@ skel_node* parser::restricted_pattexp_rule(token &tok)
             err_repo.add(make_shared<error_unexp>(tok.data, tok.pos));
             return nullptr;
     }
-}
+}*/
 
 //  <seq> ::= 'seq' '(' <word> [ ',' <number> ] ')'
 skel_node* parser::seq_rule(token& tok)
@@ -549,7 +549,7 @@ skel_node* parser::div_conq_rule(token &tok)
 
     expect(tok, token::divide_conquer);
     expect(tok, token::open);
-    pattexp = restricted_pattexp_rule(tok);
+    pattexp = pattexp_rule(tok);
     //TODO: dovremmo verificare quale pattexp viene sputato fuori?
     //  in caso, posso accettare solo id/seq annotati come dc
     if (tok.kind == token::comma) {
