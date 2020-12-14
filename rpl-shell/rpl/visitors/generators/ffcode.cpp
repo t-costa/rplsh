@@ -134,11 +134,9 @@ string drain_declaration( const drain_node& n ) {
  * @param value argument for the disableScheduler function
  * @return working code as string
  */
-string mapred_constructor( const string& name, int nw, bool value ) {
+string mapred_constructor( const string& name, int nw ) {
     stringstream ss;
     ss << "\t" << name << "() : ff_Map(" << nw << ") {\n";
-    //I don't think we need it
-//    ss << "\t\tpfr.disableScheduler(" << value << ");\n";
     ss << "\t}\n";
     return ss.str();
 }
@@ -155,7 +153,7 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
         //start, end, step, grain
         ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << grain << ", ";
     }
-    size_t i = 0;
+    size_t i;
     string par;
     // begin lambda
     ss << "[this, &_task, &" << out_name << "](const long i) {\n";
@@ -222,7 +220,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
         ss << "\t" << datap_nodes[i]->name << " wrapper" << i << ";\n";
 
     ss << "public:\n";
-    ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree, false) << "\n";
+    ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree) << "\n";
     ss << "\t" << typeout << "* svc("<< typein << " *t) {\n";
     ss << "\t\t" << typein << "& _task = *t;\n";
     if (typein != typeout) {
@@ -286,7 +284,8 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     for (size_t i = 0; i < datap_nodes.size(); i++)
         ss << "\t" << datap_nodes[i]->name << " wrapper" << i << ";\n";
     ss << "public:\n";
-    ss << mapred_constructor("reduce" + to_string(n.getid()) + "_stage", n.pardegree, true) << "\n";
+
+    ss << mapred_constructor("reduce" + to_string(n.getid()) + "_stage", n.pardegree) << "\n";
     ss << "\t" << typeout << "* svc("<< typein <<"* t) {\n";
     string task = "_task";
     ss << "\t\t" << typein << "& _task = *t;\n";
@@ -321,6 +320,67 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 }
 
 /**
+ * Creates an ff_dc class for the divide and conquer
+ * node. Works only with a single sequential node implementing
+ * the for functions of the dc algorithm
+ * @param n node to be converted in code
+ * @param env rpl environment
+ * @return working code as string
+ */
+string dc_declaration(dc_node& n, rpl_environment& env) {
+    pardegree nw(env);         // setup the pardegree visitor
+    get_seq_wrappers gsw(env); // setup the get_seq_wrappers visitor
+
+    gsw(n); // find the sequential wrappers
+    auto src_nodes = gsw.get_source_nodes();
+    auto drn_nodes = gsw.get_drain_nodes();
+    auto seq_nodes = gsw.get_seq_nodes();
+    auto datap_nodes = gsw.get_datap_nodes();
+
+    if (!src_nodes.empty() || !drn_nodes.empty() || !seq_nodes.empty() || datap_nodes.size() > 1 ) {
+        cerr << "WARNING: the divide and conquer pattern supports only a single sequential node inside" << endl;
+    }
+
+    auto wrapper = datap_nodes.front();
+
+    stringstream ss;
+    string typein  = wrapper->typein;
+    string typeout = wrapper->typeout;
+    string ffDC   = "ff_DC<" + typein + ", " + typeout + ">";
+    ss << "class dc" << n.getid() << "_stage : public " << ffDC << " {\n";
+    ss << "protected:\n";
+
+    //only one node
+    ss << "\t" << wrapper->name << " wrapper" << ";\n";
+
+    ss << "public:\n";
+    //constructor
+    ss << "\tdc" << n.getid() << "_stage() : ff_DC(\n";
+    //divide
+    ss << "\t\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+    ss << "\t\t\twrapper.divide(in, in_vec);\n";
+    ss << "\t\t},\n";
+    //combine
+    ss << "\t\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+    ss << "\t\t\twrapper.combine(out_vec, out);\n";
+    ss << "\t\t},\n";
+    //seq
+    ss << "\t\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+    ss << "\t\t\twrapper.seq(in, out);\n";
+    ss << "\t\t},\n";
+    //cond
+    ss << "\t\t[&](const " << typein << "& in) {\n";
+    ss << "\t\t\treturn wrapper.cond(in);\n";
+    ss << "\t\t},\n";
+    //nworker
+    ss << "\t\t" << to_string(nw(n)) << ") {}\n";
+    // close class
+    ss << "};\n\n";
+
+    return ss.str();
+}
+
+/**
  * Creates headers and includes
  * @return code for headers and includes as string
  */
@@ -333,7 +393,8 @@ string includes() {
     ss << "#include <ff/farm.hpp>\n";
     ss << "#include <ff/map.hpp>\n";
     ss << "#include <ff/pipeline.hpp>\n";
-    ss << "#include <ff/parallel_for.hpp>\n\n";
+    ss << "#include <ff/parallel_for.hpp>\n";
+    ss << "#include <ff/dc.hpp>\n\n";
     ss << "// specify include directory for RPL-Shell\n";
     ss << "#include <aux/types.hpp>\n";
     ss << "#include <aux/wrappers.hpp>\n";
@@ -469,6 +530,60 @@ void ffcode::visit( reduce_node& n ) {
 }
 
 /**
+ * Creates the code line for the dc declaration
+ * @param n
+ */
+void ffcode::visit(dc_node &n) {
+    stringstream ss;
+    pardegree nw(env);         // setup the pardegree visitor
+    get_seq_wrappers dc_gsw(env); // setup the get_seq_wrappers visitor
+
+    dc_gsw(n); // find the sequential wrappers
+    auto src_nodes = dc_gsw.get_source_nodes();
+    auto drn_nodes = dc_gsw.get_drain_nodes();
+    auto seq_nodes = dc_gsw.get_seq_nodes();
+    auto datap_nodes = dc_gsw.get_datap_nodes();
+
+    if (!src_nodes.empty() || !drn_nodes.empty() || !seq_nodes.empty() || datap_nodes.size() > 1 ) {
+        cerr << "WARNING: the divide and conquer pattern supports only a single sequential node inside" << endl;
+    }
+
+    string name = new_name("_dc"+to_string(n.getid())+"_");
+
+    auto wrapper = datap_nodes.front();
+
+    //declare wrapper
+    ss << wrapper->name << " wrapper" << ";\n";
+
+    string typein  = wrapper->typein;
+    string typeout = wrapper->typeout;
+    //declare ff_dc
+    ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
+    //divide
+    ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+    ss << "\t\twrapper.divide(in, in_vec);\n";
+    ss << "\t},\n";
+    //combine
+    ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+    ss << "\t\twrapper.combine(out_vec, out);\n";
+    ss << "\t},\n";
+    //seq
+    ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+    ss << "\t\twrapper.seq(in, out);\n";
+    ss << "\t},\n";
+    //cond
+    ss << "\t[&](const " << typein << "& in) {\n";
+    ss << "\t\treturn wrapper.cond(in);\n";
+    ss << "\t}, ";
+    //nworker
+    ss << to_string(nw(n)) << ");\n";
+
+    //serve?
+    assert(code_lines.empty());
+    code_lines.push({name, ss.str()});
+}
+
+/**
  * Calls the accept on the id_node, if it exist
  * @param n id node
  */
@@ -540,6 +655,7 @@ string ffcode::operator()(skel_node& n) {
     tds(n);     // start visit to get datap wrappers
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
+    auto dc_nodes  = tds.get_dc_nodes();
 
     size_t idx;
     string code;
@@ -572,6 +688,12 @@ string ffcode::operator()(skel_node& n) {
         redn->setid(idx++);
         decls += red_declaration(*redn, env);
     }
+
+    /*idx = 0;
+    for (auto dcn : dc_nodes) {
+        dcn->setid(idx++);
+        decls += dc_declaration(*dcn, env);
+    }*/
 
     n.accept(*this);
     stringstream ss;
@@ -648,8 +770,4 @@ void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
 
     assert(code_lines.empty());
     code_lines.push({var, ss.str()});
-}
-
-void ffcode::visit(dc_node &n) {
-    //TODO:
 }

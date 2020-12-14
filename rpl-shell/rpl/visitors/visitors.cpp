@@ -587,7 +587,8 @@ void get_seq_wrappers::visit( farm_node& n ) {
 }
 
 /**
- * Calls the visit for the child
+ * Sets inside_datap and calls the visit
+ * for the child
  * @param n map node
  */
 void get_seq_wrappers::visit( map_node& n ) {
@@ -597,7 +598,8 @@ void get_seq_wrappers::visit( map_node& n ) {
 }
 
 /**
- * Calls the visit for the child
+ * Sets inside_datap and calls the visit
+ * for the child
  * @param n reduce node
  */
 void get_seq_wrappers::visit( reduce_node& n ) {
@@ -606,9 +608,17 @@ void get_seq_wrappers::visit( reduce_node& n ) {
     inside_datap = false;
 }
 
+/**
+ * Sets inside_datap and calls the visit
+ * for the child
+ * @param n
+ */
 void get_seq_wrappers::visit(dc_node &n) {
-    //not considered datap
+    //considered datap
+    //the child needs not to be generated
+    inside_datap = true;
     n.get(0)->accept(*this);
+    inside_datap = false;
 }
 
 /**
@@ -739,8 +749,12 @@ void top_datap_skeletons::visit( reduce_node& n ) {
     red_nodes.push_back(&n);
 }
 
+/**
+ * Adds n to the list of dc nodes
+ * @param n dc node
+ */
 void top_datap_skeletons::visit(dc_node &n) {
-    n.get(0)->accept(*this);
+    dc_nodes.push_back(&n);
 }
 
 /**
@@ -770,12 +784,20 @@ vector<reduce_node*> top_datap_skeletons::get_reduce_nodes() {
 }
 
 /**
+ * @return list of dc nodes
+ */
+vector<dc_node*> top_datap_skeletons::get_dc_nodes() {
+    return dc_nodes;
+}
+
+/**
  * Recovers map and reduce nodes
  * @param n root node
  */
 void top_datap_skeletons::operator()(skel_node& n) {
     map_nodes.clear();
     red_nodes.clear();
+    dc_nodes.clear();
     n.accept(*this);
 }
 
