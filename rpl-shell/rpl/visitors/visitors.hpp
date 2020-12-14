@@ -161,12 +161,14 @@ struct top_datap_skeletons : public skel_visitor {
 
     std::vector<map_node*> get_map_nodes();
     std::vector<reduce_node*> get_reduce_nodes();
+    std::vector<dc_node*> get_dc_nodes();
 
     void operator()(skel_node& n);
 private:
     rpl_environment& env;
     std::vector<map_node*> map_nodes;
     std::vector<reduce_node*> red_nodes;
+    std::vector<dc_node*> dc_nodes;
 };
 
 struct ranker : public skel_visitor {

@@ -28,18 +28,6 @@ map
 
 ../rpl/nodes/node_forwards.hpp
 
-../rpl/nodes/node_interface.hpp
-visitors/visitor_interface.hpp
-../rpl/nodes/visitors/visitor_interface.hpp
-
-../rpl/nodes/skeletons.hpp
-string
--
-vector
--
-node_interface.hpp
-../rpl/nodes/node_interface.hpp
-
 ../rpl/nodes/tree_matcher.hpp
 vector
 -
@@ -337,14 +325,6 @@ nodes/tree_matcher.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/skeletons.hpp
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.cpp
-algorithm
--
-fstream
--
-tab_completion.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.hpp
 cstdio

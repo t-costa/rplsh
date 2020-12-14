@@ -53,6 +53,67 @@ using namespace std;
 using Problem = long;
 using Result  = long;
 
+class source_stage_stage : public ff_node {
+protected:
+	std::unique_ptr<source_stage> src;
+
+public:
+	source_stage_stage() : src(new source_stage()) {}
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- source_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
+	}
+
+	void * svc(void *t) {
+		while( src->has_next() )
+			ff_send_out((void*) src->next() );
+		return (NULL);
+	}
+};
+
+class drain_stage_stage : public ff_node {
+protected:
+	std::unique_ptr<drain_stage> drn;
+
+public:
+	drain_stage_stage() : drn(new drain_stage()) {}
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- drain_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
+	}
+
+	void * svc(void *t) {
+		drn->process((utils::elem_type*) t);
+		return (GO_ON);
+	}
+};
+
+class dc0_stage : public ff_DC<utils::elem_type, utils::elem_type> {
+// protected:
+public:
+  dc0_stage() : ff_DC(
+              [&](const utils::elem_type& in, std::vector<utils::elem_type>& in_vec) {
+                  wrapper0.divide(in, in_vec);
+              },
+              [&](std::vector<utils::elem_type>& out_vec, utils::elem_type& out) {
+                wrapper0.combine(out_vec, out);
+              },
+              [&](const utils::elem_type& in, utils::elem_type& out) {
+                wrapper0.seq(in, out);
+              },
+              [&](const utils::elem_type& in) {
+                return wrapper0.cond(in);
+              }, 1) {}
+
+              dc_double_double_stage wrapper0;
+
+
+};
+
 int main(int argc, char *argv[]) {
     long start = 20;
     long nwork = 4;
@@ -83,11 +144,22 @@ int main(int argc, char *argv[]) {
       return wrapper0.cond(in);
     }, 1);
 	ffTime(START_TIME);
+  source_stage_stage _source_stage;
+  drain_stage_stage _drain_stage;
+  dc0_stage _dc0_;
+
+  ff_pipeline pipe;
+  pipe.add_stage(&_source_stage);
+  pipe.add_stage(&_dc0_);
+  pipe.add_stage(&_drain_stage);
+
+  pipe.run_and_wait_end();
+
 	//compute
-	if (dac.run_and_wait_end()<0) {
-        error("running dac");
-        return -1;
-    }
+	// if (dac.run_and_wait_end()<0) {
+  //       error("running dac");
+  //       return -1;
+  //   }
 	ffTime(STOP_TIME);
 	printf("Result: %ld\n",res);
 	printf("Time (usecs): %g\n",ffTime(GET_TIME));
