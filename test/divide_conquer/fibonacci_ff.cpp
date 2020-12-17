@@ -77,7 +77,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::elem_type& in) {
 			return dc_stage.cond(in);
-		}, 1);
+		},
+	1);
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_stage);

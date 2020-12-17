@@ -25,19 +25,11 @@ namespace utils {
   template <typename Iterator>
   void init(Iterator begin, Iterator end) {
   #ifdef DEBUG
-<<<<<<< HEAD
       elem_type lower_bound = -9;
       elem_type upper_bound = 9;
   #else
       elem_type lower_bound = -99999;
       elem_type upper_bound = 99999;
-=======
-      elem_type lower_bound = 1;
-      elem_type upper_bound = 10;
-  #else
-      elem_type lower_bound = -999999;
-      elem_type upper_bound = 999999;
->>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
   #endif
       std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
       std::default_random_engine re(seed);
@@ -47,7 +39,6 @@ namespace utils {
       }
   }
 
-<<<<<<< HEAD
   template <typename Iterator>
   void initFib(Iterator begin, Iterator end) {
     #ifdef DEBUG
@@ -65,8 +56,6 @@ namespace utils {
         }
   }
 
-=======
->>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
   inline void waste(const double& microsec) {
       auto t1 = std::chrono::high_resolution_clock::now();
       auto t2 = std::chrono::high_resolution_clock::now();
@@ -140,7 +129,6 @@ namespace utils {
     }
   };
 
-<<<<<<< HEAD
   struct range {
       std::vector<utils::elem_type>::iterator left{};
       std::vector<utils::elem_type>::iterator right{};
@@ -149,9 +137,6 @@ namespace utils {
 
       range(std::vector<utils::elem_type>::iterator _left, std::vector<utils::elem_type>::iterator _right) : left(_left), right(_right) {}
   };
-
-=======
->>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 }
 
 #endif

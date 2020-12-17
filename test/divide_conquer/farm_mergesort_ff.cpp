@@ -82,7 +82,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::range& in) {
 			return dc_stage.cond(in);
-		}, 1);
+		},
+	1);
 	workers.push_back(&_dc0_);
 	
 	// add workers to farm

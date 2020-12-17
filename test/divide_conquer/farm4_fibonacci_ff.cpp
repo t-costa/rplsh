@@ -82,7 +82,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::elem_type& in) {
 			return dc_stage.cond(in);
-		}, 1);
+		},
+	1);
 	workers.push_back(&_dc0_);
 	
 	// farm's worker 2
@@ -99,7 +100,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::elem_type& in) {
 			return dc_stage1.cond(in);
-		}, 1);
+		},
+	1);
 	workers.push_back(&_dc0_1);
 	
 	// farm's worker 3
@@ -116,7 +118,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::elem_type& in) {
 			return dc_stage2.cond(in);
-		}, 1);
+		},
+	1);
 	workers.push_back(&_dc0_2);
 	
 	// farm's worker 4
@@ -133,7 +136,8 @@ int main( int argc, char* argv[] ) {
 		},
 		[&](const utils::elem_type& in) {
 			return dc_stage3.cond(in);
-		}, 1);
+		},
+	1);
 	workers.push_back(&_dc0_3);
 	
 	// add workers to farm

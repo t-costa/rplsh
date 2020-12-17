@@ -9,10 +9,7 @@
 #include <ff/map.hpp>
 #include <ff/pipeline.hpp>
 #include <ff/parallel_for.hpp>
-<<<<<<< HEAD
 #include <ff/dc.hpp>
-=======
->>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
 // specify include directory for RPL-Shell
 #include <aux/types.hpp>
