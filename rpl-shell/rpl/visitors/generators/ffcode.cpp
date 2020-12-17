@@ -536,7 +536,7 @@ void ffcode::visit(dc_node &n) {
     ss << "\t},\n";
     //nworker
     ss << to_string(nw(n)) << ");\n";
-    
+
     assert(code_lines.empty());
     code_lines.push({name, ss.str()});
 }
