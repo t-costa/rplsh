@@ -2,7 +2,10 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
+<<<<<<< HEAD
 #include <algorithm>
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
 #include "aux/wrappers.hpp"
 #include "aux/aux.hpp"
@@ -11,8 +14,11 @@
 #include "utils.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 //TODO: source_matrix_stage
 
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 struct source_vecpair_stage : public source<utils::vec_pair> {
 public:
   source_vecpair_stage() : i(0) {
@@ -77,6 +83,7 @@ private:
   int i;
 };
 
+<<<<<<< HEAD
 struct source_range_stage : public source<utils::range> {
 public:
   source_range_stage() : i(0) {
@@ -104,6 +111,8 @@ private:
   int i;
 };
 
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 struct source_stage : public source<utils::elem_type> {
 public:
   source_stage() : i(0) {
@@ -118,13 +127,22 @@ public:
     //lo faccio come vettore di un elemento giusto per tenermi la generazione
     //casuale già fatta
     auto v = new std::vector<utils::elem_type>(1);
+<<<<<<< HEAD
     utils::initFib(v->begin(), v->end());
+=======
+    utils::init(v->begin(), v->end());
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
 #ifdef DEBUG
 std::cout << "[source_vec_stage] result: ";
 utils::print_vec(*v);
 #endif
 
+<<<<<<< HEAD
+=======
+    utils::waste(100*parameters::minimum_wait);
+
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
     auto out = new utils::elem_type((*v)[0]);
     delete v;
     return out;
@@ -137,8 +155,11 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 //TODO: drain_matrix_stage
 
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 struct drain_vecpair_stage : public drain<utils::vec_pair> {
 public:
   void process(utils::vec_pair* in) {
@@ -197,6 +218,7 @@ utils::print_vec(*in);
   }
 };
 
+<<<<<<< HEAD
 struct drain_range_stage : public drain<utils::range> {
 public:
   void process(utils::range* in) {
@@ -211,6 +233,8 @@ utils::print_vec(v);
   }
 };
 
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 struct drain_stage : public drain<utils::elem_type> {
 public:
   void process(utils::elem_type* in) {
@@ -238,8 +262,15 @@ std::cout << (*in) << std::endl;
 ////////////////////////////////////////////////////////////////////////////////
 
 //fibonacci
+<<<<<<< HEAD
 struct dc_fibonacci : public dc_stage_wrapper<utils::elem_type, utils::elem_type> {
 public:
+=======
+struct dc_double_double_stage : public dc_stage_wrapper<utils::elem_type, utils::elem_type> {
+public:
+  explicit dc_double_double_stage() {}
+
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
   void divide(const utils::elem_type& in, std::vector<utils::elem_type>& in_vec) override {
     utils::waste(parameters::minimum_wait);
     in_vec.emplace_back(in - 1);
@@ -261,6 +292,7 @@ public:
   }
 };
 
+<<<<<<< HEAD
 //mergesort
 struct dc_mergesort : public dc_stage_wrapper<utils::range, utils::range> {
 public:
@@ -319,6 +351,8 @@ public:
 //TODO: strassen
 
 
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 //ogni elemento + 2
 struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
 public:

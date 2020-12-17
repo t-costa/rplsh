@@ -141,6 +141,7 @@ string mapred_constructor( const string& name, int nw ) {
     return ss.str();
 }
 
+<<<<<<< HEAD
 /**
  * Creates the string of code to start
  * a parallel for execution
@@ -150,6 +151,9 @@ string mapred_constructor( const string& name, int nw ) {
  * @param nw number of workers
  * @return line of code that starts the execution of the pfr
  */
+=======
+
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw) {
     stringstream ss;
     if (grain > 0) {
@@ -178,6 +182,7 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
     return ss.str();
 }
 
+<<<<<<< HEAD
 /**
  * Creates the string of code to start a
  * parallel for reduce execution
@@ -187,6 +192,8 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
  * @param nw number of workers
  * @return code line that calls the pfr
  */
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 string parallel_for_reduce_declaration(const long grain, const string& task_size, const size_t wrapper_idx , const string& nw ) {
     stringstream ss;
 
@@ -337,6 +344,70 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Creates an ff_dc class for the divide and conquer
+ * node. Works only with a single sequential node implementing
+ * the for functions of the dc algorithm
+ * @param n node to be converted in code
+ * @param env rpl environment
+ * @return working code as string
+ */
+string dc_declaration(dc_node& n, rpl_environment& env) {
+    pardegree nw(env);         // setup the pardegree visitor
+    get_seq_wrappers gsw(env); // setup the get_seq_wrappers visitor
+
+    gsw(n); // find the sequential wrappers
+    auto src_nodes = gsw.get_source_nodes();
+    auto drn_nodes = gsw.get_drain_nodes();
+    auto seq_nodes = gsw.get_seq_nodes();
+    auto datap_nodes = gsw.get_datap_nodes();
+
+    if (!src_nodes.empty() || !drn_nodes.empty() || !seq_nodes.empty() || datap_nodes.size() > 1 ) {
+        cerr << "WARNING: the divide and conquer pattern supports only a single sequential node inside" << endl;
+    }
+
+    auto wrapper = datap_nodes.front();
+
+    stringstream ss;
+    string typein  = wrapper->typein;
+    string typeout = wrapper->typeout;
+    string ffDC   = "ff_DC<" + typein + ", " + typeout + ">";
+    ss << "class dc" << n.getid() << "_stage : public " << ffDC << " {\n";
+    ss << "protected:\n";
+
+    //only one node
+    ss << "\t" << wrapper->name << " wrapper" << ";\n";
+
+    ss << "public:\n";
+    //constructor
+    ss << "\tdc" << n.getid() << "_stage() : ff_DC(\n";
+    //divide
+    ss << "\t\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+    ss << "\t\t\twrapper.divide(in, in_vec);\n";
+    ss << "\t\t},\n";
+    //combine
+    ss << "\t\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+    ss << "\t\t\twrapper.combine(out_vec, out);\n";
+    ss << "\t\t},\n";
+    //seq
+    ss << "\t\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+    ss << "\t\t\twrapper.seq(in, out);\n";
+    ss << "\t\t},\n";
+    //cond
+    ss << "\t\t[&](const " << typein << "& in) {\n";
+    ss << "\t\t\treturn wrapper.cond(in);\n";
+    ss << "\t\t},\n";
+    //nworker
+    ss << "\t\t" << to_string(nw(n)) << ") {}\n";
+    // close class
+    ss << "};\n\n";
+
+    return ss.str();
+}
+
+/**
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
  * Creates headers and includes
  * @return code for headers and includes as string
  */
@@ -491,8 +562,13 @@ void ffcode::visit( reduce_node& n ) {
  */
 void ffcode::visit(dc_node &n) {
     stringstream ss;
+<<<<<<< HEAD
     pardegree nw(env);              // setup the pardegree visitor
     get_seq_wrappers dc_gsw(env);   // setup the get_seq_wrappers visitor
+=======
+    pardegree nw(env);         // setup the pardegree visitor
+    get_seq_wrappers dc_gsw(env); // setup the get_seq_wrappers visitor
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
     dc_gsw(n); // find the sequential wrappers
     auto src_nodes = dc_gsw.get_source_nodes();
@@ -509,8 +585,12 @@ void ffcode::visit(dc_node &n) {
     auto wrapper = datap_nodes.front();
 
     //declare wrapper
+<<<<<<< HEAD
     string wrapper_name = new_name("dc_stage");
     ss << wrapper->name << " " << wrapper_name << ";\n";
+=======
+    ss << wrapper->name << " wrapper" << ";\n";
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
     string typein  = wrapper->typein;
     string typeout = wrapper->typeout;
@@ -518,6 +598,7 @@ void ffcode::visit(dc_node &n) {
     ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
     //divide
     ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+<<<<<<< HEAD
     ss << "\t\t" << wrapper_name << ".divide(in, in_vec);\n";
     ss << "\t},\n";
     //combine
@@ -531,10 +612,29 @@ void ffcode::visit(dc_node &n) {
     //cond
     ss << "\t[&](const " << typein << "& in) {\n";
     ss << "\t\treturn " << wrapper_name << ".cond(in);\n";
+=======
+    ss << "\t\twrapper.divide(in, in_vec);\n";
+    ss << "\t},\n";
+    //combine
+    ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+    ss << "\t\twrapper.combine(out_vec, out);\n";
+    ss << "\t},\n";
+    //seq
+    ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+    ss << "\t\twrapper.seq(in, out);\n";
+    ss << "\t},\n";
+    //cond
+    ss << "\t[&](const " << typein << "& in) {\n";
+    ss << "\t\treturn wrapper.cond(in);\n";
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
     ss << "\t}, ";
     //nworker
     ss << to_string(nw(n)) << ");\n";
 
+<<<<<<< HEAD
+=======
+    //serve?
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
     assert(code_lines.empty());
     code_lines.push({name, ss.str()});
 }
@@ -644,6 +744,12 @@ string ffcode::operator()(skel_node& n) {
         redn->setid(idx++);
         decls += red_declaration(*redn, env);
     }
+
+    /*idx = 0;
+    for (auto dcn : dc_nodes) {
+        dcn->setid(idx++);
+        decls += dc_declaration(*dcn, env);
+    }*/
 
     n.accept(*this);
     stringstream ss;

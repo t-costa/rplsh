@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,r1,drain_stage)
+// pipe(source_stage,dc_double_double_stage,drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -9,10 +9,7 @@
 #include <ff/map.hpp>
 #include <ff/pipeline.hpp>
 #include <ff/parallel_for.hpp>
-<<<<<<< HEAD
 #include <ff/dc.hpp>
-=======
->>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
 
 // specify include directory for RPL-Shell
 #include <aux/types.hpp>
@@ -20,18 +17,18 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/map_reduce_grain/seq_definition.hpp>
+#include </home/tommaso/forked/rplsh/test/divide_conquer/definition.hpp>
 
 
-class source_vec_stage_stage : public ff_node {
+class source_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_stage> src; 
 
 public:
-	source_vec_stage_stage() : src(new source_vec_stage()) {}
+	source_stage_stage() : src(new source_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- source_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- source_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -62,36 +59,36 @@ public:
 	}
 };
 
-class reduce0_stage : public ff_Map<std::vector<utils::elem_type>,utils::elem_type> {
+class dc_double_double_stage_stage : public ff_node {
 protected:
-	reduce_stage wrapper0;
+	dc_double_double_stage wrapper; 
 public:
-	reduce0_stage() : ff_Map(4) {
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- dc_double_double_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
 	}
 
-	utils::elem_type* svc(std::vector<utils::elem_type>* t) {
-		std::vector<utils::elem_type>& _task = *t;
-		utils::elem_type* out  = new utils::elem_type(wrapper0.identity);
-		auto reduceF = [this](utils::elem_type& sum, utils::elem_type elem) {sum = wrapper0.op(sum, elem);};
-		auto bodyF = [this,&_task](const long i, utils::elem_type& sum) {sum = wrapper0.op(sum, _task[i]);};
-		pfr.parallel_reduce_static(*out, wrapper0.identity, 0, _task.size(), 1, 0, bodyF, reduceF, 4);
-
-		delete t;
-
-		return out;
+	void * svc(void *t) {
+		utils::elem_type _in  = *((utils::elem_type*) t);
+		utils::elem_type* _out  = new utils::elem_type();
+		*_out = wrapper.compute(_in);
+		delete ((utils::elem_type*) t);
+		return (void*) _out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
 	// worker mapping 
-	const char worker_mapping[] = "0,1,2,3,4,5,6,7";
+	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_vec_stage_stage _source_vec_stage;
-	reduce0_stage _red0_;
+	source_stage_stage _source_stage;
+	dc_double_double_stage_stage _dc_double_double_stage;
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
-	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_red0_);
+	pipe.add_stage(&_source_stage);
+	pipe.add_stage(&_dc_double_double_stage);
 	pipe.add_stage(&_drain_stage);
 	
 	

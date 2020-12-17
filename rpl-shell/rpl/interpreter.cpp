@@ -618,7 +618,11 @@ void expand_possible(skel_node* n, std::deque<skel_node*>& set_id, rpl_environme
  * @param n expand node
  */
 void interpreter::visit(expand_node& n) {
+<<<<<<< HEAD
     //FIXME: I have to save the new node (if present) for tab completion
+=======
+
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
     try {
         auto range = env.range( n.id );
         std::vector<skel_node*> vec;
@@ -641,8 +645,11 @@ void interpreter::visit(expand_node& n) {
         env.clear(n.prop);
         for (auto ptr : vec)
             env.add(n.prop, ptr);
+<<<<<<< HEAD
 
         tab_completion::add_id(n.prop);
+=======
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
     } catch (std::invalid_argument& e) {
         err_repo.add( make_shared<error_not_exist>(n.id) );
     }

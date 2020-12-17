@@ -1,6 +1,7 @@
 import "test/divide_conquer/definition.hpp"
 
 # fibonacci
+<<<<<<< HEAD
 # pipe(source, a, drain)
 simple_fib = pipe(source_stage, dc_fibonacci, drain_stage)
 gencode simple_fib as seq_fibonacci_ff in "test/divide_conquer"
@@ -35,3 +36,12 @@ gencode dc_merge as mergesort_ff in "test/divide_and_conquer"
 # pipe(source, farm(dc(a)), drain)
 farm_merge = pipe(source_range_stage, farm(divide_conquer(dc_mergesort)), drain_range_stage)
 gencode farm_merge as farm_mergesort_ff in "test/divide_conquer"
+=======
+# a
+simple_seq = pipe(source_stage, dc_double_double_stage, drain_stage)
+gencode simple_seq as seq_ff in "test/divide_conquer"
+
+# dc(a)
+simple_dc = pipe(source_stage, divide_conquer(dc_double_double_stage), drain_stage)
+gencode simple_dc as dc_ff in "test/divide_conquer"
+>>>>>>> e9dce9cf3051f15f46492d03c728495952c63d13
