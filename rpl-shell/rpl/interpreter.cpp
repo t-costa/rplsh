@@ -641,6 +641,8 @@ void interpreter::visit(expand_node& n) {
         env.clear(n.prop);
         for (auto ptr : vec)
             env.add(n.prop, ptr);
+
+        tab_completion::add_id(n.prop);
     } catch (std::invalid_argument& e) {
         err_repo.add( make_shared<error_not_exist>(n.id) );
     }
