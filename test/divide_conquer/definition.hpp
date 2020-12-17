@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 
 #include "aux/wrappers.hpp"
 #include "aux/aux.hpp"
@@ -10,6 +11,8 @@
 #include "utils.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+//TODO: source_matrix_stage
+
 struct source_vecpair_stage : public source<utils::vec_pair> {
 public:
   source_vecpair_stage() : i(0) {
@@ -74,6 +77,33 @@ private:
   int i;
 };
 
+struct source_range_stage : public source<utils::range> {
+public:
+  source_range_stage() : i(0) {
+    utils::init_random();
+  }
+
+  bool has_next() {
+    return i++ < parameters::dimension;
+  }
+
+  utils::range* next() {
+    auto v = new std::vector<utils::elem_type>(parameters::inputsize);
+    utils::init(v->begin(), v->end());
+
+#ifdef DEBUG
+std::cout << "[source_range_stage] result: ";
+utils::print_vec(*v);
+#endif
+
+    auto r = new utils::range(v->begin(), v->end());
+    return r;
+  }
+
+private:
+  int i;
+};
+
 struct source_stage : public source<utils::elem_type> {
 public:
   source_stage() : i(0) {
@@ -88,14 +118,12 @@ public:
     //lo faccio come vettore di un elemento giusto per tenermi la generazione
     //casuale già fatta
     auto v = new std::vector<utils::elem_type>(1);
-    utils::init(v->begin(), v->end());
+    utils::initFib(v->begin(), v->end());
 
 #ifdef DEBUG
 std::cout << "[source_vec_stage] result: ";
 utils::print_vec(*v);
 #endif
-
-    utils::waste(100*parameters::minimum_wait);
 
     auto out = new utils::elem_type((*v)[0]);
     delete v;
@@ -109,6 +137,8 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+//TODO: drain_matrix_stage
+
 struct drain_vecpair_stage : public drain<utils::vec_pair> {
 public:
   void process(utils::vec_pair* in) {
@@ -167,6 +197,20 @@ utils::print_vec(*in);
   }
 };
 
+struct drain_range_stage : public drain<utils::range> {
+public:
+  void process(utils::range* in) {
+
+#ifdef DEBUG
+std::cout << "[drain_range_stage] result: ";
+std::vector v(in->left, in->right);
+utils::print_vec(v);
+#endif
+
+    delete in;
+  }
+};
+
 struct drain_stage : public drain<utils::elem_type> {
 public:
   void process(utils::elem_type* in) {
@@ -194,10 +238,8 @@ std::cout << (*in) << std::endl;
 ////////////////////////////////////////////////////////////////////////////////
 
 //fibonacci
-struct dc_double_double_stage : public dc_stage_wrapper<utils::elem_type, utils::elem_type> {
+struct dc_fibonacci : public dc_stage_wrapper<utils::elem_type, utils::elem_type> {
 public:
-  explicit dc_double_double_stage() {}
-
   void divide(const utils::elem_type& in, std::vector<utils::elem_type>& in_vec) override {
     utils::waste(parameters::minimum_wait);
     in_vec.emplace_back(in - 1);
@@ -218,6 +260,64 @@ public:
     return in <= 2;
   }
 };
+
+//mergesort
+struct dc_mergesort : public dc_stage_wrapper<utils::range, utils::range> {
+public:
+  explicit dc_mergesort() {}
+
+  void divide(const utils::range& prob, std::vector<utils::range>& subps) override {
+      utils::waste(parameters::minimum_wait);
+      auto mid = prob.left +(prob.right - prob.left) / 2;
+      utils::range a, b;
+      a.left = prob.left;
+      a.right = mid;
+      b.left = mid;
+      b.right = prob.right;
+
+      subps.push_back(a);
+      subps.push_back(b);
+  }
+
+  void combine(std::vector<utils::range>& res, utils::range& ret) override {
+      utils::waste(parameters::minimum_wait);
+      auto size = (size_t) (res[1].right - res[0].left);
+
+      std::vector<utils::elem_type> tmp(size);
+      auto i = res[0].left, j = res[1].left, mid = res[1].left, right = res[1].right;
+      //merge in order
+      for(size_t k=0;k<size;k++) {
+          if(i<mid && (j>=right || *i <= *j)) {
+              tmp[k] = *i;
+              i++;
+          } else {
+              tmp[k] = *j;
+              j++;
+          }
+      }
+      //copy back
+      std::copy(tmp.begin(), tmp.end(), res[0].left);
+      ret.left = res[0].left;
+      ret.right = res[1].right;
+
+  }
+
+  void seq(const utils::range& p, utils::range& res) override {
+      utils::waste(parameters::minimum_wait);
+      std::sort(p.left, p.right);
+      res.left = p.left;
+      res.right = p.right;
+  }
+
+  bool cond(const utils::range& p) override {
+      utils::waste(parameters::minimum_wait);
+      return (p.right - p.left <= parameters::cut_off);
+  }
+};
+
+
+//TODO: strassen
+
 
 //ogni elemento + 2
 struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {

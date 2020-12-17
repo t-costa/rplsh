@@ -25,11 +25,11 @@ namespace utils {
   template <typename Iterator>
   void init(Iterator begin, Iterator end) {
   #ifdef DEBUG
-      elem_type lower_bound = 1;
-      elem_type upper_bound = 10;
+      elem_type lower_bound = -9;
+      elem_type upper_bound = 9;
   #else
-      elem_type lower_bound = -999999;
-      elem_type upper_bound = 999999;
+      elem_type lower_bound = -99999;
+      elem_type upper_bound = 99999;
   #endif
       std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
       std::default_random_engine re(seed);
@@ -37,6 +37,23 @@ namespace utils {
       while (begin != end) {
           (*begin++) = unif(re);
       }
+  }
+
+  template <typename Iterator>
+  void initFib(Iterator begin, Iterator end) {
+    #ifdef DEBUG
+        elem_type lower_bound = 1;
+        elem_type upper_bound = 10;
+    #else
+        elem_type lower_bound = 20;
+        elem_type upper_bound = 25;
+    #endif
+        std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+        std::default_random_engine re(seed);
+        seed++;
+        while (begin != end) {
+            (*begin++) = unif(re);
+        }
   }
 
   inline void waste(const double& microsec) {
@@ -110,6 +127,15 @@ namespace utils {
             print_vec(v);
         }
     }
+  };
+
+  struct range {
+      std::vector<utils::elem_type>::iterator left{};
+      std::vector<utils::elem_type>::iterator right{};
+
+      range() = default;
+
+      range(std::vector<utils::elem_type>::iterator _left, std::vector<utils::elem_type>::iterator _right) : left(_left), right(_right) {}
   };
 
 }

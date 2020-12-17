@@ -6,7 +6,7 @@ LIBS = -pthread
 RPL	= ../../
 FF = $(FF_HOME)
 #FF	= ../../fastflow/
-OPT = -O3
+OPT = -O3 -finline-functions
 DBG = -O0 -g -DDEBUG
 #LIBS 	= `pkg-config --libs opencv`
 
@@ -33,10 +33,10 @@ ff:	$(FFBIN)
 sequential: $(SEQBIN)
 
 $(FFBIN): $(FFSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(FF) -I$(RPL) $(LIBS) -o $@ $@.cpp
+	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) $(LIBS) -o $@ $@.cpp
 
 $(SEQBIN): $(SEQSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
+	$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
 #per opt
 #$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
 

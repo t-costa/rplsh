@@ -1,4 +1,4 @@
-// pipe(source_stage,dc_double_double_stage,drain_stage)
+// pipe(source_range_stage,dc_mergesort,drain_range_stage)
 
 #include <iostream>
 #include <vector>
@@ -20,15 +20,15 @@
 #include </home/tommaso/forked/rplsh/test/divide_conquer/definition.hpp>
 
 
-class source_stage_stage : public ff_node {
+class source_range_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_stage> src; 
+	std::unique_ptr<source_range_stage> src; 
 
 public:
-	source_stage_stage() : src(new source_stage()) {}
+	source_range_stage_stage() : src(new source_range_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- source_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- source_range_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -40,41 +40,41 @@ public:
 	}
 };
 
-class drain_stage_stage : public ff_node {
+class drain_range_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_stage> drn; 
+	std::unique_ptr<drain_range_stage> drn; 
 
 public:
-	drain_stage_stage() : drn(new drain_stage()) {}
+	drain_range_stage_stage() : drn(new drain_range_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- drain_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- drain_range_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
 
 	void * svc(void *t) {
-		drn->process((utils::elem_type*) t);
+		drn->process((utils::range*) t);
 		return (GO_ON);
 	}
 };
 
-class dc_double_double_stage_stage : public ff_node {
+class dc_mergesort_stage : public ff_node {
 protected:
-	dc_double_double_stage wrapper; 
+	dc_mergesort wrapper; 
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- dc_double_double_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- dc_mergesort -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
 
 	void * svc(void *t) {
-		utils::elem_type _in  = *((utils::elem_type*) t);
-		utils::elem_type* _out  = new utils::elem_type();
+		utils::range _in  = *((utils::range*) t);
+		utils::range* _out  = new utils::range();
 		*_out = wrapper.compute(_in);
-		delete ((utils::elem_type*) t);
+		delete ((utils::range*) t);
 		return (void*) _out;
 	}
 };
@@ -83,13 +83,13 @@ int main( int argc, char* argv[] ) {
 	// worker mapping 
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_stage_stage _source_stage;
-	dc_double_double_stage_stage _dc_double_double_stage;
-	drain_stage_stage _drain_stage;
+	source_range_stage_stage _source_range_stage;
+	dc_mergesort_stage _dc_mergesort;
+	drain_range_stage_stage _drain_range_stage;
 	ff_pipeline pipe;
-	pipe.add_stage(&_source_stage);
-	pipe.add_stage(&_dc_double_double_stage);
-	pipe.add_stage(&_drain_stage);
+	pipe.add_stage(&_source_range_stage);
+	pipe.add_stage(&_dc_mergesort);
+	pipe.add_stage(&_drain_range_stage);
 	
 	
 	pipe.run_and_wait_end();

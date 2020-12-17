@@ -618,7 +618,7 @@ void expand_possible(skel_node* n, std::deque<skel_node*>& set_id, rpl_environme
  * @param n expand node
  */
 void interpreter::visit(expand_node& n) {
-
+    //FIXME: I have to save the new node (if present) for tab completion
     try {
         auto range = env.range( n.id );
         std::vector<skel_node*> vec;

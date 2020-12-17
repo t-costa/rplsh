@@ -1,4 +1,4 @@
-// pipe(source_stage,divide_and_conquer(dc_double_double_stage) with [nw 1],drain_stage)
+// pipe(source_stage,dc_fibonacci,drain_stage)
 
 #include <iostream>
 #include <vector>
@@ -59,30 +59,36 @@ public:
 	}
 };
 
+class dc_fibonacci_stage : public ff_node {
+protected:
+	dc_fibonacci wrapper; 
+public:
+	int svc_init() {
+		#ifdef TRACE_CORE
+		std::cout << "svc_init -- dc_fibonacci -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		#endif
+		return 0;
+	}
+
+	void * svc(void *t) {
+		utils::elem_type _in  = *((utils::elem_type*) t);
+		utils::elem_type* _out  = new utils::elem_type();
+		*_out = wrapper.compute(_in);
+		delete ((utils::elem_type*) t);
+		return (void*) _out;
+	}
+};
+
 int main( int argc, char* argv[] ) {
 	// worker mapping 
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_stage_stage _source_stage;
-	dc_double_double_stage wrapper;
-	ff_DC<utils::elem_type, utils::elem_type> _dc0_(
-		[&](const utils::elem_type& in, std::vector<utils::elem_type>& in_vec) {
-			wrapper.divide(in, in_vec);
-		},
-		[&](std::vector<utils::elem_type>& out_vec, utils::elem_type& out) {
-			wrapper.combine(out_vec, out);
-		},
-		[&](const utils::elem_type& in, utils::elem_type& out) {
-			wrapper.seq(in, out);
-		},
-		[&](const utils::elem_type& in) {
-			return wrapper.cond(in);
-		},
-		1);
+	dc_fibonacci_stage _dc_fibonacci;
 	drain_stage_stage _drain_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_stage);
-	pipe.add_stage(&_dc0_);
+	pipe.add_stage(&_dc_fibonacci);
 	pipe.add_stage(&_drain_stage);
 	
 	

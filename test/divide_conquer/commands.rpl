@@ -1,10 +1,37 @@
 import "test/divide_conquer/definition.hpp"
 
 # fibonacci
-# a
-simple_seq = pipe(source_stage, dc_double_double_stage, drain_stage)
-gencode simple_seq as seq_ff in "test/divide_conquer"
+# pipe(source, a, drain)
+simple_fib = pipe(source_stage, dc_fibonacci, drain_stage)
+gencode simple_fib as seq_fibonacci_ff in "test/divide_conquer"
 
-# dc(a)
-simple_dc = pipe(source_stage, divide_conquer(dc_double_double_stage), drain_stage)
-gencode simple_dc as dc_ff in "test/divide_conquer"
+# pipe(source, dc(a), drain)
+dc_fib = pipe(source_stage, divide_conquer(dc_fibonacci), drain_stage)
+gencode dc_fib as fibonacci_ff in "test/divide_conquer"
+
+# pipe(source, farm(dc(a)), drain)
+f = farm(divide_conquer(dc_fibonacci))
+farm_fib = pipe(source_stage, f, drain_stage)
+gencode farm_fib as farm_fibonacci_ff in "test/divide_conquer"
+annotate f with pardegree 4
+gencode farm_fib as farm4_fibonacci_ff in "test/divide_conquer"
+
+
+# pipe(source, comp(a, dc(a)), drain)
+dc = divide_conquer(dc_fibonacci)
+annotate dc with pardegree 4
+comp_fib = pipe(source_stage, comp(dc_fibonacci, dc), drain_stage)
+gencode comp_fib as comp_fibonacci_ff in "test/divide_conquer"
+
+# mergesort
+# pipe(source, a, drain)
+simple_merge = pipe(source_range_stage, dc_mergesort, drain_range_stage)
+gencode simple_merge as seq_mergesort_ff in "test/divide_conquer"
+
+# pipe(source, dc(a), drain)
+dc_merge = pipe(source_range_stage, divide_conquer(dc_mergesort), drain_range_stage)
+gencode dc_merge as mergesort_ff in "test/divide_and_conquer"
+
+# pipe(source, farm(dc(a)), drain)
+farm_merge = pipe(source_range_stage, farm(divide_conquer(dc_mergesort)), drain_range_stage)
+gencode farm_merge as farm_mergesort_ff in "test/divide_conquer"
