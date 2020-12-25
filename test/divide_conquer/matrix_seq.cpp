@@ -1,13 +1,13 @@
-//mergesort
+//matrix square
 #include <iostream>
 #include <vector>
 
 #include "definition.hpp"
 
 int main() {
-  dc_mergesort a;
-  source_range_stage source;
-  drain_range_stage drain;
+  map_matrix a;
+  source_matrix_stage source;
+  drain_matrix_stage drain;
 
   auto start = std::chrono::high_resolution_clock::now();
 

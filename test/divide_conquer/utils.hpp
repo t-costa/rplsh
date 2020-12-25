@@ -5,6 +5,8 @@
 #include <random>
 #include <chrono>
 #include <vector>
+#include <fstream>
+#include <iterator>
 #include <iostream>
 
 
@@ -15,6 +17,8 @@ namespace utils {
   typedef std::vector<elem_type> vec;
   typedef std::pair<elem_type, elem_type> pair;
   typedef std::vector<pair> vec_pair;
+  // typedef std::pair<std::vector<elem_type>, std::vector<elem_type>> vec_couple;
+
 
   uint seed = 1;
 
@@ -137,6 +141,13 @@ namespace utils {
 
       range(std::vector<utils::elem_type>::iterator _left, std::vector<utils::elem_type>::iterator _right) : left(_left), right(_right) {}
   };
+
+  
+
+
+
+
+  // typedef std::pair<matrix<elem_type>, matrix<elem_type>> matrix_couple;
 }
 
 #endif

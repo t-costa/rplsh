@@ -150,7 +150,7 @@ string mapred_constructor( const string& name, int nw ) {
  * @param nw number of workers
  * @return line of code that starts the execution of the pfr
  */
-string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw) {
+string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw, const bool diff_type) {
     stringstream ss;
     if (grain > 0) {
         //dynamic
@@ -170,7 +170,11 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
         ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
     }
     par = !i ? "_task[i]" : ("res" + to_string(i-1));
-    ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+    if (diff_type) {
+        ss << "\t\t\t" << out_name << "->push_back(wrapper" << i << ".op(" << par << "));\n";
+    } else {
+        ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+    }
     ss << "\t\t}";
     // end lambda
 
@@ -240,16 +244,19 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     ss << mapred_constructor("map" + to_string(n.getid()) + "_stage", n.pardegree) << "\n";
     ss << "\t" << typeout << "* svc("<< typein << " *t) {\n";
     ss << "\t\t" << typein << "& _task = *t;\n";
+
+//    ss << "\t\t" << typeout << "* out = new " << typeout << "();\n";
+
     if (typein != typeout) {
         // if two different "container" types, we need this
         ss << "\t\t" << typeout << "* out = new " << typeout << "();\n";
-        ss << "\t\tout->resize(_task.size());\n";
+        //ss << "\t\tout->resize(_task.size());\n";
     } else {
         ss << "\t\t" << typeout << "* out = &_task;\n";
     }
 
     // start parallel for
-    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)));
+    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)), typein != typeout);
 
     if (typein != typeout) {
         //delete old received pointer
@@ -308,6 +315,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     ss << "\t\t" << typein << "& _task = *t;\n";
 
     size_t idx = datap_nodes.size()-1;
+    //FIXME: non mi convince usare sempre typeout! dovrei usare i tipi degli elementi no??
     ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
     ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
 
@@ -315,8 +323,9 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
         string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
-        ss << "\t\tmapout->resize(_task.size());\n";
-        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)));
+//        ss << "\t\tmapout->resize(_task.size());\n";
+        //FIXME: potrei mettere anche qui il controllo sui tipi
+        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)), false);
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
         ss << parallel_for_reduce_declaration(n.grain, "mapout->size()", idx, to_string(nw(n)));

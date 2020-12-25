@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <math.h>
 
 #include "aux/wrappers.hpp"
 #include "aux/aux.hpp"
@@ -12,6 +13,39 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //TODO: source_matrix_stage
+
+struct source_matrix_stage : public source<matrix<utils::elem_type>> {
+public:
+  source_matrix_stage() : i(0) {
+    utils::init_random();
+  }
+
+  bool has_next() override {
+    return i++ < parameters::dimension;
+  }
+
+  matrix<utils::elem_type>* next() {
+    //OCCHIO! potrebbe aver senso definirlo come radice di inputsize
+    auto size = (size_t) (sqrt(parameters::inputsize));
+    std::vector<utils::elem_type> a(size);
+    auto m = new matrix<utils::elem_type>();
+
+    for (size_t j=0; j<size; ++j) {
+      utils::init(a.begin(), a.end());
+      m->push_back(a);
+    }
+
+  #ifdef DEBUG
+  std::cout << "[source_matrix_stage] result:\n";
+  m->print();
+  #endif
+
+    return m;
+  }
+
+private:
+  int i;
+};
 
 struct source_vecpair_stage : public source<utils::vec_pair> {
 public:
@@ -137,7 +171,18 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//TODO: drain_matrix_stage
+struct drain_matrix_stage : public drain<matrix<utils::elem_type>> {
+public:
+    void process(matrix<utils::elem_type>* in) {
+
+#ifdef DEBUG
+std::cout << "[drain_matrix_stage] result:\n";
+in->print();
+#endif
+
+      delete in;
+    }
+};
 
 struct drain_vecpair_stage : public drain<utils::vec_pair> {
 public:
@@ -213,7 +258,6 @@ std::cout << (*in) << std::endl;
 ////////////////////////////////////////////////////////////////////////////////
 
 //fibonacci
-
 struct dc_fibonacci : public dc_stage_wrapper<utils::elem_type, utils::elem_type> {
 public:
   void divide(const utils::elem_type& in, std::vector<utils::elem_type>& in_vec) override {
@@ -291,8 +335,88 @@ public:
   }
 };
 
+//quadrato di ogni elemento
+struct map_matrix : public map_stage_wrapper<matrix<utils::elem_type>, matrix<utils::elem_type>, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
+public:
+  matrix<utils::elem_type> compute(matrix<utils::elem_type>& mn) override {
 
-//TODO: strassen
+    matrix<utils::elem_type> res;
+
+    for (size_t i=0; i<mn.size(); ++i) {
+      res.push_back(op(mn[i]));
+    }
+
+    return res;
+  }
+
+  std::vector<utils::elem_type> op(const std::vector<utils::elem_type>& v) override {
+    std::vector<utils::elem_type> res(v.size());
+
+    for (size_t i=0; i<v.size(); ++i) {
+      res[i] = v[i] * v[i];
+    }
+
+    return res;
+  }
+};
+
+
+// struct map_prod : public map_stage_wrapper<matrix_couple<utils::elem_type>, matrix<utils::elem_type>, vec_couple<utils::elem_type>, std::vector<utils::elem_type>> {
+// public:
+//   matrix<utils::elem_type> compute(matrix_couple<utils::elem_type>& mn) override {
+//     auto a = mn.first();
+//     auto b = mn.second();
+//
+//     matrix<utils::elem_type> res();
+//
+//     for (size_t i=0; i<a.size(); ++i) {
+//       res.push_back(op(std::make_pair(a[i], b[i])));
+//     }
+//
+//     return res;
+//   }
+//
+//   std::vector<utils::elem_type> op(const utils::vec_couple& v) override {
+//     auto a = v.first();
+//     auto b = v.second();
+//     std::vector<utils::elem_type> res(a.size());
+//
+//     for (size_t i=0; i<a.size(); ++i) {
+//       res[i] = a[i] * b[i];
+//     }
+//
+//     return res;
+//   }
+// };
+
+//da cambiare i tipi!
+// struct red_sum : public reduce_stage_wrapper<matrix<std::vector<utils::elem_type>>,
+//                                               matrix<utils::elem_type>,
+//                                               std::vector<utils::elem_type>,
+//                                               utils::elem_type> {
+// public:
+//   matrix<utils::elem_type> identity;
+//
+//   explicit red_sum() {
+//     //TODO: inizializza identity
+//   }
+//
+//   matrix<utils::elem_type> compute(matrix<std::vector<utils::elem_type>>& m) override {
+//     matrix<utils::elem_type> res();
+//     std::vector<utils::elem_type> identity_el;
+//     identity_el.resize(m.size());
+//
+//     res[0].push_back(identity_el);
+//
+//     for (size_t i=0; i<m.size(); ++i) {
+//       res.push_back(op(m[i], m[i]));
+//     }
+//
+//     return res;
+//   }
+//
+//   std::vector<utils::elem_type> op(std::vector<utils::elem_type> v)
+// };
 
 //ogni elemento + 2
 struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {

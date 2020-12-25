@@ -76,6 +76,7 @@ struct pipebalance : public optrule
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
+    //TODO: dovrei mettere anche dc
     void operator()( skel_node& n ) override;
 private:
     void operator()( skel_node& n, double max );

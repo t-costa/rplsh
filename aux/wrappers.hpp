@@ -106,4 +106,94 @@ public:
     virtual bool is_splittable() const  = 0;
 };
 
+
+template <typename T>
+struct vec_couple {
+public:
+  vec_couple(std::vector<T> a, std::vector<T> b) {
+    v = std::make_pair(a, b);
+  }
+
+  size_t size() {
+    return v.first.size();
+  }
+
+  std::pair<T, T>& operator[] (size_t i) {
+    return std::make_pair(v.first[i], v.second[i]);
+  }
+
+  void push_back(std::pair<T, T> p) {
+    v.first.push_back(p.first);
+    v.second.push_back(p.second);
+  }
+
+  std::vector<T> first() {
+    return v.first;
+  }
+
+  std::vector<T> second() {
+    return v.second;
+  }
+
+private:
+  std::pair<std::vector<T>, std::vector<T>> v;
+};
+
+template <typename T>
+struct matrix {
+public:
+  explicit matrix() {
+    m = std::vector<std::vector<T>>();
+  }
+
+  size_t size() {
+    return m.size();
+  }
+
+  std::vector<T>& operator[] (size_t i) {
+    return m[i];
+  }
+
+  void push_back(const std::vector<T>& v) {
+    m.push_back(v);
+  }
+
+  void print() {
+    for (const auto& v : m) {
+      for (const auto& el : v) {
+        std::cout << el << " ";
+      }
+      std::cout << std::endl;
+    }
+  }
+
+private:
+  std::vector<std::vector<T>> m;
+};
+
+//Assumption: the second matrix is transposed
+template <typename T>
+struct matrix_couple {
+public:
+  matrix_couple(matrix<T> a, matrix<T> b) {
+    m = std::make_pair(a, b);
+  }
+
+  size_t size() {
+    return m.first.size();
+  }
+
+  vec_couple<T>& operator[] (size_t i) {
+    return vec_couple(m.first[i], m.second[i]);
+  }
+
+  void push_back(vec_couple<T>& v) {
+    m.first.push_back(v.first());
+    m.second.push_back(v.second());
+  }
+
+private:
+  std::pair<matrix<T>, matrix<T>> m;
+};
+
 #endif
