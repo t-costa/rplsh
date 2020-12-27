@@ -5,10 +5,10 @@
 #include <random>
 #include <chrono>
 #include <vector>
+#include <fstream>
+#include <iterator>
 #include <iostream>
-#include <chrono>
 
-using namespace std::chrono;
 
 namespace utils {
 
@@ -17,6 +17,8 @@ namespace utils {
   typedef std::vector<elem_type> vec;
   typedef std::pair<elem_type, elem_type> pair;
   typedef std::vector<pair> vec_pair;
+  // typedef std::pair<std::vector<elem_type>, std::vector<elem_type>> vec_couple;
+
 
   uint seed = 1;
 
@@ -30,8 +32,8 @@ namespace utils {
       elem_type lower_bound = -9;
       elem_type upper_bound = 9;
   #else
-      elem_type lower_bound = -999999;
-      elem_type upper_bound = 999999;
+      elem_type lower_bound = -99999;
+      elem_type upper_bound = 99999;
   #endif
       std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
       std::default_random_engine re(seed);
@@ -39,6 +41,23 @@ namespace utils {
       while (begin != end) {
           (*begin++) = unif(re);
       }
+  }
+
+  template <typename Iterator>
+  void initFib(Iterator begin, Iterator end) {
+    #ifdef DEBUG
+        elem_type lower_bound = 1;
+        elem_type upper_bound = 10;
+    #else
+        elem_type lower_bound = 20;
+        elem_type upper_bound = 25;
+    #endif
+        std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+        std::default_random_engine re(seed);
+        seed++;
+        while (begin != end) {
+            (*begin++) = unif(re);
+        }
   }
 
   template <typename Iterator>
@@ -67,16 +86,6 @@ namespace utils {
           elapsed = t2 - t1;
       }
   }
-
-  // time_point<high_resolution_clock> now(){
-  //     return high_resolution_clock::now();
-  // }
-  //
-  // template <typename T>
-  // double time_elapsed(time_point<high_resolution_clock> t2, time_point<high_resolution_clock> t1) {
-  //     auto diff = duration_cast<T>( t2 - t1 );
-  //     return diff.count();
-  // }
 
   void print_vec_pair(vec_pair& vp) {
       for (size_t i=0; i<vp.size(); ++i) {
@@ -139,6 +148,21 @@ namespace utils {
     }
   };
 
+  struct range {
+      std::vector<utils::elem_type>::iterator left{};
+      std::vector<utils::elem_type>::iterator right{};
+
+      range() = default;
+
+      range(std::vector<utils::elem_type>::iterator _left, std::vector<utils::elem_type>::iterator _right) : left(_left), right(_right) {}
+  };
+
+
+
+
+
+
+  // typedef std::pair<matrix<elem_type>, matrix<elem_type>> matrix_couple;
 }
 
 #endif

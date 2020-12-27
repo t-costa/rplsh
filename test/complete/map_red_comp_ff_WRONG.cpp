@@ -16,12 +16,12 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/complete/definition.hpp>
+#include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
 class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_vec_stage> src;
 
 public:
 	source_vec_stage_stage() : src(new source_vec_stage()) {}
@@ -41,7 +41,7 @@ public:
 
 class drain_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_stage> drn; 
+	std::unique_ptr<drain_stage> drn;
 
 public:
 	drain_stage_stage() : drn(new drain_stage()) {}
@@ -80,7 +80,7 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_vec_stage_stage _source_vec_stage;
@@ -90,18 +90,16 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_source_vec_stage);
 	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_stage);
-	
-	
+
+
 	parameters::sequential = false;
-	utils::write("pipe(source_vec_stage,map(comp(map_vec_vec_stage,reduce(reduce_vec_double_stage) with [ nw: 1])) with [ nw: 1],drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
-	utils::write("\n---------------------\n", "./res_ff.txt");
 	return 0;
-	
+
 }

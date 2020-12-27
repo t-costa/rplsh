@@ -1,4 +1,4 @@
-import "test/divide_conquer/definition.hpp"
+import "test/definition.hpp"
 
 # fibonacci
 # pipe(source, a, drain)

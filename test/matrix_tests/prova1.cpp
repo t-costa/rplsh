@@ -1,4 +1,4 @@
-// pipe(source_matrix_stage,m2,drain_matrix_stage)
+// pipe(source_matrix_stage,m,drain_matrix_stage)
 
 #include <iostream>
 #include <vector>
@@ -17,12 +17,12 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/divide_conquer/definition.hpp>
+#include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
 class source_matrix_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_matrix_stage> src; 
+	std::unique_ptr<source_matrix_stage> src;
 
 public:
 	source_matrix_stage_stage() : src(new source_matrix_stage()) {}
@@ -42,7 +42,7 @@ public:
 
 class drain_matrix_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_matrix_stage> drn; 
+	std::unique_ptr<drain_matrix_stage> drn;
 
 public:
 	drain_matrix_stage_stage() : drn(new drain_matrix_stage()) {}
@@ -69,16 +69,17 @@ public:
 	matrix<utils::elem_type>* svc(matrix<utils::elem_type> *t) {
 		matrix<utils::elem_type>& _task = *t;
 		matrix<utils::elem_type>* out = &_task;
+		out->print();
 		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
-			(*out)[i] = wrapper0.op(_task[i]);
+			out->push_back(wrapper0.op(_task[i]));
 		},1);
-
+		out->print();
 		return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_matrix_stage_stage _source_matrix_stage;
@@ -88,15 +89,15 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_source_matrix_stage);
 	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_matrix_stage);
-	
-	
+
+
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-	
+
 }

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include "definition.hpp"
+#include "../definition.hpp"
 
 int main() {
   map_matrix a;

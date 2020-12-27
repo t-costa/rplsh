@@ -18,7 +18,7 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/tricky_evaluators/seq_definition.hpp>
+#include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
 std::mutex mtx;

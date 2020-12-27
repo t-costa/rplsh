@@ -16,7 +16,7 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/map_reduce_grain/seq_definition.hpp>
+#include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
 class source_unbalanced_vec_stage_stage : public ff_node {
@@ -146,7 +146,6 @@ int main( int argc, char* argv[] ) {
 
 
 	parameters::sequential = false;
-	utils::write("pipe(source_unbalanced_vec_stage,mc,fm,r,drain_stage)", "./res_ff.txt");
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 
@@ -154,7 +153,6 @@ int main( int argc, char* argv[] ) {
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
-	utils::write("\n---------------------\n", "./res_ff.txt");
 	return 0;
 
 }

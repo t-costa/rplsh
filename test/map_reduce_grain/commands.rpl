@@ -1,4 +1,4 @@
-import "test/map_reduce_grain/seq_definition.hpp"
+import "test/definition.hpp"
 
 m1 = map(map_minus_stage)
 m2 = map(map_plus_stage)

@@ -10,7 +10,7 @@ OPT = -O3
 DBG = -O0 -g -DDEBUG
 #LIBS 	= `pkg-config --libs opencv`
 
-HEADERS=$(wildcard *.hpp)
+HEADERS=$(wildcard ../*.hpp)
 
 FFSRC=$(wildcard *ff.cpp)
 SEQSRC=$(wildcard *seq.cpp)

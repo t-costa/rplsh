@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include </home/tommaso/forked/rplsh/test/map_reduce_grain/seq_definition.hpp>
+#include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 int main() {
   source_unbalanced_vec_stage s;

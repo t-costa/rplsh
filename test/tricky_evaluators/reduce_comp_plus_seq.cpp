@@ -2,7 +2,7 @@
 #include <vector>
 #include <chrono>
 
-#include "seq_definition.hpp"
+#include "../definition.hpp"
 
 int main() {
   source_vec_stage s;
