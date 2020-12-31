@@ -1,0 +1,15 @@
+import "test/definition.hpp"
+
+m1 = map(map_matrix)
+m2 = map(map_vec_matrix_stage)
+c = comp(map_vec_matrix_stage, map_matrix)
+m3 = map(c)
+
+main1 = pipe(source_matrix_stage, m1, drain_matrix_stage)
+gencode main1 as matrix_ff in "test/matrix_tests"
+
+main2 = pipe(source_vec_stage, m2, drain_matrix_stage)
+gencode main2 as vec_matrix_ff in "test/matrix_tests"
+
+main3 = pipe(source_vec_stage, m3, drain_matrix_stage)
+gencode main3 as comp_matrix_ff in "test/matrix_tests"

@@ -5,16 +5,17 @@
 #include <algorithm>
 #include <math.h>
 
-#include "aux/wrappers.hpp"
-#include "aux/aux.hpp"
+#include "../aux/wrappers.hpp"
+#include "../aux/types.hpp"
+#include "../aux/aux.hpp"
 
 #include "parameters.hpp"
 #include "utils.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
-//TODO: source_matrix_stage
+using namespace utils;
 
-struct source_matrix_stage : public source<matrix<utils::elem_type>> {
+////////////////////////////////////////////////////////////////////////////////
+struct source_matrix_stage : public source<matrix> {
 public:
   source_matrix_stage() : i(0) {
     utils::init_random();
@@ -24,11 +25,10 @@ public:
     return i++ < parameters::dimension;
   }
 
-  matrix<utils::elem_type>* next() {
-    //OCCHIO! potrebbe aver senso definirlo come radice di inputsize
-    auto size = (size_t) (sqrt(parameters::inputsize));
+  matrix* next() {
+    auto size = (size_t) (parameters::matrix_size);
     std::vector<utils::elem_type> a(size);
-    auto m = new matrix<utils::elem_type>();
+    auto m = new matrix();
 
     for (size_t j=0; j<size; ++j) {
       utils::init(a.begin(), a.end());
@@ -37,10 +37,60 @@ public:
 
   #ifdef DEBUG
   std::cout << "[source_matrix_stage] result:\n";
-  m->print();
+  //TODO: m->print();
+  for (auto& v : *m) {
+    print_vec(v);
+  }
   #endif
 
     return m;
+  }
+
+private:
+  int i;
+};
+
+struct source_matrixpair_stage : public source<matrix_couple> {
+public:
+  source_matrixpair_stage() : i(0) {
+    utils::init_random();
+  }
+
+  bool has_next() override {
+    return i++ < parameters::dimension;
+  }
+
+  matrix_couple* next() {
+    auto size = (size_t) (parameters::matrix_size);
+    std::vector<utils::elem_type> a(size);
+    // auto m = new matrix();
+    matrix m, n;
+    // auto n = new matrix();
+
+    for (size_t j=0; j<size; ++j) {
+      utils::init(a.begin(), a.end());
+      m.push_back(a);
+      utils::init(a.begin(), a.end());
+      n.push_back(a);
+    }
+
+  #ifdef DEBUG
+  std::cout << "[source_matrix_stage] result:\n";
+std::cout << "------\n";
+  std::cout << "first matrix:\n";
+  for (auto& v : m) {
+    print_vec(v);
+  }
+  std::cout << "second matrix\n";
+  for (auto& v : n) {
+    print_vec(v);
+  }
+  std::cout << "------\n";
+  #endif
+
+    auto c = new matrix_couple(m, n);
+
+    return c;
   }
 
 private:
@@ -72,7 +122,7 @@ public:
     }
 
   #ifdef DEBUG
-  std::cout << "[source_vecpair_stage] result: ";
+  std::cout << "[source_vecpair_stage] result:\n";
   utils::print_vec_pair(*vp);
   #endif
 
@@ -98,7 +148,7 @@ public:
     utils::init(v->begin(), v->end());
 
 #ifdef DEBUG
-std::cout << "[source_vec_stage] result: ";
+std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
@@ -126,7 +176,7 @@ public:
     utils::init_unbalanced(v->begin(), v->end());
 
 #ifdef DEBUG
-std::cout << "[source_unbalanced_vec_stage] result: ";
+std::cout << "[source_unbalanced_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
@@ -152,7 +202,7 @@ public:
     utils::init(v->begin(), v->end());
 
 #ifdef DEBUG
-std::cout << "[source_range_stage] result: ";
+std::cout << "[source_range_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
@@ -181,7 +231,7 @@ public:
     utils::initFib(v->begin(), v->end());
 
 #ifdef DEBUG
-std::cout << "[source_vec_stage] result: ";
+std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
@@ -197,13 +247,32 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-struct drain_matrix_stage : public drain<matrix<utils::elem_type>> {
+struct drain_matrix_stage : public drain<matrix> {
 public:
-    void process(matrix<utils::elem_type>* in) {
+    void process(matrix* in) {
 
 #ifdef DEBUG
 std::cout << "[drain_matrix_stage] result:\n";
-in->print();
+for (auto& v : *in) {
+    print_vec(v);
+  }
+#endif
+
+      delete in;
+    }
+};
+
+struct drain_matrix3d_stage :public drain<matrix_3d> {
+public:
+    void process(matrix_3d* in) {
+
+#ifdef DEBUG
+std::cout << "[drain_matrix_stage] result:\n";
+for (auto& v : *in) {
+  for (auto& v2 : v) {
+    print_vec(v2);
+  }
+}
 #endif
 
       delete in;
@@ -221,7 +290,7 @@ public:
     // }
 
 #ifdef DEBUG
-std::cout << "[drain_vec_pair_stage] result: ";
+std::cout << "[drain_vec_pair_stage] result:\n";
 utils::print_vec_pair(*in);
 #endif
 
@@ -244,7 +313,7 @@ public:
   void process(std::vector<utils::elem_type>* in) {
 
 #ifdef DEBUG
-std::cout << "[drain_vec_stage] result: ";
+std::cout << "[drain_vec_stage] result:\n";
 utils::print_vec(*in);
 #endif
 
@@ -257,7 +326,7 @@ public:
   void process(utils::range* in) {
 
 #ifdef DEBUG
-std::cout << "[drain_range_stage] result: ";
+std::cout << "[drain_range_stage] result:\n";
 std::vector v(in->left, in->right);
 utils::print_vec(v);
 #endif
@@ -271,7 +340,7 @@ public:
   void process(utils::elem_type* in) {
 
 #ifdef DEBUG
-std::cout << "[drain_stage] result: ";
+std::cout << "[drain_stage] result:\n";
 std::cout << (*in) << std::endl;
 #endif
 
@@ -362,11 +431,11 @@ public:
 };
 
 //quadrato di ogni elemento
-struct map_matrix : public map_stage_wrapper<matrix<utils::elem_type>, matrix<utils::elem_type>, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
+struct map_matrix : public map_stage_wrapper<matrix, matrix, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
 public:
-  matrix<utils::elem_type> compute(matrix<utils::elem_type>& mn) override {
+  matrix compute(matrix& mn) override {
 
-    matrix<utils::elem_type> res;
+    matrix res;
 
     for (size_t i=0; i<mn.size(); ++i) {
       res.push_back(op(mn[i]));
@@ -386,64 +455,6 @@ public:
   }
 };
 
-
-// struct map_prod : public map_stage_wrapper<matrix_couple<utils::elem_type>, matrix<utils::elem_type>, vec_couple<utils::elem_type>, std::vector<utils::elem_type>> {
-// public:
-//   matrix<utils::elem_type> compute(matrix_couple<utils::elem_type>& mn) override {
-//     auto a = mn.first();
-//     auto b = mn.second();
-//
-//     matrix<utils::elem_type> res();
-//
-//     for (size_t i=0; i<a.size(); ++i) {
-//       res.push_back(op(std::make_pair(a[i], b[i])));
-//     }
-//
-//     return res;
-//   }
-//
-//   std::vector<utils::elem_type> op(const utils::vec_couple& v) override {
-//     auto a = v.first();
-//     auto b = v.second();
-//     std::vector<utils::elem_type> res(a.size());
-//
-//     for (size_t i=0; i<a.size(); ++i) {
-//       res[i] = a[i] * b[i];
-//     }
-//
-//     return res;
-//   }
-// };
-
-//da cambiare i tipi!
-// struct red_sum : public reduce_stage_wrapper<matrix<std::vector<utils::elem_type>>,
-//                                               matrix<utils::elem_type>,
-//                                               std::vector<utils::elem_type>,
-//                                               utils::elem_type> {
-// public:
-//   matrix<utils::elem_type> identity;
-//
-//   explicit red_sum() {
-//     //TODO: inizializza identity
-//   }
-//
-//   matrix<utils::elem_type> compute(matrix<std::vector<utils::elem_type>>& m) override {
-//     matrix<utils::elem_type> res();
-//     std::vector<utils::elem_type> identity_el;
-//     identity_el.resize(m.size());
-//
-//     res[0].push_back(identity_el);
-//
-//     for (size_t i=0; i<m.size(); ++i) {
-//       res.push_back(op(m[i], m[i]));
-//     }
-//
-//     return res;
-//   }
-//
-//   std::vector<utils::elem_type> op(std::vector<utils::elem_type> v)
-// };
-
 //ogni elemento + 2
 struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
 public:
@@ -461,7 +472,7 @@ public:
     utils::waste(3*in.size()*parameters::minimum_wait);
 
 #ifdef DEBUG
-std::cout << "[seq_vec_vec_stage] compute: ";
+std::cout << "[seq_vec_vec_stage] compute:\n";
 utils::print_vec(out);
 #endif
 
@@ -483,7 +494,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[map_vec_vec_stage] compute: ";
+std::cout << "[map_vec_vec_stage] compute:\n";
 utils::print_vec(out);
 #endif
 
@@ -497,7 +508,7 @@ utils::print_vec(out);
 };
 
 //somma di tutti gli elementi
-struct reduce_vec_double_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type, utils::elem_type, utils::elem_type> {
+struct reduce_vec_double_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type> {
 public:
   utils::elem_type identity = 0;
 
@@ -511,7 +522,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[reduce_vec_double_stage] compute: ";
+std::cout << "[reduce_vec_double_stage] compute:\n";
 std::cout << out << std::endl;
 #endif
 
@@ -538,7 +549,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[map_vecpair_vec_stage] compute: ";
+std::cout << "[map_vecpair_vec_stage] compute:\n";
 utils::print_vec(out);
 #endif
 
@@ -566,7 +577,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[map_vecpair_vecpair_stage] compute: ";
+std::cout << "[map_vecpair_vecpair_stage] compute:\n";
 utils::print_vec_pair(out);
 #endif
 
@@ -576,6 +587,32 @@ utils::print_vec_pair(out);
   std::pair<utils::elem_type, utils::elem_type> op(const std::pair<utils::elem_type, utils::elem_type>& in) override {
     utils::waste(parameters::minimum_wait);
     return std::make_pair(in.second, in.first);
+  }
+};
+
+//per ogni elemento crea un vettore che contiene solo quegli elementi
+struct map_vec_matrix_stage : public map_stage_wrapper<std::vector<elem_type>, matrix, elem_type, std::vector<elem_type>> {
+public:
+  matrix compute(std::vector<elem_type>& in) override {
+    matrix out;
+
+    for (size_t i=0; i<in.size(); ++i) {
+      out.push_back(op(in[i]));
+    }
+
+#ifdef DEBUG
+std::cout << "[map_vec_matrix_stage] compute:\n";
+for (auto& v : out) {
+  print_vec(v);
+}
+#endif
+
+    return out;
+  }
+
+  std::vector<elem_type> op(const elem_type& in) override {
+    auto v = std::vector<elem_type>(parameters::inputsize, in);
+    return v;
   }
 };
 
@@ -593,7 +630,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[map_plus_stage] compute: ";
+std::cout << "[map_plus_stage] compute:\n";
 utils::print_vec(out);
 #endif
 
@@ -619,7 +656,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[map_minus_stage] compute: ";
+std::cout << "[map_minus_stage] compute:\n";
 utils::print_vec(out);
 #endif
 
@@ -633,7 +670,7 @@ utils::print_vec(out);
   }
 };
 
-struct reduce_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type, utils::elem_type, utils::elem_type> {
+struct reduce_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type> {
 public:
   utils::elem_type identity = 0;
 
@@ -647,7 +684,7 @@ public:
     }
 
 #ifdef DEBUG
-std::cout << "[reduce_stage] compute: ";
+std::cout << "[reduce_stage] compute:\n";
 std::cout << out << std::endl;
 #endif
 
@@ -658,5 +695,134 @@ std::cout << out << std::endl;
     utils::waste(4*parameters::minimum_wait);
     return a + b;
   }
+};
+
+struct map_prod : public map_stage_wrapper<matrix_couple, matrix_3d, vec_matrix_couple, matrix> {
+public:
+
+  explicit map_prod() {}
+
+  matrix_3d compute(matrix_couple& mn) override {
+    // auto a = mn.first();
+    // auto b = mn.second();
+
+    matrix_3d res;
+
+    for (size_t i=0; i<mn.size(); ++i) {
+      res.push_back(op(mn[i]));
+    }
+
+// #ifdef DEBUG
+// std::cout << "[map_prod] compute:\n";
+// // for (size_t i=0; i<res.size(); ++i) {
+// //   res[i][0].print();
+// // }
+// #endif
+
+    return res;
+  }
+
+  matrix op(const vec_matrix_couple& vm_pair) override {
+    const auto a = vm_pair._vec;
+    const auto b = vm_pair._mat;
+    matrix res;
+
+    for (size_t i=0; i<a.size(); ++i) {
+      auto v = std::vector<elem_type>(a.size());
+      res.push_back(v);
+    }
+
+    std::cout << "res inizializzato\n";
+    for (auto row : res) {
+      print_vec(row);
+    }
+    std::cout << "fine res inizializzato\n";
+
+    vm_pair.print();
+
+    //per ogni elemento del vettore
+    for (size_t i=0; i<a.size(); ++i) {
+      //recupero riga matrice da moltiplicare
+      const auto tmp = b[i];
+      //per ogni elemento della riga
+      for (size_t j=0; j<tmp.size(); ++j) {
+          //faccio tutti i prodotti che servono per a[i]
+          //e li metto nella riga giusta
+          res[j][i] = a[i] * tmp[j];
+      }
+    }
+
+    // for (size_t i=0; i<a.size(); ++i) {
+    //   const auto tmp = b[i];
+    //   std::vector<utils::elem_type> v;
+    //
+    //   for (size_t j=0; j<tmp.size(); ++j) {
+    //     //metto nel vettore temporaneo
+    //     v.push_back(a[i] * tmp[j]);
+    //   }
+    //   //prima riga pronta
+    //   res.push_back(v);
+    // }
+
+    //vediamo com'è res
+    std::cout << "------\n";
+    std::cout << "res da op\n";
+    for (auto& v : res) {
+      utils::print_vec(v);
+    }
+    std::cout << "------\n";
+
+    return res;
+  }
+};
+
+struct reduce_matrix_stage : public reduce_stage_wrapper<matrix_3d, matrix> {
+public:
+  matrix identity;
+
+  reduce_matrix_stage() {
+    identity = matrix();
+  }
+
+  matrix compute(matrix_3d& in) override {
+    auto out = identity;
+    //assumo identity (e quindi out) inizia tutto vuoto
+    for (size_t i=0; i<in.size(); ++i) {
+      out = op(out, in[i]);
+    }
+
+    return out;
+  }
+
+  matrix op(matrix& a, matrix& b) {
+    auto res = 0;
+    std::vector<utils::elem_type> res_vec;
+
+    for (size_t i=0; i<b.size(); ++i) {
+      //row of the matrix;
+      auto tmp = b[i];
+      std::cout << "riga " << i << std::endl;
+      print_vec(tmp);
+      for (size_t j=0; j<tmp.size(); ++j) {
+        res += tmp[j];
+      }
+      //aggiungo un elemento alla riga
+      res_vec.push_back(res);
+      res = 0;
+    }
+    //aggiungo la riga alla matrice finale
+    a.push_back(res_vec);
+
+        std::cout << "res_vec:\n";
+        print_vec(res_vec);
+        std::cout << "matrice finale:\n";
+        for (size_t i=0; i<a.size(); ++i) {
+          print_vec(a[i]);
+        }
+    return a;
+  }
+
+private:
+  long row = 0;
 };
 ////////////////////////////////////////////////////////////////////////////////

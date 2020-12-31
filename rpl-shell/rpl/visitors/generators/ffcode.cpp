@@ -301,7 +301,8 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     stringstream ss;
     string typein  = datap_nodes.front()->typein;
     string typeout = datap_nodes.back()->typeout;
-    string ffMap   = "ff_Map<" + typein + "," + typeout + ">";
+    //fix for reduce with Tout (and also identity) different from int
+    string ffMap   = "ff_Map<" + typein + "," + typeout + ", " + typeout + ">";
 
     ss << "class reduce" << n.getid() << "_stage : public " << ffMap << " {\n";
     ss << "protected:\n";
@@ -315,7 +316,6 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
     ss << "\t\t" << typein << "& _task = *t;\n";
 
     size_t idx = datap_nodes.size()-1;
-    //FIXME: non mi convince usare sempre typeout! dovrei usare i tipi degli elementi no??
     ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
     ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
 
@@ -325,7 +325,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
 //        ss << "\t\tmapout->resize(_task.size());\n";
         //FIXME: potrei mettere anche qui il controllo sui tipi
-        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)), false);
+        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)), true);
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
         ss << parallel_for_reduce_declaration(n.grain, "mapout->size()", idx, to_string(nw(n)));
@@ -334,6 +334,11 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
         ss << parallel_for_reduce_declaration(n.grain, "_task.size()", idx, to_string(nw(n)));
     }
+    //FIXME: SE FACCIO MATRICE->VETTORE, IL PFR È DICHIARATO COME PARALLELFORREDUCE<INT>
+    //  O SIMILI, E QUINDI MI DA ERRORE IN COMPILAIZONE, SE POI LO DICHIARO
+    //  A MANO ParallelForReduce<std::vector<elem_type>> p; VA BENE
+    //  fix probabilmente migliore, per la reduce aggiungo un altro tipo alla map
+    //  quindi ff_map<Tin, Tout, Tpfr==credo Tout?>
 
     //delete received ptr
     ss << "\n\t\tdelete t;\n";

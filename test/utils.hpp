@@ -17,6 +17,13 @@ namespace utils {
   typedef std::vector<elem_type> vec;
   typedef std::pair<elem_type, elem_type> pair;
   typedef std::vector<pair> vec_pair;
+
+  typedef std::vector<vec> matrix;
+  typedef std::vector<std::vector<vec>> matrix_3d;
+  typedef std::pair<vec, vec> vec_couple;
+  // typedef std::pair<matrix, matrix> matrix_couple;
+  // typedef std::pair<vec, matrix> vec_matrix_couple;
+
   // typedef std::pair<std::vector<elem_type>, std::vector<elem_type>> vec_couple;
 
 
@@ -29,7 +36,7 @@ namespace utils {
   template <typename Iterator>
   void init(Iterator begin, Iterator end) {
   #ifdef DEBUG
-      elem_type lower_bound = -9;
+      elem_type lower_bound = 0;
       elem_type upper_bound = 9;
   #else
       elem_type lower_bound = -99999;
@@ -157,8 +164,73 @@ namespace utils {
       range(std::vector<utils::elem_type>::iterator _left, std::vector<utils::elem_type>::iterator _right) : left(_left), right(_right) {}
   };
 
+  struct vec_matrix_couple {
+  public:
+    vec_matrix_couple(const std::vector<elem_type>& v, const matrix& m) :
+      _vec(v), _mat(m) { }
 
+    const std::vector<elem_type> get_vector() {
+      return _vec;
+    }
 
+    const matrix get_matrix() {
+      return _mat;
+    }
+
+    // void set_vector(const std::vector<T>& v){
+    //   _vec = v;
+    // }
+    //
+    // void set_matrix(const matrix<T>& m) {
+    //   _mat = m;
+    // }
+
+    void print() const{
+      std::cout << "------\n";
+      std::cout << "vector: \n";
+      for (const auto& el : _vec) {
+        std::cout << el << " ";
+      }
+      std::cout << "\nmatrix: \n";
+      for (const auto& v : _mat) {
+        for (const auto& el : v) {
+          std::cout << el << " ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "------\n";
+    }
+
+    const std::vector<elem_type> _vec;
+    const matrix _mat;
+  };
+
+  //Assumption: the second matrix is transposed
+  struct matrix_couple {
+  public:
+    matrix_couple(const matrix& a, const matrix& b) {
+      m = std::make_pair(a, b);
+    }
+
+    size_t size() {
+      return m.first.size();
+    }
+
+    const vec_matrix_couple operator[] (size_t i) {
+      auto a = m.first;
+      auto b = m.second;
+
+      return vec_matrix_couple(a[i], b);
+    }
+
+    // void push_back(vec_couple<T>& v) {
+    //   m.first.push_back(v.first());
+    //   m.second.push_back(v.second());
+    // }
+
+  private:
+    std::pair<matrix, matrix> m;
+  };
 
 
 

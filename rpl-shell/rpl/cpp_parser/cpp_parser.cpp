@@ -2,6 +2,7 @@
 #include <fstream>
 #include <regex>
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -26,6 +27,9 @@ cpp_parser::cpp_parser( string  path ) :
  */
 pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
 
+    //FIXME: ricorda limitazione -> non si accorge se
+    //  una riga è un commento oppure no!
+
     // assumption: path to file exists -> there is a check before this operation
     ifstream file( path );
 
@@ -38,7 +42,9 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
     // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
     regex map_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)map_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
-    regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
+//    regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
+    // name: $3, typein: $9, typeout: $12
+    regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12
     regex dc_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)dc_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
 
@@ -62,8 +68,11 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
             vec.emplace_back(trim(match[3]), wrapper_info::map,
                 match[9], match[12], match[15], match[18]);
         } else if ( std::regex_search(line, match, red_regex) ) {
+//            vec.emplace_back(trim(match[3]), wrapper_info::reduce,
+//                match[9], match[12], match[15], match[18]);
             vec.emplace_back(trim(match[3]), wrapper_info::reduce,
-                match[9], match[12], match[15], match[18]);
+                             match[9], match[12]);
+            std::cout << match[3] << " " << match[9] << " - " << match[12] << std::endl;
         } else if (std::regex_search(line, match, dc_regex)) {
             vec.emplace_back(trim(match[3]), wrapper_info::dc,
                              match[9], match[12]);
