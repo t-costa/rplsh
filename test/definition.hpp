@@ -97,6 +97,48 @@ private:
   int i;
 };
 
+struct source_matrix3d_stage : public source<matrix_3d> {
+public:
+  source_matrix3d_stage() : i(0) {
+    utils::init_random();
+  }
+
+  bool has_next() override {
+    return i++ < parameters::dimension;
+  }
+
+  matrix_3d* next() {
+    auto size = (size_t) (parameters::matrix_size);
+    std::vector<utils::elem_type> a(size);
+    auto out = new matrix_3d();
+
+    for (size_t k=0; k<size; ++k) {
+      matrix m;
+      for (size_t j=0; j<size; ++j) {
+        utils::init(a.begin(), a.end());
+        m.push_back(a);
+      }
+      out->push_back(m);
+    }
+
+
+  #ifdef DEBUG
+  std::cout << "[source_matrix3d_stage] result:\n";
+  //TODO: m->print();
+  for (auto& m_in : *out) {
+    for (auto& v_in : m_in) {
+      print_vec(v_in);
+    }
+  }
+  #endif
+
+    return out;
+  }
+
+private:
+  int i;
+};
+
 struct source_vecpair_stage : public source<utils::vec_pair> {
 public:
   source_vecpair_stage() : i(0) {
@@ -697,6 +739,59 @@ std::cout << out << std::endl;
   }
 };
 
+struct map_matrix_mul_stage : public map_stage_wrapper<matrix_couple, matrix, vec_matrix_couple, std::vector<elem_type>> {
+public:
+  explicit map_matrix_mul_stage() {}
+
+  matrix compute(matrix_couple& mn) override {
+    matrix res;
+
+    for (size_t i=0; i<mn.size(); ++i) {
+      res.push_back(op(mn[i]));
+    }
+
+    return res;
+  }
+
+  std::vector<elem_type> op(const vec_matrix_couple& vm_pair) override {
+    const auto a = vm_pair._vec;
+    const auto b = vm_pair._mat;
+
+    //res vector initialized at 0
+    std::vector<elem_type> res(a.size());
+
+#ifdef DEBUG
+std::cout << "input op\n";
+std::cout << "vector: \n";
+print_vec(a);
+std::cout << "matrix: \n";
+for (auto& v: b) {
+  print_vec(v);
+}
+#endif
+
+    //length of the orizontal vector
+    for (size_t i=0; i<a.size(); ++i) {
+      elem_type n = 0;
+      //number of rows in matrix b
+      for (size_t j=0; j<a.size(); ++j) {
+        //b scanned vertically
+        n += a[j] * b[j][i];
+      }
+
+      //add value to the result
+      res[i] = n;
+    }
+
+#ifdef DEBUG
+std::cout << "vector result\n";
+print_vec(res);
+#endif
+
+    return res;
+  }
+};
+
 struct map_prod : public map_stage_wrapper<matrix_couple, matrix_3d, vec_matrix_couple, matrix> {
 public:
 
@@ -731,14 +826,15 @@ public:
       auto v = std::vector<elem_type>(a.size());
       res.push_back(v);
     }
+#ifdef DEBUG
+std::cout << "res inizializzato\n";
+for (auto row : res) {
+  print_vec(row);
+}
+std::cout << "fine res inizializzato\n";
 
-    std::cout << "res inizializzato\n";
-    for (auto row : res) {
-      print_vec(row);
-    }
-    std::cout << "fine res inizializzato\n";
-
-    vm_pair.print();
+vm_pair.print();
+#endif
 
     //per ogni elemento del vettore
     for (size_t i=0; i<a.size(); ++i) {
@@ -765,13 +861,14 @@ public:
     // }
 
     //vediamo com'è res
-    std::cout << "------\n";
-    std::cout << "res da op\n";
-    for (auto& v : res) {
-      utils::print_vec(v);
-    }
-    std::cout << "------\n";
-
+#ifdef DEBUG
+std::cout << "------\n";
+std::cout << "res da op\n";
+for (auto& v : res) {
+  utils::print_vec(v);
+}
+std::cout << "------\n";
+#endif
     return res;
   }
 };
@@ -801,8 +898,10 @@ public:
     for (size_t i=0; i<b.size(); ++i) {
       //row of the matrix;
       auto tmp = b[i];
-      std::cout << "riga " << i << std::endl;
-      print_vec(tmp);
+#ifdef DEBUG
+std::cout << "riga " << i << std::endl;
+print_vec(tmp);
+#endif
       for (size_t j=0; j<tmp.size(); ++j) {
         res += tmp[j];
       }
@@ -812,13 +911,14 @@ public:
     }
     //aggiungo la riga alla matrice finale
     a.push_back(res_vec);
-
-        std::cout << "res_vec:\n";
-        print_vec(res_vec);
-        std::cout << "matrice finale:\n";
-        for (size_t i=0; i<a.size(); ++i) {
-          print_vec(a[i]);
-        }
+#ifdef DEBUG
+std::cout << "res_vec:\n";
+print_vec(res_vec);
+std::cout << "matrice finale:\n";
+for (size_t i=0; i<a.size(); ++i) {
+  print_vec(a[i]);
+}
+#endif
     return a;
   }
 

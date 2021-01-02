@@ -19,7 +19,7 @@ namespace utils {
   typedef std::vector<pair> vec_pair;
 
   typedef std::vector<vec> matrix;
-  typedef std::vector<std::vector<vec>> matrix_3d;
+  typedef std::vector<matrix> matrix_3d;
   typedef std::pair<vec, vec> vec_couple;
   // typedef std::pair<matrix, matrix> matrix_couple;
   // typedef std::pair<vec, matrix> vec_matrix_couple;

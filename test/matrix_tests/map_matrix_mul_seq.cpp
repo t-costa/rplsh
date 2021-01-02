@@ -1,22 +1,23 @@
-//reduce matrix (each row becomes the sum of its elements)
+//matrix multiplication
 #include <iostream>
 #include <vector>
 
 #include "../definition.hpp"
 
 int main() {
-  reduce_matrix_stage a;
-  source_matrix_stage source;
-  drain_vec_stage drain;
+  map_matrix_mul_stage a;
+  source_matrixpair_stage source;
+  drain_matrix_stage drain;
+
 
   auto start = std::chrono::high_resolution_clock::now();
 
   while (source.has_next()) {
-    auto m = source.next();
-    auto v = new std::vector<elem_type>();
-    *v = a.compute(*m);
-    delete m;
-    drain.process(v);
+    auto m = new matrix();
+    auto mc = source.next();
+    *m = a.compute(*mc);
+    drain.process(m);
+    delete mc;
   }
 
   auto end = std::chrono::high_resolution_clock::now();

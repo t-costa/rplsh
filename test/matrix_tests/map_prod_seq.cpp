@@ -1,22 +1,23 @@
-//create a matrix from a vector using a map stage
+//matrix multiplication
 #include <iostream>
 #include <vector>
 
 #include "../definition.hpp"
 
 int main() {
-  map_vec_matrix_stage a;
-  source_vec_stage source;
-  drain_matrix_stage drain;
+  map_prod a;
+  source_matrixpair_stage source;
+  drain_matrix3d_stage drain;
+
 
   auto start = std::chrono::high_resolution_clock::now();
 
   while (source.has_next()) {
-    auto vs = source.next();
-    auto m = new matrix();
-    *m = a.compute(*vs);
-    delete vs;
+    auto m = new matrix_3d();
+    auto mc = source.next();
+    *m = a.compute(*mc);
     drain.process(m);
+    delete mc;
   }
 
   auto end = std::chrono::high_resolution_clock::now();
