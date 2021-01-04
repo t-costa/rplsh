@@ -1,4 +1,4 @@
-// pipe(source_matrixpair_stage,m,drain_matrix_stage)
+// pipe(source_vec_stage,m3,drain_matrix_stage)
 
 #include <iostream>
 #include <vector>
@@ -20,15 +20,15 @@
 #include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
-class source_matrixpair_stage_stage : public ff_node {
+class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_matrixpair_stage> src;
+	std::unique_ptr<source_vec_stage> src; 
 
 public:
-	source_matrixpair_stage_stage() : src(new source_matrixpair_stage()) {}
+	source_vec_stage_stage() : src(new source_vec_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- source_matrixpair_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- source_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -42,7 +42,7 @@ public:
 
 class drain_matrix_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_matrix_stage> drn;
+	std::unique_ptr<drain_matrix_stage> drn; 
 
 public:
 	drain_matrix_stage_stage() : drn(new drain_matrix_stage()) {}
@@ -59,21 +59,22 @@ public:
 	}
 };
 
-class map0_stage : public ff_Map<matrix_couple,matrix> {
+class map0_stage : public ff_Map<std::vector<elem_type>,matrix> {
 protected:
-	map_matrix_mul_stage wrapper0;
+	map_vec_matrix_stage wrapper0;
+	map_matrix wrapper1;
 public:
-	map0_stage() : ff_Map(4) {
+	map0_stage() : ff_Map(1) {
 	}
 
-	matrix* svc(matrix_couple *t) {
-		matrix_couple& _task = *t;
+	matrix* svc(std::vector<elem_type> *t) {
+		std::vector<elem_type>& _task = *t;
 		matrix* out = new matrix();
 		out->resize(_task.size());
 		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
-			//out->push_back(wrapper0.op(_task[i]));
-			(*out)[i] = wrapper0.op(_task[i]);
-		},4);
+			auto res0 = wrapper0.op(_task[i]);
+			(*out)[i] = wrapper1.op(res0);
+		},1);
 
 		delete t;
 
@@ -82,25 +83,25 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping
+	// worker mapping 
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_matrixpair_stage_stage _source_matrixpair_stage;
+	source_vec_stage_stage _source_vec_stage;
 	map0_stage _map0_;
 	drain_matrix_stage_stage _drain_matrix_stage;
 	ff_pipeline pipe;
-	pipe.add_stage(&_source_matrixpair_stage);
+	pipe.add_stage(&_source_vec_stage);
 	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_matrix_stage);
-
-
+	
+	
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-
+	
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-
+	
 }

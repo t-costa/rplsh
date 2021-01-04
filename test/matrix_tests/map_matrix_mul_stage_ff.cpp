@@ -1,4 +1,4 @@
-// pipe(source_matrixpair_stage,m,r,drain_matrix_stage)
+// pipe(source_matrixpair_stage,m4,drain_matrix_stage)
 
 #include <iostream>
 #include <vector>
@@ -59,39 +59,20 @@ public:
 	}
 };
 
-class map0_stage : public ff_Map<matrix_couple,matrix_3d> {
+class map0_stage : public ff_Map<matrix_couple,matrix> {
 protected:
-	map_prod wrapper0;
+	map_matrix_mul_stage wrapper0;
 public:
-	map0_stage() : ff_Map(2) {
+	map0_stage() : ff_Map(4) {
 	}
 
-	matrix_3d* svc(matrix_couple *t) {
+	matrix* svc(matrix_couple *t) {
 		matrix_couple& _task = *t;
-		matrix_3d* out = new matrix_3d();
+		matrix* out = new matrix();
+		out->resize(_task.size());
 		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
-			out->push_back(wrapper0.op(_task[i]));
-		},2);
-
-		delete t;
-
-		return out;
-	}
-};
-
-class reduce0_stage : public ff_Map<matrix_3d,matrix, matrix> {
-protected:
-	reduce_matrix_stage wrapper0;
-public:
-	reduce0_stage() : ff_Map(2) {
-	}
-
-	matrix* svc(matrix_3d* t) {
-		matrix_3d& _task = *t;
-		matrix* out  = new matrix(wrapper0.identity);
-		auto reduceF = [this](matrix& sum, matrix elem) {sum = wrapper0.op(sum, elem);};
-		auto bodyF = [this,&_task](const long i, matrix& sum) {sum = wrapper0.op(sum, _task[i]);};
-		pfr.parallel_reduce_static(*out, wrapper0.identity, 0, _task.size(), 1, 0, bodyF, reduceF, 2);
+			(*out)[i] = wrapper0.op(_task[i]);
+		},4);
 
 		delete t;
 
@@ -101,16 +82,14 @@ public:
 
 int main( int argc, char* argv[] ) {
 	// worker mapping
-	const char worker_mapping[] = "0,1,2,3,4,5,6,7";
+	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_matrixpair_stage_stage _source_matrixpair_stage;
 	map0_stage _map0_;
-	reduce0_stage _red0_;
 	drain_matrix_stage_stage _drain_matrix_stage;
 	ff_pipeline pipe;
 	pipe.add_stage(&_source_matrixpair_stage);
 	pipe.add_stage(&_map0_);
-	pipe.add_stage(&_red0_);
 	pipe.add_stage(&_drain_matrix_stage);
 
 

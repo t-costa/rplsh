@@ -150,7 +150,7 @@ string mapred_constructor( const string& name, int nw ) {
  * @param nw number of workers
  * @return line of code that starts the execution of the pfr
  */
-string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw, const bool diff_type) {
+string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw) {
     stringstream ss;
     if (grain > 0) {
         //dynamic
@@ -170,11 +170,13 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
         ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
     }
     par = !i ? "_task[i]" : ("res" + to_string(i-1));
-    if (diff_type) {
-        ss << "\t\t\t" << out_name << "->push_back(wrapper" << i << ".op(" << par << "));\n";
-    } else {
-        ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
-    }
+    ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+
+//    if (diff_type) {
+//        ss << "\t\t\t" << out_name << "->push_back(wrapper" << i << ".op(" << par << "));\n";
+//    } else {
+//        ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+//    }
     ss << "\t\t}";
     // end lambda
 
@@ -250,13 +252,13 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     if (typein != typeout) {
         // if two different "container" types, we need this
         ss << "\t\t" << typeout << "* out = new " << typeout << "();\n";
-        //ss << "\t\tout->resize(_task.size());\n";
+        ss << "\t\tout->resize(_task.size());\n";
     } else {
         ss << "\t\t" << typeout << "* out = &_task;\n";
     }
 
     // start parallel for
-    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)), typein != typeout);
+    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)));
 
     if (typein != typeout) {
         //delete old received pointer
@@ -323,9 +325,8 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
         string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
-//        ss << "\t\tmapout->resize(_task.size());\n";
-        //FIXME: potrei mettere anche qui il controllo sui tipi
-        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)), true);
+        ss << "\t\tmapout->resize(_task.size());\n";
+        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)));
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
         ss << parallel_for_reduce_declaration(n.grain, "mapout->size()", idx, to_string(nw(n)));
@@ -334,11 +335,6 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
         ss << parallel_for_reduce_declaration(n.grain, "_task.size()", idx, to_string(nw(n)));
     }
-    //FIXME: SE FACCIO MATRICE->VETTORE, IL PFR È DICHIARATO COME PARALLELFORREDUCE<INT>
-    //  O SIMILI, E QUINDI MI DA ERRORE IN COMPILAIZONE, SE POI LO DICHIARO
-    //  A MANO ParallelForReduce<std::vector<elem_type>> p; VA BENE
-    //  fix probabilmente migliore, per la reduce aggiungo un altro tipo alla map
-    //  quindi ff_map<Tin, Tout, Tpfr==credo Tout?>
 
     //delete received ptr
     ss << "\n\t\tdelete t;\n";

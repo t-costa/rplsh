@@ -1,4 +1,4 @@
-// pipe(source_matrix3d_stage,r1,drain_matrix_stage)
+// pipe(source_vec_stage,m2,drain_matrix_stage)
 
 #include <iostream>
 #include <vector>
@@ -20,15 +20,15 @@
 #include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
-class source_matrix3d_stage_stage : public ff_node {
+class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_matrix3d_stage> src; 
+	std::unique_ptr<source_vec_stage> src; 
 
 public:
-	source_matrix3d_stage_stage() : src(new source_matrix3d_stage()) {}
+	source_vec_stage_stage() : src(new source_vec_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- source_matrix3d_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- source_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -59,19 +59,20 @@ public:
 	}
 };
 
-class reduce0_stage : public ff_Map<matrix_3d,matrix, matrix> {
+class map0_stage : public ff_Map<std::vector<elem_type>,matrix> {
 protected:
-	reduce_matrix_stage wrapper0;
+	map_vec_matrix_stage wrapper0;
 public:
-	reduce0_stage() : ff_Map(1) {
+	map0_stage() : ff_Map(1) {
 	}
 
-	matrix* svc(matrix_3d* t) {
-		matrix_3d& _task = *t;
-		matrix* out  = new matrix(wrapper0.identity);
-		auto reduceF = [this](matrix& sum, matrix elem) {sum = wrapper0.op(sum, elem);};
-		auto bodyF = [this,&_task](const long i, matrix& sum) {sum = wrapper0.op(sum, _task[i]);};
-		pfr.parallel_reduce_static(*out, wrapper0.identity, 0, _task.size(), 1, 0, bodyF, reduceF, 1);
+	matrix* svc(std::vector<elem_type> *t) {
+		std::vector<elem_type>& _task = *t;
+		matrix* out = new matrix();
+		out->resize(_task.size());
+		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
+			(*out)[i] = wrapper0.op(_task[i]);
+		},1);
 
 		delete t;
 
@@ -83,12 +84,12 @@ int main( int argc, char* argv[] ) {
 	// worker mapping 
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_matrix3d_stage_stage _source_matrix3d_stage;
-	reduce0_stage _red0_;
+	source_vec_stage_stage _source_vec_stage;
+	map0_stage _map0_;
 	drain_matrix_stage_stage _drain_matrix_stage;
 	ff_pipeline pipe;
-	pipe.add_stage(&_source_matrix3d_stage);
-	pipe.add_stage(&_red0_);
+	pipe.add_stage(&_source_vec_stage);
+	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_matrix_stage);
 	
 	

@@ -8,6 +8,9 @@
 
 using namespace std;
 
+//TODO: per la dc servono emitter/scatter? in caso
+//  penso emitter visto che dentro è una farm
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -115,9 +118,13 @@ void servicetime::visit(reduce_node& n) {
     res = res + log2(n.pardegree) * (res/nw);   //  Tf == res*nw
 }
 
+/**
+ * Calls the visit on the child and sets res
+ * ASSUMPTION: inputsize has been already propagated
+ * @param n dc node
+ */
 void servicetime::visit(dc_node &n) {
-    //TODO: non so quale sia la formula generica!
-    //  per ora faccio solo un ts_figlio / nw
+    //like a map
     res = (*this)(*n.get(0)) / n.pardegree;
 }
 
@@ -214,7 +221,7 @@ void latencytime::visit(farm_node& n) {
 }
 
 /**
- * Sets res ad sum of emitter, child and gather
+ * Sets res as sum of emitter, child and gather
  * @param n map node
  */
 void latencytime::visit(map_node& n) {
@@ -235,9 +242,13 @@ void latencytime::visit(reduce_node& n) {
     res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
 }
 
+/**
+ * Calls the visit on the child and sets res
+ * ASSUMPTION: inputsize has been already propagated
+ * @param n dc node
+ */
 void latencytime::visit(dc_node &n) {
-    //TODO: non so quale sia la formula!
-    //  per ora faccio un semplice lat_figlio / nw
+    //like a map
     res = (*this)(*n.get(0)) / n.pardegree;
 }
 
@@ -360,9 +371,13 @@ void completiontime::visit( reduce_node& n ) {
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
+/**
+ * Computes completion time of n and sets res
+ * @param n dc node
+ */
 void completiontime::visit(dc_node &n) {
-    //TODO: non so nemmeno questo...
-    res = ts(n);
+    //like a map
+    res = env.get_dim() * ts(n);
 }
 
 /**
@@ -469,6 +484,10 @@ void pardegree::visit( reduce_node& n ) {
     res = n.pardegree * (*this)(*n.get(0));
 }
 
+/**
+ * Computes pardegree of child and sets res
+ * @param n dc node
+ */
 void pardegree::visit(dc_node &n) {
     res = n.pardegree * (*this)(*n.get(0));
 }
@@ -577,8 +596,12 @@ void resources::visit( reduce_node& n ) {
     if (n.grain > 0) res++; //dynamic scheduler
 }
 
+/**
+ * Computes the number of resources of the child and sets res
+ * @param n dc node
+ */
 void resources::visit(dc_node &n) {
-    res = n.pardegree * (*this)(*n.get(0));
+    res = n.pardegree * (*this)(*n.get(0)) + 2; //technically emitter+collector
 }
 
 /**

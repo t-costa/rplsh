@@ -17,7 +17,7 @@ target_link_libraries (rplsh LINK_PUBLIC rpl)
 target_link_libraries(rplsh LINK_PUBLIC readline)
 
 
-# possible usefull warnings flag
+# possible useful warnings flag
 # -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self
 # -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast
 # -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo
