@@ -26,6 +26,22 @@ environment.hpp
 map
 -
 
+../rpl/error_report/error_report.hpp
+style.hpp
+../rpl/error_report/style.hpp
+algorithm
+-
+ostream
+-
+memory
+-
+vector
+-
+
+../rpl/error_report/style.hpp
+ostream
+-
+
 ../rpl/nodes/node_forwards.hpp
 
 ../rpl/nodes/tree_matcher.hpp
@@ -176,6 +192,14 @@ vector
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/error_report/style.hpp
 ostream
+-
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/history.cpp
+history.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/history.hpp
+parser/lexer.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.hpp
+algorithm
 -
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/history.hpp

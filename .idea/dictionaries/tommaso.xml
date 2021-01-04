@@ -16,6 +16,7 @@
       <w>conq</w>
       <w>cout</w>
       <w>datap</w>
+      <w>dctomap</w>
       <w>decl</w>
       <w>decls</w>
       <w>delset</w>
@@ -60,6 +61,7 @@
       <w>mapopt</w>
       <w>mapout</w>
       <w>mapred</w>
+      <w>maptodc</w>
       <w>maxres</w>
       <w>maxresources</w>
       <w>mnodes</w>

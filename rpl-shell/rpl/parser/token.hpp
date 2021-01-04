@@ -34,7 +34,6 @@ struct token
         seq,
         source,
         drain,
-        dc_capable,
         comp,
         pipe,
         farm,

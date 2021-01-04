@@ -101,4 +101,14 @@ struct pipedel: rewrule {
     skel_node* rewrite( skel_node& tree ) override;
 };
 
+struct dctomap: rewrule {
+    dctomap();
+    skel_node* rewrite( skel_node& tree ) override;
+};
+
+struct maptodc: rewrule {
+    maptodc();
+    skel_node* rewrite( skel_node& tree ) override;
+};
+
 #endif

@@ -41,6 +41,10 @@ inline skelptr Reduce(skelptr s) {
     return new reduce_node(s);
 }
 
+inline skelptr Dc(skelptr s) {
+    return new dc_node(s);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -342,5 +346,43 @@ pipedel::pipedel() : rewrule (
 skel_node* pipedel::rewrite( skel_node& tree ) {
     return match(&tree, left0.get()) ?
         POS(0) :
+        nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+dctomap::dctomap() : rewrule (
+    Dc(__)
+) {}
+
+/**
+ * If possible, substitutes the outermost map
+ * node with a divide and conquer node
+ * @param tree tree of patterns to be refactored
+ * @return a pointer to the newly created node,
+ * nullptr if the rule cannot be applied
+ */
+skel_node * dctomap::rewrite(skel_node &tree) {
+    return match(&tree, left0.get()) ?
+        Map(POS(0)) :
+        nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+maptodc::maptodc() : rewrule(
+    Map(__)
+){}
+
+/**
+ * If possible, substitutes the outermost dc
+ * node with a map node
+ * @param tree tree of patterns to be refactored
+ * @return a pointer to the newly created node,
+ * nullptr if the rule cannot be applied
+ */
+skel_node * maptodc::rewrite(skel_node &tree) {
+    return match(&tree, left0.get()) ?
+        Dc(POS(0)) :
         nullptr;
 }

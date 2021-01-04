@@ -30,9 +30,11 @@ struct rr_dispatcher : public dispatcher<std::string, std::unique_ptr<rewrule>>
         
         /* the following rules are not in allrules */
         add(par::mapmapelim, std::unique_ptr<rewrule> (new mapmapelim()));
-        add(par::farmfarmelim , std::unique_ptr<rewrule> (new farmfarmelim()));
+        add(par::farmfarmelim, std::unique_ptr<rewrule> (new farmfarmelim()));
         add(par::compdel, std::unique_ptr<rewrule> (new compdel()));
         add(par::pipedel, std::unique_ptr<rewrule> (new pipedel()));
+        add(par::dctomap, std::unique_ptr<rewrule> (new dctomap()));
+        add(par::maptodc, std::unique_ptr<rewrule> (new maptodc()));
     }
 
     /**

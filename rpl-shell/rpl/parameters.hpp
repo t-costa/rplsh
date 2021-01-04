@@ -26,6 +26,8 @@ namespace par
     const std::string farmfarmelim   = "farmfarmelim";
     const std::string compdel        = "compdel";
     const std::string pipedel        = "pipedel";
+    const std::string dctomap        = "dctomap";
+    const std::string maptodc        = "maptodc";
 
     /* optimization parameter names */
     const std::string farmopt        = "farmopt";
