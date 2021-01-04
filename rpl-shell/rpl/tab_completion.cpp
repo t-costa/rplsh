@@ -184,7 +184,7 @@ char* tab_completion::character_name_generator(const char *text, int state){
          *  expand      |  identifier   |  [in identifier]
          *  add         |  identifier   |  in identifier
          *  show        |  identifier   |  [by parameters]
-         *  gencode     |  identifier   | [as name] [as name in directory] [in directory]
+         *  gencode     |  identifier   |  [as name] [as name in directory] [in directory]
          *  ---------------------------------------------------
          *  import      |  "file"
          *  load        |  "file"       |  boolean
@@ -194,7 +194,8 @@ char* tab_completion::character_name_generator(const char *text, int state){
          *  identifier  |  =            |  pattern [patterns/identifiers]
          * */
 
-        if (rl_end == 0 || (count_word <= 1 && textstr.find('=') != std::string::npos)) {
+        //don't know why, but with textstr.find a case such as "a=" will not work
+        if (rl_end == 0 || (count_word <= 1 && splitted[0].find('=') == std::string::npos)) {
             //no input or partial input, it's looking for the first word
             match_verb(textstr, matches);
             match_identifier(textstr, matches);

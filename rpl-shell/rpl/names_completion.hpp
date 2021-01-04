@@ -50,7 +50,9 @@ const std::unordered_set<std::string> refactoring_rules {
     "mapmapelim",
     "farmfarmelim",
     "compdel",
-    "pipedel"
+    "pipedel",
+    "dctomap",
+    "maptodc"
 };
 
 const std::unordered_set<std::string> optimization_rules {
