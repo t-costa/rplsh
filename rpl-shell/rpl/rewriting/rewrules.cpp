@@ -363,9 +363,19 @@ dctomap::dctomap() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node * dctomap::rewrite(skel_node &tree) {
-    return match(&tree, left0.get()) ?
-        Map(POS(0)) :
-        nullptr;
+    if (match(&tree, left0.get())) {
+        //if i'm here, tree is a dc_node
+        auto n = dynamic_cast<map_node*>(Map(POS(0)));
+        //annotate or reset the value
+        n->transformed = !(dynamic_cast<dc_node&>(tree).transformed);
+        return n;
+    } else {
+        return nullptr;
+    }
+
+//    return match(&tree, left0.get()) ?
+//        Map(POS(0)) :
+//        nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -382,7 +392,17 @@ maptodc::maptodc() : rewrule(
  * nullptr if the rule cannot be applied
  */
 skel_node * maptodc::rewrite(skel_node &tree) {
-    return match(&tree, left0.get()) ?
-        Dc(POS(0)) :
-        nullptr;
+    if (match(&tree, left0.get())) {
+        //if I'm here, tree is a map node
+        auto n = dynamic_cast<dc_node*>(Dc(POS(0)));
+        //annotate or reset the value
+        n->transformed = !(dynamic_cast<map_node&>(tree).transformed);
+        return n;
+    } else {
+        return nullptr;
+    }
+
+//    return match(&tree, left0.get()) ?
+//        Dc(POS(0)) :
+//        nullptr;
 }

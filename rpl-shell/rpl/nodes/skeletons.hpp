@@ -154,6 +154,7 @@ struct map_node : public concrete_skel_node<map_node> {
 
     int pardegree;
     long grain;
+    bool transformed;
 };
 
 /**
@@ -175,9 +176,8 @@ struct dc_node : public concrete_skel_node<dc_node> {
     dc_node(const dc_node& other);
     skel_node* clone() override;
 
-    //TODO: potrebbe essere interessante una funzione per controllare
-    // se il nodo inserito come figlio è corretto? o lo faccio altrove?
     int pardegree;
+    bool transformed;
 };
 
 /**

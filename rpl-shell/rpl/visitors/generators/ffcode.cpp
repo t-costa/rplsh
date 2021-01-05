@@ -150,7 +150,8 @@ string mapred_constructor( const string& name, int nw ) {
  * @param nw number of workers
  * @return line of code that starts the execution of the pfr
  */
-string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw) {
+string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw,
+                                bool transformed=false, const string& typeout="") {
     stringstream ss;
     if (grain > 0) {
         //dynamic
@@ -165,18 +166,22 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
     string par;
     // begin lambda
     ss << "[this, &_task, &" << out_name << "](const long i) {\n";
-    for (i = 0; i < n_wrappers; i++) {
-        par = !i ? "_task[i]" : ("res" + to_string(i-1));
-        ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
-    }
-    par = !i ? "_task[i]" : ("res" + to_string(i-1));
-    ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
 
-//    if (diff_type) {
-//        ss << "\t\t\t" << out_name << "->push_back(wrapper" << i << ".op(" << par << "));\n";
-//    } else {
-//        ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
-//    }
+    if (transformed) {
+        //assumption: map(comp(...)) not acceptable
+        ss << "\t\t\t" << typeout << " tmp;\n";
+        ss << "\t\t\ttmp.push_back(_task[i]);\n";
+        ss << "\t\t\tauto partial = wrapper0.compute(tmp);\n";
+        ss << "\t\t\t(*" << out_name << ")[i] = partial[0];\n";
+    } else {
+        for (i = 0; i < n_wrappers; i++) {
+            par = !i ? "_task[i]" : ("res" + to_string(i-1));
+            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
+        }
+        par = !i ? "_task[i]" : ("res" + to_string(i-1));
+        ss << "\t\t\t(*" << out_name << ")[i] = wrapper" << i << ".op(" << par << ");\n";
+    }
+
     ss << "\t\t}";
     // end lambda
 
@@ -258,7 +263,8 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     }
 
     // start parallel for
-    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1, to_string(nw(n)));
+    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1,
+                                   to_string(nw(n)), n.transformed, typeout);
 
     if (typein != typeout) {
         //delete old received pointer
@@ -355,6 +361,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 string includes() {
     stringstream ss;
     ss << "#include <iostream>\n";
+    ss << "#include <algorithm>\n";
     ss << "#include <vector>\n\n";
     ss << "// specify include directory for fastflow\n";
     ss << "#include <ff/ff.hpp>\n";     //always needed for fastflow 3.0
@@ -526,26 +533,66 @@ void ffcode::visit(dc_node &n) {
 
     string typein  = wrapper->typein;
     string typeout = wrapper->typeout;
-    //declare ff_dc
-    ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
-    //divide
-    ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
-    ss << "\t\t" << wrapper_name << ".divide(in, in_vec);\n";
-    ss << "\t},\n";
-    //combine
-    ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
-    ss << "\t\t" << wrapper_name << ".combine(out_vec, out);\n";
-    ss << "\t},\n";
-    //seq
-    ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
-    ss << "\t\t" << wrapper_name << ".seq(in, out);\n";
-    ss << "\t},\n";
-    //cond
-    ss << "\t[&](const " << typein << "& in) {\n";
-    ss << "\t\treturn " << wrapper_name << ".cond(in);\n";
-    ss << "\t},\n";
-    //nworker
-    ss << to_string(nw(n)) << ");\n";
+
+    if (n.transformed) {
+        //before it was a map, so I assume it's defined as a map_wrapper in the header code
+        //declare ff_dc
+        ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
+        //divide
+        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+        ss << "\t\t" << "auto half_size = in.size() / 2;\n";
+        ss << "\t\t" << "std::vector<" << typein << "> a, b;\n";
+        ss << "\t\t" << "std::ranges::copy(in.begin(), in.begin() + half_size, a);\n";
+        ss << "\t\t" << "std::ranges::copy(in.begin() + half_size, in.end(), b);\n";
+        ss << "\t\t" << "in_vec.push_back(a);\n";
+        ss << "\t\t" << "in_vec.push_back(b);\n";
+        ss << "\t},\n";
+        //combine
+        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+        ss << "\t\t" << "for(auto& a : out_vec[0]) {\n";
+        ss << "\t\t\t" << "out.push_back(a);\n";
+        ss << "\t\t" << "}\n";
+        ss << "\t\t" << "for(auto& b : out_vec[1]) {\n";
+        ss << "\t\t\t" << "out.push_back(b);\n";
+        ss << "\t\t" << "}\n";
+        ss << "\t},\n";
+        //seq -> calls the compute of the map node (solves typing problems)
+        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+        ss << "\t\t" << "out = " << wrapper_name << ".compute(in);\n";
+        ss << "\t},\n";
+        //cond -> stops at size == k
+        //TODO: meglio trovare un modo più interessante per mettere la cond,
+        //  tipo far scegliere quando fermarsi
+        ss << "\t[&](const " << typein << "& in) {\n";
+        ss << "\t\treturn in.size() == 1;\n";
+        ss << "\t},\n";
+        //nworker
+        ss << to_string(nw(n)) << ");\n";
+    } else {
+        //normal dc
+        //declare ff_dc
+        ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
+        //divide
+        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+        ss << "\t\t" << wrapper_name << ".divide(in, in_vec);\n";
+        ss << "\t},\n";
+        //combine
+        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+        ss << "\t\t" << wrapper_name << ".combine(out_vec, out);\n";
+        ss << "\t},\n";
+        //seq
+        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+        ss << "\t\t" << wrapper_name << ".seq(in, out);\n";
+        ss << "\t},\n";
+        //cond
+        ss << "\t[&](const " << typein << "& in) {\n";
+        ss << "\t\treturn " << wrapper_name << ".cond(in);\n";
+        ss << "\t},\n";
+        //nworker
+        ss << to_string(nw(n)) << ");\n";
+    }
+
+
 
     assert(code_lines.empty());
     code_lines.push({name, ss.str()});
@@ -580,21 +627,6 @@ void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
         set.emplace(node);
     }
 }
-/*
-template<typename T, typename U>
-struct is_same_type
-{
-    static const bool value = false;
-};
-
-template<typename T>
-struct is_same_type<T, T>
-{
-    static const bool value = true;
-};
-
-template<typename T, typename U>
-bool eq_types() { return is_same_type<T, U>::value; }*/
 
 /**
  * Builds all the source code

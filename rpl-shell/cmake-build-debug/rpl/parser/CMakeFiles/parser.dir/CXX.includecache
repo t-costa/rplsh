@@ -44,19 +44,11 @@ vector
 node_interface.hpp
 ../rpl/nodes/node_interface.hpp
 
-../rpl/parameters.hpp
-string
--
-
 ../rpl/visitors/visitor_interface.hpp
 nodes/node_forwards.hpp
 ../rpl/visitors/nodes/node_forwards.hpp
 string
 -
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.cpp
-lexer.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/parser/lexer.hpp
 error_report/error_report.hpp
@@ -89,12 +81,6 @@ ostream
 -
 vector
 -
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/token.cpp
-token.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/token.hpp
-parameters.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/parser/parameters.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/parser/token.hpp
 string
