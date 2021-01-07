@@ -168,7 +168,9 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
     ss << "[this, &_task, &" << out_name << "](const long i) {\n";
 
     if (transformed) {
-        //assumption: map(comp(...)) not acceptable
+        //assumptions:
+        // map(comp(...)) not acceptable
+        // typeout and typeout_el implement []
         ss << "\t\t\t" << typeout << " tmp;\n";
         ss << "\t\t\ttmp.push_back(_task[i]);\n";
         ss << "\t\t\tauto partial = wrapper0.compute(tmp);\n";
@@ -535,36 +537,47 @@ void ffcode::visit(dc_node &n) {
     string typeout = wrapper->typeout;
 
     if (n.transformed) {
+        //FIXME: il warning per map/dc perde un po' senso con la trasformazione...
         //before it was a map, so I assume it's defined as a map_wrapper in the header code
         //declare ff_dc
         ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
         //divide
+        //TODO: option for zip/tie?
+        ss << "\t//divide function\n";
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
         ss << "\t\t" << "auto half_size = in.size() / 2;\n";
-        ss << "\t\t" << "std::vector<" << typein << "> a, b;\n";
-        ss << "\t\t" << "std::ranges::copy(in.begin(), in.begin() + half_size, a);\n";
-        ss << "\t\t" << "std::ranges::copy(in.begin() + half_size, in.end(), b);\n";
+        ss << "\t\t" << typein << " a, b;\n";
+        ss << "\t\t" << "std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));\n";
+        ss << "\t\t" << "std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));\n";
         ss << "\t\t" << "in_vec.push_back(a);\n";
         ss << "\t\t" << "in_vec.push_back(b);\n";
         ss << "\t},\n";
         //combine
+        //TODO: option for zip/tie?
+        ss << "\t//combine function\n";
         ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+        ss << "\t\t" << "out.resize(out_vec[0].size() + out_vec[1].size());\n";
+        ss << "\t\t" << "size_t i = 0;\n";
         ss << "\t\t" << "for(auto& a : out_vec[0]) {\n";
-        ss << "\t\t\t" << "out.push_back(a);\n";
+        ss << "\t\t\t" << "out[i] = a;\n";
+        ss << "\t\t\t" << "i++;\n";
         ss << "\t\t" << "}\n";
         ss << "\t\t" << "for(auto& b : out_vec[1]) {\n";
-        ss << "\t\t\t" << "out.push_back(b);\n";
+        ss << "\t\t\t" << "out[i] = b;\n";
+        ss << "\t\t\t" << "i++;\n";
         ss << "\t\t" << "}\n";
         ss << "\t},\n";
         //seq -> calls the compute of the map node (solves typing problems)
+        ss << "\t//sequential case function\n";
         ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
-        ss << "\t\t" << "out = " << wrapper_name << ".compute(in);\n";
+        ss << "\t\t" << "auto in_arg = in;\n";  //solves const conflict
+        ss << "\t\t" << "out = " << wrapper_name << ".compute(in_arg);\n";
         ss << "\t},\n";
         //cond -> stops at size == k
-        //TODO: meglio trovare un modo più interessante per mettere la cond,
-        //  tipo far scegliere quando fermarsi
+        //TODO: option for personalized cond?
+        ss << "\t//condition function\n";
         ss << "\t[&](const " << typein << "& in) {\n";
-        ss << "\t\treturn in.size() == 1;\n";
+        ss << "\t\treturn in.size() <= 1;\n";
         ss << "\t},\n";
         //nworker
         ss << to_string(nw(n)) << ");\n";

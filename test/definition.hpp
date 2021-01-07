@@ -685,6 +685,7 @@ utils::print_vec(out);
   }
 };
 
+//ogni elemento decrementato di uno, waste proporzionale al valore dell'elemento
 struct map_minus_stage : public map_stage_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>, utils::elem_type, utils::elem_type> {
 public:
   explicit map_minus_stage() {}
@@ -712,6 +713,7 @@ utils::print_vec(out);
   }
 };
 
+//somma di tutti gli elementi
 struct reduce_stage : public reduce_stage_wrapper<std::vector<utils::elem_type>, utils::elem_type> {
 public:
   utils::elem_type identity = 0;
@@ -739,6 +741,7 @@ std::cout << out << std::endl;
   }
 };
 
+//prodotto tra matrici
 struct map_matrix_mul_stage : public map_stage_wrapper<matrix_couple, matrix, vec_matrix_couple, std::vector<elem_type>> {
 public:
   explicit map_matrix_mul_stage() {}
@@ -792,6 +795,7 @@ print_vec(res);
   }
 };
 
+//TODO: penso si possa eliminare
 struct map_prod : public map_stage_wrapper<matrix_couple, matrix_3d, vec_matrix_couple, matrix> {
 public:
 
@@ -873,6 +877,7 @@ std::cout << "------\n";
   }
 };
 
+//TODO: penso si possa eliminare
 struct reduce_matrix_stage : public reduce_stage_wrapper<matrix_3d, matrix> {
 public:
   matrix identity;
