@@ -170,7 +170,21 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
     if (transformed) {
         //assumptions:
         // map(comp(...)) not acceptable
-        // typeout and typeout_el implement []
+        /*
+         * If we want to personalize the step (cond stops at size <= step)
+         * (maybe with iterators is a little better...)
+         *  size_t step = 1;
+		    pfr.parallel_for_static(0, _task.size(), step, 0, [this, &_task, &out, step](const long i) {
+                typein tmp;
+                for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
+                    tmp.push_back(_task[i+j]);
+                }
+                auto partial = wrapper0.compute(tmp);
+                for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
+                    (*out_name)[i+j] = partial[j];
+                }
+		    },1);
+         */
         ss << "\t\t\t" << typeout << " tmp;\n";
         ss << "\t\t\ttmp.push_back(_task[i]);\n";
         ss << "\t\t\tauto partial = wrapper0.compute(tmp);\n";
@@ -546,11 +560,8 @@ void ffcode::visit(dc_node &n) {
         ss << "\t//divide function\n";
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
         ss << "\t\t" << "auto half_size = in.size() / 2;\n";
-        ss << "\t\t" << typein << " a, b;\n";
-        ss << "\t\t" << "std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));\n";
-        ss << "\t\t" << "std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));\n";
-        ss << "\t\t" << "in_vec.push_back(a);\n";
-        ss << "\t\t" << "in_vec.push_back(b);\n";
+        ss << "\t\t" << "in_vec.emplace_back(in.begin(), in.begin() + half_size);\n";
+        ss << "\t\t" << "in_vec.emplace_back(in.begin() + half_size, in.end());\n";
         ss << "\t},\n";
         //combine
         //TODO: option for zip/tie?
@@ -573,7 +584,7 @@ void ffcode::visit(dc_node &n) {
         ss << "\t\t" << "auto in_arg = in;\n";  //solves const conflict
         ss << "\t\t" << "out = " << wrapper_name << ".compute(in_arg);\n";
         ss << "\t},\n";
-        //cond -> stops at size == k
+        //cond -> stops at size <= k
         //TODO: option for personalized cond?
         ss << "\t//condition function\n";
         ss << "\t[&](const " << typein << "& in) {\n";

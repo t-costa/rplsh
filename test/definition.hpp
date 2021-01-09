@@ -194,13 +194,42 @@ std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
-    utils::waste(100*parameters::minimum_wait);
+    utils::waste(parameters::minimum_wait);
 
     return v;
   }
 
 private:
   int i;
+};
+
+struct source_ordered_vec_stage : public source<std::vector<elem_type>> {
+public:
+  source_ordered_vec_stage() : i(0) { }
+
+  bool has_next() {
+    return i++ < parameters::dimension;
+  }
+
+  std::vector<utils::elem_type>* next() {
+    auto v = new std::vector<utils::elem_type>(parameters::inputsize);
+    for (size_t i=0; i<parameters::inputsize; ++i) {
+      (*v)[i] = i;
+    }
+
+#ifdef DEBUG
+std::cout << "[source_vec_stage] result:\n";
+utils::print_vec(*v);
+#endif
+
+    utils::waste(parameters::minimum_wait);
+
+    return v;
+  }
+
+private:
+  int i;
+
 };
 
 struct source_unbalanced_vec_stage: public source <std::vector<utils::elem_type>> {
@@ -363,6 +392,36 @@ utils::print_vec(*in);
   }
 };
 
+struct drain_ordered_vec_stage : public drain<std::vector<utils::elem_type>> {
+public:
+  void process(std::vector<utils::elem_type>* in) {
+
+#ifdef DEBUG
+std::cout << "[drain_vec_stage] result:\n";
+utils::print_vec(*in);
+#endif
+
+    bool ordered = true;
+    for (size_t i=0; i<in->size()-1; ++i) {
+      if ((*in)[i] > (*in)[i+1]) {
+        std::cout << "NOT ORDERED!" << std::endl;
+        std::cout << "v[" << i << "] = " << (*in)[i] << ";";
+        std::cout << "v[" << i+1 << "] = " << (*in)[i+1] << std::endl;
+        ordered = false;
+      }
+    }
+
+    print_vec(*in);
+
+    if (ordered) {
+      std::cout << "OK!" << std::endl;
+    }
+
+    delete in;
+  }
+
+};
+
 struct drain_range_stage : public drain<utils::range> {
 public:
   void process(utils::range* in) {
@@ -472,6 +531,43 @@ public:
   }
 };
 
+// ogni elemento + 2
+struct dc_dummy : public dc_stage_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
+public:
+  explicit dc_dummy() {}
+
+  void divide(const std::vector<elem_type>& in, std::vector<std::vector<elem_type>>& in_vec) override {
+    auto half_size = in.size() / 2;
+    std::vector<utils::elem_type> a, b;
+    std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));
+    std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));
+    in_vec.push_back(a);
+    in_vec.push_back(b);
+  }
+
+  void combine(std::vector<std::vector<elem_type>>& out_vec, std::vector<elem_type>& out) override {
+    out.resize(out_vec[0].size() + out_vec[1].size());
+    size_t i = 0;
+    for(auto& a : out_vec[0]) {
+      out[i] = a;
+      i++;
+    }
+    for(auto& b : out_vec[1]) {
+      out[i] = b;
+      i++;
+    }
+  }
+
+  void seq(const std::vector<elem_type>& in, std::vector<elem_type>& out) override {
+    waste(10 * parameters::minimum_wait);
+    out.push_back(in[0] + 2);
+  }
+
+  bool cond(const std::vector<elem_type>& in) override {
+    return in.size() <= 1;
+  }
+};
+
 //quadrato di ogni elemento
 struct map_matrix : public map_stage_wrapper<matrix, matrix, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
 public:
@@ -535,16 +631,16 @@ public:
       out.emplace_back(op(el));
     }
 
-#ifdef DEBUG
-std::cout << "[map_vec_vec_stage] compute:\n";
-utils::print_vec(out);
-#endif
+// #ifdef DEBUG
+// std::cout << "[map_vec_vec_stage] compute:\n";
+// utils::print_vec(out);
+// #endif
 
     return out;
   }
 
   utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(3*parameters::minimum_wait);
+    utils::waste(10*parameters::minimum_wait);
     return in+2;
   }
 };

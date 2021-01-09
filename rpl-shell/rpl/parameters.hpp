@@ -34,6 +34,7 @@ namespace par
     const std::string pipeopt        = "pipeopt";
     const std::string mapopt         = "mapopt";
     const std::string reduceopt      = "reduceopt";
+    const std::string dcopt          = "dcopt";
     const std::string maxresources   = "maxresources";
     const std::string twotier        = "twotier";
     const std::string farmfarmopt    = "farmfarmopt";

@@ -1,7 +1,7 @@
 
 CXX	= g++ -std=c++17
 #CFLAGS 	= `pkg-config --cflags opencv` #-pg
-CFLAGS = -Wall -pedantic
+CFLAGS = -Wall
 LIBS = -pthread
 RPL	= ../../
 FF = $(FF_HOME)

@@ -67,6 +67,10 @@ void optrule::visit( reduce_node& n ) {
     (*this)( *n.get(0) );
 }
 
+/**
+ * Calls the visit for the child
+ * @param n dc node
+ */
 void optrule::visit(dc_node &n) {
     (*this)(*n.get(0));
 }
@@ -201,6 +205,39 @@ void reduceopt::operator()( skel_node& sk ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+dcopt::dcopt(rpl_environment &env) : optrule(env) { }
+
+/**
+ * Sets optimum number of workers for a divide and conquer node
+ * @param n dc node
+ */
+void dcopt::visit(dc_node &n) {
+    /* reassign resources assuming only one worker */
+    assign_resources assignres;
+    n.pardegree = 1;
+    assignres(n, n.inputsize);
+
+    /* compute the "optimal" pardegree */
+    double tsc = env.get_scatter_time();
+    double tsg = env.get_gather_time();
+    double tw  = ts( *n.get(0) );
+    size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
+    n.pardegree = nw;
+
+    /* reassign resources with the new pardegree */
+    assignres(n, n.inputsize);
+}
+
+/**
+ * Calls the visit on n
+ * @param n skeleton node
+ */
+void dcopt::operator()(skel_node &n) {
+    n.accept(*this);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 pipeopt::pipeopt( rpl_environment& env ) :
     optrule( env ), balance( env )
 {}
@@ -246,6 +283,7 @@ pipebalance::pipebalance( rpl_environment& env ) :
 
 /**
  * Calls the visit for all the children except the longest stage
+ * (balances the pipe with the slowest stage)
  * @param n pipe node
  */
 void pipebalance::visit( pipe_node& n ) {
@@ -305,6 +343,24 @@ void pipebalance::visit( reduce_node& n ) {
 }
 
 /**
+ * Sets the minimum possible parallelism degree
+ * to keep the service time of the node under
+ * the maximum of the pipeline
+ * @param n
+ */
+void pipebalance::visit(dc_node &n) {
+    assign_resources assignres;
+    n.pardegree = 1;
+    assignres(n, n.inputsize);
+
+    double tw  = ts( *n.get(0) );
+    n.pardegree = ceil( tw / ts_max );
+    if (!n.pardegree)
+        n.pardegree = 1;
+    assignres(n, n.inputsize);
+}
+
+/**
  * Calls the visit on n
  * @param n skeleton root
  */
@@ -360,7 +416,6 @@ void maxresources::visit( map_node& n ) {
     while ( res(n) > maxres && reduce_res(n) );
 }
 
-
 /**
  * While possible, reduces resources
  * @param n reduce node
@@ -369,6 +424,10 @@ void maxresources::visit( reduce_node& n ) {
     while ( res(n) > maxres && reduce_res(n) );
 }
 
+/**
+ * While possible, reduces resources
+ * @param n dc node
+ */
 void maxresources::visit(dc_node &n) {
     while ( res(n) > maxres && reduce_res(n) );
 }

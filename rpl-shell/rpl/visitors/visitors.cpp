@@ -411,7 +411,6 @@ void reduce_resources::visit( reduce_node& n ) {
 }
 
 void reduce_resources::visit(dc_node &n) {
-    //TODO: controlla correttezza!
     assign_resources assignres;
     res = n.pardegree > 1;
     if (res) {

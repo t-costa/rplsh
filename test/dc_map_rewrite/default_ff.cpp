@@ -1,4 +1,4 @@
-// pipe(source_vec_stage,n,t,drain_vec_stage)
+// pipe(source_ordered_vec_stage,d,m,drain_ordered_vec_stage)
 
 #include <iostream>
 #include <algorithm>
@@ -21,15 +21,15 @@
 #include </home/tommaso/forked/rplsh/test/definition.hpp>
 
 
-class source_vec_stage_stage : public ff_node {
+class source_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_ordered_vec_stage> src;
 
 public:
-	source_vec_stage_stage() : src(new source_vec_stage()) {}
+	source_ordered_vec_stage_stage() : src(new source_ordered_vec_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- source_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- source_ordered_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -41,15 +41,15 @@ public:
 	}
 };
 
-class drain_vec_stage_stage : public ff_node {
+class drain_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_vec_stage> drn; 
+	std::unique_ptr<drain_ordered_vec_stage> drn;
 
 public:
-	drain_vec_stage_stage() : drn(new drain_vec_stage()) {}
+	drain_ordered_vec_stage_stage() : drn(new drain_ordered_vec_stage()) {}
 	int svc_init() {
 		#ifdef TRACE_CORE
-		std::cout << "svc_init -- drain_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
+		std::cout << "svc_init -- drain_ordered_vec_stage -- id = "		<< get_my_id() << " -- tid = " << std::this_thread::get_id() << " -- core = " << sched_getcpu() << std::endl;
 		#endif
 		return 0;
 	}
@@ -79,60 +79,41 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4,5";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_vec_stage_stage _source_vec_stage;
-	map0_stage _map0_;
-	map_vec_vec_stage dc_stage;
+	source_ordered_vec_stage_stage _source_ordered_vec_stage;
+	dc_dummy dc_stage;
 	ff_DC<std::vector<utils::elem_type>, std::vector<utils::elem_type>> _dc0_(
-		//divide function
 		[&](const std::vector<utils::elem_type>& in, std::vector<std::vector<utils::elem_type>>& in_vec) {
-			auto half_size = in.size() / 2;
-			std::vector<utils::elem_type> a, b;
-			std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));
-			std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));
-			in_vec.push_back(a);
-			in_vec.push_back(b);
+			dc_stage.divide(in, in_vec);
 		},
-		//combine function
 		[&](std::vector<std::vector<utils::elem_type>>& out_vec, std::vector<utils::elem_type>& out) {
-			out.resize(out_vec[0].size() + out_vec[1].size());
-			size_t i = 0;
-			for(auto& a : out_vec[0]) {
-				out[i] = a;
-				i++;
-			}
-			for(auto& b : out_vec[1]) {
-				out[i] = b;
-				i++;
-			}
+			dc_stage.combine(out_vec, out);
 		},
-		//sequential case function
 		[&](const std::vector<utils::elem_type>& in, std::vector<utils::elem_type>& out) {
-			auto in_arg = in;
-			out = dc_stage.compute(in_arg);
+			dc_stage.seq(in, out);
 		},
-		//condition function
 		[&](const std::vector<utils::elem_type>& in) {
-			return in.size() <= 1;
+			return dc_stage.cond(in);
 		},
 	1);
-	drain_vec_stage_stage _drain_vec_stage;
+	map0_stage _map0_;
+	drain_ordered_vec_stage_stage _drain_ordered_vec_stage;
 	ff_pipeline pipe;
-	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_map0_);
+	pipe.add_stage(&_source_ordered_vec_stage);
 	pipe.add_stage(&_dc0_);
-	pipe.add_stage(&_drain_vec_stage);
-	
-	
+	pipe.add_stage(&_map0_);
+	pipe.add_stage(&_drain_ordered_vec_stage);
+
+
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-	
+
 }

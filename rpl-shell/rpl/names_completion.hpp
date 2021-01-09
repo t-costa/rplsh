@@ -60,6 +60,7 @@ const std::unordered_set<std::string> optimization_rules {
     "pipeopt",
     "mapopt",
     "reduceopt",
+    "dcopt",
     "maxresources",
     "twotier",
     "farmfarmopt",

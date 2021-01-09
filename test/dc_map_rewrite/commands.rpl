@@ -1,0 +1,20 @@
+import "test/definition.hpp"
+
+m = map(map_vec_vec_stage)
+mtd = map(map_vec_vec_stage)
+
+rewrite mtd with maptodc
+
+d = divide_conquer(dc_dummy)
+dtm = divide_conquer(dc_dummy)
+
+rewrite dtm with dctomap
+
+main1 = pipe(source_ordered_vec_stage, m, mtd, drain_ordered_vec_stage)
+gencode main1 as map_to_dc_ff in "test/dc_map_rewrite/"
+
+main2 = pipe(source_ordered_vec_stage, d, dtm, drain_ordered_vec_stage)
+gencode main2 as dc_to_map_ff in "test/dc_map_rewrite/"
+
+main3 = pipe(source_ordered_vec_stage, d, m, drain_ordered_vec_stage)
+gencode main3 as default_ff in "test/dc_map_rewrite/"

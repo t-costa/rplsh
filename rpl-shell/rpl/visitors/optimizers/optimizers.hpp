@@ -32,9 +32,11 @@ protected:
     servicetime ts;
 };
 
-// choose parallelism degree such that
-// the new servicetime is equal to the
-// emitter service time
+/**
+ * Choose parallelism degree such that
+ * the new servicetime is equal to the
+ * max of emitter-collector service times
+ */
 struct farmopt : public optrule
 {
     explicit farmopt( rpl_environment& env );
@@ -42,9 +44,11 @@ struct farmopt : public optrule
     void operator()( skel_node& n ) override ;
 };
 
-// choose parallelism degree such that
-// the new servicetime is equal to the
-// max of scatter-gather service times
+/**
+ * Choose parallelism degree such that
+ * the new servicetime is equal to the
+ * max of scatter-gather service times
+ */
 struct mapopt : public optrule
 {
     explicit mapopt( rpl_environment& env );
@@ -54,9 +58,11 @@ struct mapopt : public optrule
 //    assign_resources assignres;
 };
 
-// choose parallelism degree such that
-// the new servicetime is equal to the
-// max of scatter-gather service times
+/**
+ * Choose parallelism degree such that
+ * the new servicetime is equal to the
+ * max of scatter-gather service times
+ */
 struct reduceopt : public optrule
 {
     explicit reduceopt( rpl_environment& env );
@@ -66,9 +72,23 @@ struct reduceopt : public optrule
 //    assign_resources assignres;
 };
 
-// given a skeleton pipe node it tries
-// to reduce the parallelism degree of
-// its fastest children
+/**
+ * Choose parallelism degree such that
+ * the new servicetime is equal to the
+ * max of emitter-collector service times
+ */
+struct dcopt : public optrule
+{
+    explicit dcopt( rpl_environment& env);
+    void visit( dc_node& n ) override;
+    void operator() (skel_node& n) override;
+};
+
+/**
+ * Given a skeleton pipe node it tries
+ * to reduce the parallelism degree of
+ * its fastest children
+ */
 struct pipebalance : public optrule
 {
     explicit pipebalance( rpl_environment& env );
@@ -76,7 +96,7 @@ struct pipebalance : public optrule
     void visit(farm_node& n) override;
     void visit(map_node& n) override;
     void visit(reduce_node& n) override;
-    //TODO: dovrei mettere anche dc
+    void visit(dc_node& n) override;
     void operator()( skel_node& n ) override;
 private:
     void operator()( skel_node& n, double max );
