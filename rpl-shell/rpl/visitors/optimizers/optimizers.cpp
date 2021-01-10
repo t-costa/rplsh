@@ -455,7 +455,7 @@ twotier::twotier( rpl_environment& env ) :
  */
 void twotier::visit( map_node& n ) {
     get_seq_wrappers gsw(env);
-    gsw(*n.get(0));
+    gsw(*n.get(0), true);
 
     auto* comp = new comp_node{};
     auto seqwrappers = gsw.get_seq_nodes();
@@ -472,7 +472,7 @@ void twotier::visit( map_node& n ) {
  */
 void twotier::visit( reduce_node& n ) {
     get_seq_wrappers gsw(env);
-    gsw(*n.get(0));
+    gsw(*n.get(0), true);
 
     auto* comp = new comp_node{};
     auto seqwrappers = gsw.get_seq_nodes();

@@ -537,7 +537,7 @@ get_seq_wrappers::get_seq_wrappers( rpl_environment& env ) :
  * @param n seq node
  */
 void get_seq_wrappers::visit( seq_node& n ) {
-    if (!inside_datap)
+    if (take_all || !inside_datap)
         seq_nodes.push_back(&n);
     else
         datap_nodes.push_back(&n);
@@ -664,10 +664,12 @@ vector<drain_node*> get_seq_wrappers::get_drain_nodes() {
  * Clears all the lists and start the visit
  * @param n root node
  */
-void get_seq_wrappers::operator()(skel_node& n) {
+void get_seq_wrappers::operator()(skel_node& n, bool all) {
     seq_nodes.clear();
     src_nodes.clear();
     drn_nodes.clear();
+    datap_nodes.clear();
+    take_all = all;
     n.accept(*this);
 }
 

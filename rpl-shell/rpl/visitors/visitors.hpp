@@ -136,7 +136,7 @@ struct get_seq_wrappers : public skel_visitor {
     std::vector<drain_node*> get_drain_nodes();
     std::vector<source_node*> get_source_nodes();
 
-    void operator()(skel_node& n);
+    void operator()(skel_node& n, bool all = false);
 private:
     rpl_environment& env;
     std::vector<seq_node*> seq_nodes;
@@ -144,6 +144,7 @@ private:
     std::vector<drain_node*> drn_nodes;
     std::vector<source_node*> src_nodes;
     bool inside_datap;
+    bool take_all;
 };
 
 struct top_datap_skeletons : public skel_visitor {
