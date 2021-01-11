@@ -22,6 +22,7 @@ using namespace std;
 
 single_node_cloner snc;
 void exprecurse(skel_node* n, rpl_environment& env);
+void expand_possible(skel_node* n, std::deque<skel_node*>& set_id, rpl_environment const& env, bool& result);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,9 +40,27 @@ interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     imported(false)
 {}
 
+/**
+ * Checks if the current assignement is legal, if not
+ * warns the user
+ * @param n
+ */
 void interpreter::check_correct_assignment(skel_node& n) {
     check_dc dc_v(env);
     check_datap datap_v(env);
+
+    //something like a=pipe(a, a) would cause a seg fault
+    //check for cyclic reference
+    auto* tmp = n.clone();
+    std::deque<skel_node*> set_id;
+    bool res = true;
+    expand_possible(tmp, set_id, env, res);
+
+    if (!res) {
+        std::cerr << "WARNING: there is a cyclic reference in the skeleton tree, the "
+                     "program might work unexpectedly" << std::endl;
+        return;
+    }
 
     if (!dc_v(n)) {
         std::cerr << "WARNING: the code generation for divide and conquer will not work if"

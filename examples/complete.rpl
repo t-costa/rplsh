@@ -1,0 +1,110 @@
+import "test/definition.hpp"
+
+set emitter_time with 0
+set collector_time with 0
+set scatter_time with 0
+set gather_time with 0
+
+set dimension with 1000
+set inputsize with 1024
+
+set resources with 128
+
+a = map_matrix_mul_stage
+b = map_matrix
+c = reduce_matrix_vec_stage
+e = map_vec_vec_stage
+f = dc_dummy
+g = seq_vec_vec_stage
+h = map_vec_vec_stage
+i = seq_vec_vec_stage
+l = reduce_vec_double_stage
+
+s = source_matrixpair_stage
+d = drain_stage
+
+annotate a with datap true
+#è segnato come 10, però su matrici grosse è lento
+annotate a with servicetime 15
+
+annotate b with datap true
+annotate b with servicetime 5
+
+annotate c with datap true
+annotate c with servicetime 7
+
+annotate e with datap true
+annotate e with servicetime 4
+
+annotate f with dc_capable true
+annotate f with servicetime 4
+
+annotate h with datap true
+annotate h with servicetime 4
+
+annotate i with servicetime 3
+
+annotate l with datap true
+annotate l with servicetime 6
+
+annotate s with servicetime 1
+annotate d with servicetime 1
+
+ma = map(a)
+mb = map(b)
+cmm = comp(ma, mb)
+
+annotate ma with grain 300 as dynamic
+
+rc = reduce(c)
+cmr = comp(mb, rc)
+fcmr = farm(cmr)
+
+df = divide_conquer(f)
+prd = pipe(i, df)
+
+fg = farm(g)
+
+fe = farm(e)
+mfe = map(fe)
+
+mh = map(h)
+rewrite mh with maptodc
+annotate h with dc_capable true
+expand mh in dh
+
+rl = reduce(l)
+
+main = pipe(cmm, fcmr, prd, fg, mfe, dh, rl)
+
+add s in main
+add d in main
+
+show main by servicetime, latency, compltime, pardegree, resources
+expand main
+show main by servicetime, latency, compltime, pardegree, resources
+
+#rewrite main with allrules
+
+#show main by servicetime, latency, compltime, pardegree, resources
+
+#forse poi servono regole più specifiche
+
+#optimize main with twotier
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with farmopt
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with mapopt
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with reduceopt
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with dcopt
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with pipeopt
+#show main by servicetime, latency, compltime, pardegree, resources
+#optimize main with maxresources
+#show main by servicetime, latency, compltime, pardegree, resources
+
+#gencode main as example_ff in "test/examples"
+
+
