@@ -501,7 +501,7 @@ farmfarmopt::farmfarmopt( rpl_environment& env ) :
  * @param n farm node
  */
 void farmfarmopt::visit( farm_node& n ) {
-    farmelim rule;
+    farmelim rule(env);
     n.set( modifytree(*n.get(0), rule), 0 );
 }
 
@@ -524,7 +524,7 @@ mapmapopt::mapmapopt( rpl_environment& env ) :
  * @param n map node
  */
 void mapmapopt::visit( map_node& n ) {
-    mapelim rule;
+    mapelim rule(env);
     n.set( modifytree(*n.get(0), rule), 0 );
 }
 

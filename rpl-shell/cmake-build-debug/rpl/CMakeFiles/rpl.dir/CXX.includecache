@@ -31,6 +31,8 @@ map
 ../rpl/nodes/tree_matcher.hpp
 vector
 -
+environment/rpl_environment.hpp
+../rpl/nodes/environment/rpl_environment.hpp
 
 ../rpl/parameters.hpp
 string
@@ -43,6 +45,8 @@ nodes/tree_matcher.hpp
 ../rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 ../rpl/rewriting/nodes/skeletons.hpp
+environment/rpl_environment.hpp
+../rpl/rewriting/environment/rpl_environment.hpp
 
 ../rpl/utils/printable.hpp
 nodes/skeletons.hpp
@@ -325,6 +329,8 @@ nodes/tree_matcher.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/skeletons.hpp
+environment/rpl_environment.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/environment/rpl_environment.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/tab_completion.hpp
 cstdio

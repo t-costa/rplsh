@@ -1,5 +1,6 @@
 #include "rewrules.hpp"
 #include <iostream>
+#include "../utils/rank.hpp"
 
 using namespace std;
 
@@ -48,15 +49,16 @@ inline skelptr Dc(skelptr s) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-rewrule::rewrule( skel_node*&& left0, skel_node*&& left1 ) :
+rewrule::rewrule( rpl_environment& env, skel_node*&& left0, skel_node*&& left1 ) :
+    env( env ),
     left0( left0 ),
     left1( left1 )
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-farmintro::farmintro() : rewrule (
-    __
+farmintro::farmintro(rpl_environment& env) : rewrule (
+    env, __
 ){}
 
 /**
@@ -74,8 +76,8 @@ skel_node* farmintro::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-farmelim::farmelim() : rewrule (
-    Farm(__)
+farmelim::farmelim(rpl_environment& env) : rewrule (
+    env, Farm(__)
 ){}
 
 /**
@@ -91,8 +93,8 @@ skel_node* farmelim::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pipeintro::pipeintro() : rewrule (
-    Comp(__, __)
+pipeintro::pipeintro(rpl_environment& env) : rewrule (
+    env, Comp(__, __)
 ){}
 
 /**
@@ -109,8 +111,8 @@ skel_node* pipeintro::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pipeelim::pipeelim() : rewrule (
-    Pipe(__,__)
+pipeelim::pipeelim(rpl_environment& env) : rewrule (
+    env, Pipe(__,__)
 ){}
 
 /**
@@ -127,7 +129,8 @@ skel_node* pipeelim::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pipeassoc::pipeassoc() : rewrule (
+pipeassoc::pipeassoc(rpl_environment& env) : rewrule (
+    env,
     Pipe(Pipe(__,__),__),
     Pipe(__,Pipe(__,__))
 ){}
@@ -140,16 +143,17 @@ pipeassoc::pipeassoc() : rewrule (
  */
 skel_node* pipeassoc::rewrite( skel_node& tree ) {
     skel_node* r = nullptr;
-    if ( match(&tree, left0.get()) )
+    if ( match(env, &tree, left0.get()) )
         return Pipe(POS(0), Pipe(POS(1), POS(2)));
-    if ( match(&tree, left1.get()))
+    if ( match(env, &tree, left1.get()))
         return Pipe(Pipe(POS(0), POS(1)), POS(2));
     return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-compassoc::compassoc() : rewrule (
+compassoc::compassoc(rpl_environment& env) : rewrule (
+    env,
     Comp(Comp(__,__),__),
     Comp(__,Comp(__,__))
 ){}
@@ -162,17 +166,17 @@ compassoc::compassoc() : rewrule (
  */
 skel_node* compassoc::rewrite( skel_node& tree ) {
     skel_node* r = nullptr;
-    if ( match(&tree, left0.get()) )
+    if ( match(env, &tree, left0.get()) )
         return Comp(POS(0), Comp(POS(1), POS(2)));
-    if ( match(&tree, left1.get()))
+    if ( match(env, &tree, left1.get()))
         return Comp(Comp(POS(0), POS(1)), POS(2));
     return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-mapofcomp::mapofcomp() : rewrule (
-    Comp(Map(__), Map(__))
+mapofcomp::mapofcomp(rpl_environment& env) : rewrule (
+    env, Comp(Map(__), Map(__))
 ){}
 
 /**
@@ -182,15 +186,16 @@ mapofcomp::mapofcomp() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* mapofcomp::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    //mi serve ricavare gli id
+    return match(env, &tree, left0.get()) ?
         Map(Comp(POS(0), POS(1))) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-compofmap::compofmap() : rewrule (
-    Map(Comp(__,__))
+compofmap::compofmap(rpl_environment& env) : rewrule (
+    env, Map(Comp(__,__))
 ){}
 
 /**
@@ -200,15 +205,15 @@ compofmap::compofmap() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* compofmap::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    return match(env, &tree, left0.get()) ?
         Comp(Map(POS(0)), Map(POS(1))) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-mapofpipe::mapofpipe() : rewrule (
-    Pipe(Map(__), Map(__))
+mapofpipe::mapofpipe(rpl_environment& env) : rewrule (
+    env, Pipe(Map(__), Map(__))
 ){}
 
 /**
@@ -218,15 +223,15 @@ mapofpipe::mapofpipe() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* mapofpipe::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    return match(env, &tree, left0.get()) ?
         Map(Pipe(POS(0), POS(1))) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pipeofmap::pipeofmap() : rewrule (
-    Map(Pipe(__,__))
+pipeofmap::pipeofmap(rpl_environment& env) : rewrule (
+    env, Map(Pipe(__,__))
 ){}
 
 /**
@@ -236,15 +241,15 @@ pipeofmap::pipeofmap() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* pipeofmap::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    return match(env, &tree, left0.get()) ?
         Pipe(Map(POS(0)), Map(POS(1))) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-mapelim::mapelim() : rewrule (
-    Map(__)
+mapelim::mapelim(rpl_environment& env) : rewrule (
+    env, Map(__)
 ){}
 
 /**
@@ -261,8 +266,8 @@ skel_node* mapelim::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-reduceelim::reduceelim() : rewrule (
-    Reduce(__)
+reduceelim::reduceelim(rpl_environment& env) : rewrule (
+    env, Reduce(__)
 ){}
 
 /**
@@ -279,8 +284,8 @@ skel_node* reduceelim::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-mapmapelim::mapmapelim() : rewrule (
-    Map(Map(__))
+mapmapelim::mapmapelim(rpl_environment& env) : rewrule (
+    env, Map(Map(__))
 ){}
 
 /**
@@ -290,15 +295,15 @@ mapmapelim::mapmapelim() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* mapmapelim::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    return match(env, &tree, left0.get()) ?
         Map(POS(0)) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-farmfarmelim::farmfarmelim() : rewrule (
-    Farm(Farm(__))
+farmfarmelim::farmfarmelim(rpl_environment& env) : rewrule (
+    env, Farm(Farm(__))
 ){}
 
 /**
@@ -308,15 +313,15 @@ farmfarmelim::farmfarmelim() : rewrule (
  * nullptr if the rule cannot be applied
  */
 skel_node* farmfarmelim::rewrite( skel_node& tree ) {
-    return match(&tree, left0.get()) ?
+    return match(env, &tree, left0.get()) ?
         Farm(POS(0)) :
         nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-compdel::compdel() : rewrule (
-    Comp(__)
+compdel::compdel(rpl_environment& env) : rewrule (
+    env, Comp(__)
 ){}
 
 /**
@@ -333,8 +338,8 @@ skel_node* compdel::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pipedel::pipedel() : rewrule (
-    Pipe(__)
+pipedel::pipedel(rpl_environment& env) : rewrule (
+    env, Pipe(__)
 ){}
 
 /**
@@ -351,8 +356,8 @@ skel_node* pipedel::rewrite( skel_node& tree ) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-dctomap::dctomap() : rewrule (
-    Dc(__)
+dctomap::dctomap(rpl_environment& env) : rewrule (
+    env, Dc(__)
 ) {}
 
 /**
@@ -380,8 +385,8 @@ skel_node * dctomap::rewrite(skel_node &tree) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-maptodc::maptodc() : rewrule(
-    Map(__)
+maptodc::maptodc(rpl_environment& env) : rewrule(
+    env, Map(__)
 ){}
 
 /**

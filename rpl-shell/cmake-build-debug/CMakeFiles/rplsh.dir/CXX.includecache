@@ -37,6 +37,8 @@ string
 ../rpl/nodes/tree_matcher.hpp
 vector
 -
+environment/rpl_environment.hpp
+../rpl/nodes/environment/rpl_environment.hpp
 
 ../rpl/parameters.hpp
 string
@@ -81,6 +83,8 @@ nodes/tree_matcher.hpp
 ../rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 ../rpl/rewriting/nodes/skeletons.hpp
+environment/rpl_environment.hpp
+../rpl/rewriting/environment/rpl_environment.hpp
 
 ../rpl/tab_completion.hpp
 cstdio

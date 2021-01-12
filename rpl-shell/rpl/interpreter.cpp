@@ -29,6 +29,7 @@ void expand_possible(skel_node* n, std::deque<skel_node*>& set_id, rpl_environme
 interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     env(env),
     err_repo(err_repo),
+    rdispatch(env),
     adispatch(env),
     sdispatch(env),
     gdispatch(env),

@@ -6,6 +6,26 @@
 
 #IncludeRegexTransform: 
 
+../rpl/environment/environment.hpp
+map
+-
+vector
+-
+utility
+-
+memory
+-
+iostream
+-
+
+../rpl/environment/rpl_environment.hpp
+nodes/skeletons.hpp
+../rpl/environment/nodes/skeletons.hpp
+environment.hpp
+../rpl/environment/environment.hpp
+map
+-
+
 ../rpl/nodes/node_forwards.hpp
 
 ../rpl/nodes/node_interface.hpp
@@ -23,6 +43,8 @@ node_interface.hpp
 ../rpl/nodes/tree_matcher.hpp
 vector
 -
+environment/rpl_environment.hpp
+../rpl/nodes/environment/rpl_environment.hpp
 
 ../rpl/visitors/visitor_interface.hpp
 nodes/node_forwards.hpp
@@ -35,6 +57,8 @@ rewrules.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/rewrules.hpp
 iostream
 -
+../utils/rank.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/rank.hpp
 
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/rewrules.hpp
 memory
@@ -43,4 +67,8 @@ nodes/tree_matcher.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/tree_matcher.hpp
 nodes/skeletons.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/nodes/skeletons.hpp
+environment/rpl_environment.hpp
+/home/tommaso/forked/rplsh/rpl-shell/rpl/rewriting/environment/rpl_environment.hpp
+
+/home/tommaso/forked/rplsh/rpl-shell/rpl/utils/rank.hpp
 

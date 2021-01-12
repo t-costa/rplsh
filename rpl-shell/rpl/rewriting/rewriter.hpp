@@ -106,9 +106,12 @@ skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
     skel_node* newptr = r.rewrite(n);
     skel_node* tmp;
 
-    if (rec && (dynamic_cast<pipeassoc*>(&r) || dynamic_cast<compassoc*>(&r))) {
+    if (rec && (dynamic_cast<pipeassoc*>(&r) ||
+                dynamic_cast<compassoc*>(&r) ||
+                dynamic_cast<farmintro*>(&r))) {
         std::cout << "Warning: recursive functionality is not available for "
-                     "associative rules; they could cause an infinite loop." << std::endl;
+                     "associative rules and farmintro rule. "
+                     "They could cause an infinite loop." << std::endl;
     } else {
         /* for rec support */
         while ( rec && newptr && (tmp = r.rewrite(*newptr)) )
