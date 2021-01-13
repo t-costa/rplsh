@@ -73,7 +73,7 @@ void interpreter::check_correct_assignment(skel_node& n) {
         std::cerr << "WARNING: the code generation for data parallel patterns will not work if"
                      " the nodes inside do not implement the correct datap wrapper or if it does"
                      " not respect the two tier model. Annotate the nodes as datap or use the"
-                     " rewrite commands to solve this issue." << std::endl;
+                     " twotier optimization rule to solve the problem." << std::endl;
     }
 }
 
