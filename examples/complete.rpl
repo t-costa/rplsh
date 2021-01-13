@@ -54,43 +54,55 @@ ma = map(a)
 mb = map(b)
 cmm = comp(ma, mb)
 
-annotate ma with grain 300 as dynamic
+show cmm
+rewrite cmm with mapofcomp
+show cmm
 
-rc = reduce(c)
-cmr = comp(mb, rc)
-fcmr = farm(cmr)
+annotate cmm with grain 300 as dynamic
+
+bc = comp(b, c)
+rbc = reduce(bc)
+frbc = farm(rbc)
 
 df = divide_conquer(f)
-prd = pipe(i, df)
+pd = pipe(df)
 
 fg = farm(g)
+ffg = farm(fg)
 
 fe = farm(e)
 mfe = map(fe)
+
+#cambia warning, è optimize, non rewrite!
+optimize mfe with twotier
 
 mh = map(h)
 rewrite mh with maptodc
 annotate h with dc_capable true
 expand mh in dh
+show dh
+#vedi se funge
+rewrite dh with farmintro
+show dh
 
 rl = reduce(l)
 
-main = pipe(cmm, fcmr, prd, fg, mfe, dh, rl)
+main = pipe(cmm, frbc, i, pd, ffg, mfe, dh, rl)
 
 add s in main
 add d in main
 
 show main by servicetime, latency, compltime, pardegree, resources
+rewrite main with pipedel, farmfarmelim, rec
+show main
 expand main
 show main by servicetime, latency, compltime, pardegree, resources
 
-#rewrite main with allrules
-
-#show main by servicetime, latency, compltime, pardegree, resources
-
-#forse poi servono regole più specifiche
+#forse poi dovrei scegliere una delle opzioni
 
 #optimize main with twotier
+#show main by servicetime, latency, compltime, pardegree, resources
+#rewrite main with compdel, rec
 #show main by servicetime, latency, compltime, pardegree, resources
 #optimize main with farmopt
 #show main by servicetime, latency, compltime, pardegree, resources

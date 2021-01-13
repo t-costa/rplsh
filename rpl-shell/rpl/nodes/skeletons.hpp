@@ -56,9 +56,6 @@ private:
 
 /**
  * Sequential node
- * TODO: per ora lascio questo anche per il seq dentro dc,
- * e mi creo quindi un nuovo nodo solo per il pattern effettivo,
- * però non ne sono sicurissimo di questa cosa
  */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
@@ -115,7 +112,7 @@ struct drain_node : public concrete_skel_node<drain_node> {
  * Composition node
  */
 struct comp_node : public concrete_skel_node<comp_node> {
-    comp_node( std::initializer_list<skel_node*> init );
+    explicit comp_node( std::initializer_list<skel_node*> init );
     comp_node( const comp_node& other );
     skel_node* clone() override;
 
@@ -126,7 +123,7 @@ struct comp_node : public concrete_skel_node<comp_node> {
  * Pipeline node
  */
 struct pipe_node : public concrete_skel_node<pipe_node> {
-    pipe_node( std::initializer_list<skel_node*> init );
+    explicit pipe_node( std::initializer_list<skel_node*> init );
     pipe_node( const pipe_node& other );
     skel_node* clone() override;
 };
@@ -135,7 +132,7 @@ struct pipe_node : public concrete_skel_node<pipe_node> {
  * Farm node
  */
 struct farm_node : public concrete_skel_node<farm_node> {
-    farm_node( std::initializer_list<skel_node*> init );
+    explicit farm_node( std::initializer_list<skel_node*> init );
     explicit farm_node( skel_node* pattexp, int pardegree = 1 );
     farm_node( const farm_node& other );
     skel_node* clone() override;
@@ -147,7 +144,7 @@ struct farm_node : public concrete_skel_node<farm_node> {
  * Map node
  */
 struct map_node : public concrete_skel_node<map_node> {
-    map_node( std::initializer_list<skel_node*> init );
+    explicit map_node( std::initializer_list<skel_node*> init );
     explicit map_node( skel_node* pattexp, int pardegree = 1 );
     map_node( const map_node& other );
     skel_node* clone() override;
@@ -161,7 +158,7 @@ struct map_node : public concrete_skel_node<map_node> {
  * Reduce node
  */
 struct reduce_node : public concrete_skel_node<reduce_node> {
-    reduce_node( std::initializer_list<skel_node*> init );
+    explicit reduce_node( std::initializer_list<skel_node*> init );
     explicit reduce_node( skel_node* pattexp, int pardegree = 1 );
     reduce_node( const reduce_node& other );
     skel_node* clone() override;
@@ -171,7 +168,7 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
 };
 
 struct dc_node : public concrete_skel_node<dc_node> {
-    dc_node(std::initializer_list<skel_node*> init);
+    explicit dc_node(std::initializer_list<skel_node*> init);
     explicit dc_node(skel_node* pattexp, int pardegree = 1 );
     dc_node(const dc_node& other);
     skel_node* clone() override;

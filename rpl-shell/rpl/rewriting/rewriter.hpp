@@ -245,7 +245,7 @@ void delset( node_set& s ) {
  * @return the complete set
  */
 node_set merge(node_set& s1, node_set& s2) {
-    vector<skel_node*> nodes;
+    //vector<skel_node*> nodes;
     for (auto& p : s2) {
         auto o = s1.insert(p);
         if (!o.second)

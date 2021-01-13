@@ -295,11 +295,6 @@ skel_node* farm_node::clone() {
     return new farm_node(*this);
 }
 
-
-//TODO: per map, reduce e dc potrei fare costruttori più specifici,
-//  che prendono seq, datap, farm/pipe per poter controllare la correttezza
-//  poi per la generazione => id potrebbe comunque essere un problema
-
 ///////////////////////////////////////////////////////////////////////////////
 // map_node implementation
 ///////////////////////////////////////////////////////////////////////////////

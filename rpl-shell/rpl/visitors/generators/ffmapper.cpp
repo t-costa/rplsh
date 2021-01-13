@@ -149,7 +149,7 @@ void ffmapper::visit(id_node& n) {
     if (ptr != nullptr)
         ptr->accept(*this);
     else
-        cout << n.id << " whaaaat? in ffmapper::visit(id_node)" << endl;
+        cerr << n.id << " unexpected error in ffmapper::visit(id_node)" << endl;
 }
 
 /**

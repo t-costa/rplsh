@@ -8,7 +8,7 @@
 
 /**
  * Dispatcher for functions: for each desired information (emitter time, scatter time...)
- * stores the corresponding set function of the environmet
+ * stores the corresponding set function of the environment
  */
 struct set_dispatcher : public dispatcher<std::string, std::function<void (double)>>
 {

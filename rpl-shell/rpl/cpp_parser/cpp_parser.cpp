@@ -27,8 +27,7 @@ cpp_parser::cpp_parser( string  path ) :
  */
 pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
 
-    //FIXME: ricorda limitazione -> non si accorge se
-    //  una riga è un commento oppure no!
+    //FIXME: limitation -> can't tell if a row is a comment or not
 
     // assumption: path to file exists -> there is a check before this operation
     ifstream file( path );

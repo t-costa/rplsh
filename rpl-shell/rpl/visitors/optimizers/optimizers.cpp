@@ -186,12 +186,11 @@ void reduceopt::visit( reduce_node& n ) {
     //std::cout << "reduceopt second: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* compute the optimal number of workers */
     //TODO: I don't get it... TC
-    n.pardegree = static_cast<int>( ((double) n.inputsize) * log(2) );
+    n.pardegree = static_cast<int>( (n.inputsize) * log(2) );
     assignres(n, n.inputsize);
     //std::cout << "npardegree : " << n.pardegree << std::endl;
     //std::cout << "reduceopt third: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* recurse; TODO Or not?*/
-    //la ricorsione ha senso solo se è una reduce di reduce, ma non penso abbia senso... TC
     (*this)( *n.get(0) );
 }
 

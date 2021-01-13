@@ -61,7 +61,6 @@ map<string, token::type> token::st_map =
    {"Reduce",           token::reduce},
    {"divide_conquer",   token::divide_conquer},
    {"Divide_Conquer",   token::divide_conquer},
-   //TODO: potrei permettere anche divide_and_conquer con lo stesso token?
 
    /* parameters */
    {par::servicetime,   token::parameter},

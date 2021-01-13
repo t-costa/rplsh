@@ -501,7 +501,7 @@ void assign_resources::visit( reduce_node& n ) {
 }
 
 void assign_resources::visit(dc_node &n) {
-    //TODO: controlla correttezza
+    //TODO: check if ok
     (*this)(*n.get(0), n.inputsize/n.pardegree);
 }
 
@@ -529,7 +529,7 @@ void assign_resources::operator()(skel_node& n, double inputsize) {
  * @param env environment
  */
 get_seq_wrappers::get_seq_wrappers( rpl_environment& env ) :
-        env(env), inside_datap(false)
+        env(env), inside_datap(false), take_all(false)
 {}
 
 /**
@@ -804,7 +804,7 @@ void top_datap_skeletons::operator()(skel_node& n) {
 
 ///////////////////////////////////////////////////////////////////////////////
 ranker::ranker( rpl_environment& env ) :
-    env(env)
+    env(env), snc(single_node_cloner())
 {}
 
 /**
@@ -940,7 +940,7 @@ void unranker::visit( reduce_node& n ) {
 }
 
 void unranker::visit(dc_node &n) {
-    //TODO: controlla correttezza
+    //TODO: check if ok
     n.get(0)->accept(*this);
 }
 
@@ -1087,8 +1087,6 @@ void check_datap::visit(seq_node &n) {
 }
 
 void check_datap::visit(pipe_node &n) {
-    //TODO: questo in realtà controlla il two-tier,
-    // che ok, può comunque essere utile, ma forse non qui
     if (!inside_datap) {
         for (size_t i = 0; i < n.size() && res; i++)
             n.get(i)->accept(*this);
@@ -1104,8 +1102,6 @@ void check_datap::visit(comp_node &n) {
 }
 
 void check_datap::visit(farm_node &n) {
-    //TODO: questo in realtà controlla il two-tier,
-    // che ok, può comunque essere utile, ma forse non qui
     if (!inside_datap) {
         n.get(0)->accept(*this);
     } else {
@@ -1126,7 +1122,6 @@ void check_datap::visit(reduce_node &n) {
 }
 
 void check_datap::visit(dc_node &n) {
-    //TODO: è possibile in realtà?
     if (!inside_datap) {
         n.get(0)->accept(*this);
     } else {

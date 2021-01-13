@@ -107,7 +107,6 @@ void ann_pardegree::visit( map_node& n ) {
     result      = true;
 }
 
-//prima non c'era, non so perchè...
 void ann_pardegree::visit(reduce_node &n) {
     n.pardegree = nw;
     result      = true;

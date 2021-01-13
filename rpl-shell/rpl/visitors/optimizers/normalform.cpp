@@ -55,7 +55,7 @@ void normalform::visit( reduce_node& n ) {
     success = false;
 }
 
-//FIXME: non so cosa dovrebbe fare, messo giusto per compilare
+//FIXME: don't know what it should do...
 void normalform::visit(dc_node &n) {
     success = false;
 }

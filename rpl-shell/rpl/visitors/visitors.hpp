@@ -82,7 +82,7 @@ struct single_node_cloner : public skel_visitor {
     void visit(id_node& n) override;
     skel_node* operator()(skel_node& n);
 private:
-    skel_node* tmp;
+    skel_node* tmp{};
 };
 
 struct reduce_resources : public skel_visitor {

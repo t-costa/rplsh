@@ -42,7 +42,7 @@ interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
 {}
 
 /**
- * Checks if the current assignement is legal, if not
+ * Checks if the current assignment is legal, if not
  * warns the user
  * @param n
  */
@@ -394,11 +394,11 @@ void interpreter::visit(import_node& n) {
                 sk = new drain_node(name,tin, path);
             else if (it->wtype == wrapper_info::map || it->wtype == wrapper_info::reduce) {
                 sk = new seq_node(name, tin, tout, path);
-                ((seq_node*) sk)->datap_flag = true;
+                dynamic_cast<seq_node*>(sk)->datap_flag = true;
             }
             else if (it->wtype == wrapper_info::dc) {
                 sk = new seq_node(name, tin, tout, path);
-                ((seq_node*) sk)->dc_flag = true;
+                dynamic_cast<seq_node*>(sk)->dc_flag = true;
             }
             else {
                 cerr << "Error: no type recognized for " << name << endl;

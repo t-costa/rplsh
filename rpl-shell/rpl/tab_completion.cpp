@@ -20,7 +20,7 @@ void tab_completion::add_id(const std::string &id) {
 }
 
 /**
- * Divedes a string in all his words
+ * Divides a string in all his words
  * @param str string to be divided
  * @param v vector where to put the found words
  * @return the number of the expected word, first, second, third...
@@ -78,9 +78,9 @@ void tab_completion::match_env_parameters(const std::string& textstr, std::vecto
     }
 }
 
-void tab_completion::match_show_parameters(const std::string &textsr, std::vector<std::string> &matches) {
+void tab_completion::match_show_parameters(const std::string &textstr, std::vector<std::string> &matches) {
     for (const auto& word : show_parameters) {
-        add_match(word, textsr, matches);
+        add_match(word, textstr, matches);
     }
 }
 

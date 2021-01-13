@@ -36,7 +36,7 @@ private:
 
     static void match_env_parameters(const std::string& textstr, std::vector<std::string>& matches);
 
-    static void match_show_parameters(const std::string& textsr, std::vector<std::string>& matches);
+    static void match_show_parameters(const std::string& textstr, std::vector<std::string>& matches);
 
     static void match_nfun_parameters(const std::string& textstr, std::vector<std::string>& matches);
 

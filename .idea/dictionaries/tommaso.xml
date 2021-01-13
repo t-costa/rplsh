@@ -53,6 +53,7 @@
       <w>ivisitor</w>
       <w>latencytime</w>
       <w>longestrun</w>
+      <w>malloc'd</w>
       <w>mapelim</w>
       <w>mapmapelim</w>
       <w>mapmapopt</w>
@@ -71,11 +72,13 @@
       <w>mytuple</w>
       <w>newnode</w>
       <w>newptr</w>
+      <w>newsk</w>
       <w>nfun</w>
       <w>nline</w>
       <w>noann</w>
       <w>normalform</w>
       <w>normform</w>
+      <w>npardegree</w>
       <w>numworkers</w>
       <w>nworker</w>
       <w>odispatch</w>
@@ -84,6 +87,7 @@
       <w>parallelization</w>
       <w>pardegree</w>
       <w>pattexp</w>
+      <w>pattexps</w>
       <w>phistory</w>
       <w>pipeassoc</w>
       <w>pipebalance</w>
@@ -92,8 +96,10 @@
       <w>pipeintro</w>
       <w>pipeofmap</w>
       <w>pipeopt</w>
+      <w>qual</w>
       <w>ranktounrank</w>
       <w>rdispatch</w>
+      <w>readline</w>
       <w>recrewrules</w>
       <w>redn</w>
       <w>reduceelim</w>
@@ -118,8 +124,10 @@
       <w>strrep</w>
       <w>subarray</w>
       <w>subexp</w>
+      <w>subexpr</w>
       <w>task;</w>
       <w>templated</w>
+      <w>textsr</w>
       <w>textstr</w>
       <w>toclone</w>
       <w>tokentype</w>
@@ -133,6 +141,7 @@
       <w>unranks</w>
       <w>unranktorank</w>
       <w>unrnk</w>
+      <w>vanneschi's</w>
       <w>varfrom</w>
       <w>varto</w>
       <w>vdispatch</w>

@@ -24,92 +24,92 @@ protected:
 };
 
 struct farmintro : rewrule {
-    farmintro(rpl_environment& env);
+    explicit farmintro(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct farmelim : rewrule {
-    farmelim(rpl_environment& env);
+    explicit farmelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct pipeintro : rewrule {
-    pipeintro(rpl_environment& env);
+    explicit pipeintro(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct pipeelim : rewrule {
-    pipeelim(rpl_environment& env);
+    explicit pipeelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct pipeassoc : rewrule {
-    pipeassoc(rpl_environment& env);
+    explicit pipeassoc(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct compassoc : rewrule {
-    compassoc(rpl_environment& env);
+    explicit compassoc(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct mapofcomp : rewrule {
-    mapofcomp(rpl_environment& env);
+    explicit mapofcomp(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct compofmap : rewrule {
-    compofmap(rpl_environment& env);
+    explicit compofmap(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct mapofpipe : rewrule {
-    mapofpipe(rpl_environment& env);
+    explicit mapofpipe(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct pipeofmap : rewrule {
-    pipeofmap(rpl_environment& env);
+    explicit pipeofmap(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct mapelim : rewrule {
-    mapelim(rpl_environment& env);
+    explicit mapelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct reduceelim : rewrule {
-    reduceelim(rpl_environment& env);
+    explicit reduceelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct mapmapelim: rewrule {
-    mapmapelim(rpl_environment& env);
+    explicit mapmapelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct farmfarmelim: rewrule {
-    farmfarmelim(rpl_environment& env);
+    explicit farmfarmelim(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct compdel: rewrule {
-    compdel(rpl_environment& env);
+    explicit compdel(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct pipedel: rewrule {
-    pipedel(rpl_environment& env);
+    explicit pipedel(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct dctomap: rewrule {
-    dctomap(rpl_environment& env);
+    explicit dctomap(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 
 struct maptodc: rewrule {
-    maptodc(rpl_environment& env);
+    explicit maptodc(rpl_environment& env);
     skel_node* rewrite( skel_node& tree ) override;
 };
 

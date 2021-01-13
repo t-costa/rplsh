@@ -8,9 +8,6 @@
 
 using namespace std;
 
-//TODO: per la dc servono emitter/scatter? in caso
-//  penso emitter visto che dentro è una farm
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**

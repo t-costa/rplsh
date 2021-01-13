@@ -162,8 +162,7 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
         //start, end, step, grain
         ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << grain << ", ";
     }
-    size_t i;
-    string par;
+
     // begin lambda
     ss << "[this, &_task, &" << out_name << "](const long i) {\n";
 
@@ -190,6 +189,8 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
         ss << "\t\t\tauto partial = wrapper0.compute(tmp);\n";
         ss << "\t\t\t(*" << out_name << ")[i] = partial[0];\n";
     } else {
+        size_t i;
+        string par;
         for (i = 0; i < n_wrappers; i++) {
             par = !i ? "_task[i]" : ("res" + to_string(i-1));
             ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
@@ -336,7 +337,7 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 
     ss << mapred_constructor("reduce" + to_string(n.getid()) + "_stage", n.pardegree) << "\n";
     ss << "\t" << typeout << "* svc("<< typein <<"* t) {\n";
-    string task = "_task";
+    //string task = "_task";
     ss << "\t\t" << typein << "& _task = *t;\n";
 
     size_t idx = datap_nodes.size()-1;
@@ -551,7 +552,6 @@ void ffcode::visit(dc_node &n) {
     string typeout = wrapper->typeout;
 
     if (n.transformed) {
-        //FIXME: il warning per map/dc perde un po' senso con la trasformazione...
         //before it was a map, so I assume it's defined as a map_wrapper in the header code
         //declare ff_dc
         ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
@@ -679,7 +679,7 @@ string ffcode::operator()(skel_node& n) {
     tds(n);     // start visit to get datap wrappers
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
-    auto dc_nodes  = tds.get_dc_nodes();
+    //auto dc_nodes  = tds.get_dc_nodes();
 
     size_t idx;
     string code;

@@ -232,8 +232,8 @@ rpl_node* parser::ann_rule(token& tok)
             expect(tok, token::parameter, word);
             /*
              * par = grain
-             * id = (nome_stage, indice_stage)
-             * value = valore_grain
+             * id = (name_stage, index_stage)
+             * value = value_grain
              * word = static/dynamic
              * */
         }
@@ -550,8 +550,6 @@ skel_node* parser::div_conq_rule(token &tok)
     expect(tok, token::divide_conquer);
     expect(tok, token::open);
     pattexp = pattexp_rule(tok);
-    //TODO: dovremmo verificare quale pattexp viene sputato fuori?
-    //  in caso, posso accettare solo id/seq annotati come dc
     if (tok.kind == token::comma) {
         expect(tok, token::comma);
         expect(tok, token::integer, nw);

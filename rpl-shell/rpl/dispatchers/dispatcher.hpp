@@ -33,7 +33,7 @@ void dispatcher<K, V>::add(const K& id, const V& value) {
 
 template <typename K, typename V>
 void dispatcher<K, V>::add(const K& id, V&& value) {
-    dispatch.insert(std::pair<K, V>(id, move(value)));
+    dispatch.insert(std::pair<K, V>(id, std::move(value)));
 }
 
 template <typename K, typename V>

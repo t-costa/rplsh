@@ -99,11 +99,7 @@ bool tree_matcher<T, S>::match(rpl_environment &env, T *root, T *rule, bool rese
         return true;
     }
 
-    //mi serve recuperare dagli id i veri nodi
-    //rule dovrebbe essere come è stata definita
-    //potrebbe essere solo root il problema
-//    auto node = retrieve(env, root);
-
+    //recovers actual node from id
     auto id_n = dynamic_cast<id_node*>(root);
     T* node = root;
     if (id_n != nullptr) {

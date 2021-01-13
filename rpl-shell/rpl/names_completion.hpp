@@ -52,7 +52,9 @@ const std::unordered_set<std::string> refactoring_rules {
     "compdel",
     "pipedel",
     "dctomap",
-    "maptodc"
+    "maptodc",
+    "allrules",
+    "rec"
 };
 
 const std::unordered_set<std::string> optimization_rules {
