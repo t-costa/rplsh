@@ -614,7 +614,7 @@ for (auto& v : out) {
   }
 };
 
-//quadrato di ogni elemento
+//ogni elemento dimezzato
 struct map_matrix : public map_stage_wrapper<matrix, matrix, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
 public:
   matrix compute(matrix& mn) override {
@@ -633,7 +633,7 @@ public:
     std::vector<utils::elem_type> res(v.size());
 
     for (size_t i=0; i<v.size(); ++i) {
-      res[i] = v[i] * v[i];
+      res[i] = v[i] / 2;
     }
 
     return res;
@@ -729,38 +729,49 @@ public:
   std::vector<utils::elem_type> identity;
 
   reduce_matrix_vec_stage() {
-    identity = std::vector<utils::elem_type>(parameters::input_size);
+    identity = std::vector<utils::elem_type>(parameters::inputsize);
+    v = identity;
     index = 0;
   }
 
   std::vector<utils::elem_type> compute(matrix& in) override {
-    auto out = identity;
 
     for (size_t i=0; i<in.size(); ++i) {
-      out = op(out, el[i]);
+      v = op(v, in[i]);
     }
 
-    return out;
+    return v;
   }
 
-  utils::elem_type op(std::vector<utils::elem_type>& a, std::vector<utils::elem_type>& b) override {
+  std::vector<utils::elem_type> op(std::vector<utils::elem_type>& a, std::vector<utils::elem_type>& b) override {
     utils::waste(7*parameters::minimum_wait);
 
     utils::elem_type res = 0;
+    std::cout << "RICEVUTO OP:" << std::endl;
+    utils::print_vec(b);
+
     for (auto& n : b) {
       res += n;
     }
 
+    std::cout << "RES DI OP" << std::endl;
+    std::cout << res << std::endl;
+
     mtx.lock();
-    a[index] = res;
+    std::cout << "index = " << index << std::endl;
+    std::cout << "res = " << res << std::endl;
+    v[index] = res;
+    std::cout << "v[index] = " << v[index] << std::endl;
     index++;
+    index = index % parameters::inputsize;
     mtx.unlock();
 
-    return a;
+    return v;
   }
 
 private:
   size_t index;
+  std::vector<utils::elem_type> v;
   std::mutex mtx;
 };
 

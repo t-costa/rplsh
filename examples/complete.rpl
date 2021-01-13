@@ -1,9 +1,9 @@
 import "test/definition.hpp"
 
-set emitter_time with 0
-set collector_time with 0
-set scatter_time with 0
-set gather_time with 0
+set emitter_time with 1
+set collector_time with 1
+set scatter_time with 1
+set gather_time with 1
 
 set dimension with 1000
 set inputsize with 1024
@@ -38,6 +38,8 @@ annotate e with servicetime 4
 
 annotate f with dc_capable true
 annotate f with servicetime 4
+
+annotate g with servicetime 3
 
 annotate h with datap true
 annotate h with servicetime 4
@@ -75,6 +77,9 @@ mfe = map(fe)
 
 #cambia warning, è optimize, non rewrite!
 optimize mfe with twotier
+show mfe
+rewrite mfe with compdel, rec
+show mfe
 
 mh = map(h)
 rewrite mh with maptodc
@@ -104,19 +109,19 @@ show main by servicetime, latency, compltime, pardegree, resources
 #show main by servicetime, latency, compltime, pardegree, resources
 #rewrite main with compdel, rec
 #show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with farmopt
-#show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with mapopt
-#show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with reduceopt
-#show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with dcopt
-#show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with pipeopt
-#show main by servicetime, latency, compltime, pardegree, resources
-#optimize main with maxresources
-#show main by servicetime, latency, compltime, pardegree, resources
+optimize main with farmopt
+show main by servicetime, latency, compltime, pardegree, resources
+optimize main with mapopt
+show main by servicetime, latency, compltime, pardegree, resources
+optimize main with reduceopt
+show main by servicetime, latency, compltime, pardegree, resources
+optimize main with dcopt
+show main by servicetime, latency, compltime, pardegree, resources
+optimize main with pipeopt
+show main by servicetime, latency, compltime, pardegree, resources
+optimize main with maxresources
+show main by servicetime, latency, compltime, pardegree, resources
 
-#gencode main as example_ff in "test/examples"
+gencode main as example_ff in "examples/"
 
 

@@ -696,9 +696,14 @@ string ffcode::operator()(skel_node& n) {
     }
 
     //here only nodes that need to be generated
+    std::set<std::string> generated;
     for (auto seq : seq_nodes) {
-        business_headers[seq->file] = true;
-        decls += stage_declaration(*seq);
+        if (generated.find(seq->name) == generated.end()) {
+            //do not generate twice the same sequential node
+            business_headers[seq->file] = true;
+            decls += stage_declaration(*seq);
+            generated.emplace(seq->name);
+        }
     }
 
     idx = 0;

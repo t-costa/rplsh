@@ -2,9 +2,9 @@
 namespace parameters {
 #ifdef DEBUG
   const int dimension = 1;
-  const size_t inputsize = 20;
-  const size_t matrix_size = 8;
-  const int cut_off = 5;
+  const size_t inputsize = 4;
+  const size_t matrix_size = 4;
+  const int cut_off = 1;
 #else
   const int dimension = 20;
   const size_t inputsize = 30;
