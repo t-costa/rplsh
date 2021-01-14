@@ -412,7 +412,7 @@ utils::print_vec(*in);
       }
     }
 
-    print_vec(*in);
+    //print_vec(*in);
 
     if (ordered) {
       std::cout << "OK!" << std::endl;

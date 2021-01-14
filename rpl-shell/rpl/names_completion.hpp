@@ -66,7 +66,8 @@ const std::unordered_set<std::string> optimization_rules {
     "maxresources",
     "twotier",
     "farmfarmopt",
-    "mapmapopt"
+    "mapmapopt",
+    "subexp"
 };
 
 const std::unordered_set<std::string> show_parameters {
@@ -74,7 +75,10 @@ const std::unordered_set<std::string> show_parameters {
     "latency",
     "pardegree",
     "compltime",
-    "resources"
+    "resources",
+    "unrank",
+    "noann",
+    "full"
 };
 
 const std::unordered_set<std::string> non_functional_parameters {

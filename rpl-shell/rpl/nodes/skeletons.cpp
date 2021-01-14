@@ -9,7 +9,7 @@ using namespace std;
 // skel_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 skel_node::skel_node( initializer_list<skel_node*> init )
-    : inputsize (0), children(init) {}
+    : inputsize (1), children(init) {}
 
 skel_node::~skel_node() {
     for (auto sk : children)
