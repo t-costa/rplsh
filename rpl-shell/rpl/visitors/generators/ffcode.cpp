@@ -151,16 +151,17 @@ string mapred_constructor( const string& name, int nw ) {
  * @return line of code that starts the execution of the pfr
  */
 string parallel_for_declaration(const long grain, const long step, const string& out_name, const size_t n_wrappers, const string& nw,
-                                bool transformed=false, const string& typeout="") {
+                                bool transformed=false, const string& typein="") {
     stringstream ss;
+    ss << "\t\tsize_t step = " << step << ";\n";
     if (grain > 0) {
         //dynamic
         //start, end, step, grain
-        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), " << step << ", " << grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), step, " << grain << ", ";
     } else {
         //static
         //start, end, step, grain
-        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), " << step << ", " << grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), step, " << grain << ", ";
     }
 
     // begin lambda
@@ -184,10 +185,16 @@ string parallel_for_declaration(const long grain, const long step, const string&
                 }
 		    },1);
          */
-        ss << "\t\t\t" << typeout << " tmp;\n";
-        ss << "\t\t\ttmp.push_back(_task[i]);\n";
-        ss << "\t\t\tauto partial = wrapper0.compute(tmp);\n";
-        ss << "\t\t\t(*" << out_name << ")[i] = partial[0];\n";
+        ss << "\t\t\t" << typein << " tmp;\n";
+        ss << "\t\t\t" << "for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {\n";
+        ss << "\t\t\t\t" << "tmp.push_back(_task[i+k]);\n";
+        ss << "\t\t\t" << "}\n";
+//        ss << "\t\t\ttmp.push_back(_task[i]);\n";
+        ss << "\t\t\t" << "auto partial = wrapper0.compute(tmp);\n";
+        ss << "\t\t\t" << "for (size_t j=0; j<step &&(i+j)<_task.size(); ++j) {\n";
+        ss << "\t\t\t\t" << "(*" << out_name << ")[i+j] = partial[j];\n";
+        ss << "\t\t\t" << "}\n";
+//        ss << "\t\t\t(*" << out_name << ")[i] = partial[0];\n";
     } else {
         size_t i;
         string par;
@@ -283,7 +290,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
 
     // start parallel for
     ss << parallel_for_declaration(n.grain, n.step, "out", datap_nodes.size()-1,
-                                   to_string(nw(n)), n.transformed, typeout);
+                                   to_string(nw(n)), n.transformed, typein);
 
     if (typein != typeout) {
         //delete old received pointer
