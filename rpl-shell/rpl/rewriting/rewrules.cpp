@@ -373,8 +373,6 @@ skel_node * dctomap::rewrite(skel_node &tree) {
         auto old = dynamic_cast<dc_node&>(tree);
         //annotate or reset the value
         n->transformed = !(old.transformed);
-        n->grain = old.schedule;
-        n->step = old.cutoff;
         return n;
     } else {
         return nullptr;
@@ -401,12 +399,6 @@ skel_node * maptodc::rewrite(skel_node &tree) {
         auto old = dynamic_cast<map_node&>(tree);
         //annotate or reset the value
         n->transformed = !(old.transformed);
-        if (old.grain < 0) {
-            n->schedule = -old.grain;
-        } else {
-            n->schedule = (old.grain <= 1) ? 2 : old.grain;
-        }
-        n->cutoff = (old.step <= 1) ? 1 : old.step;
         return n;
     } else {
         return nullptr;

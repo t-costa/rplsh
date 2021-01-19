@@ -18,3 +18,12 @@ gencode main2 as dc_to_map_ff in "test/dc_map_rewrite/"
 
 main3 = pipe(source_ordered_vec_stage, d, m, drain_ordered_vec_stage)
 gencode main3 as default_ff in "test/dc_map_rewrite/"
+
+annotate mtd with cutoff 10
+annotate mtd with schedule 100
+
+annotate dtm with grain 100
+
+#main4 = pipe(source_ordered_vec_stage, d, dtm, drain_ordered_vec_stage)
+gencode main1 as map_to_dc_ann_ff in "test/dc_map_rewrite/"
+gencode main2 as dc_to_map_ann_ff in "test/dc_map_rewrite/"

@@ -165,7 +165,7 @@ string parallel_for_declaration(const long grain, const long step, const string&
     }
 
     // begin lambda
-    ss << "[this, &_task, &" << out_name << "](const long i) {\n";
+    ss << "[this, &_task, &" << out_name << ", step](const long i) {\n";
 
     if (transformed) {
         //assumptions:
@@ -187,7 +187,7 @@ string parallel_for_declaration(const long grain, const long step, const string&
          */
         ss << "\t\t\t" << typein << " tmp;\n";
         ss << "\t\t\t" << "for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {\n";
-        ss << "\t\t\t\t" << "tmp.push_back(_task[i+k]);\n";
+        ss << "\t\t\t\t" << "tmp.push_back(_task[i+j]);\n";
         ss << "\t\t\t" << "}\n";
 //        ss << "\t\t\ttmp.push_back(_task[i]);\n";
         ss << "\t\t\t" << "auto partial = wrapper0.compute(tmp);\n";
@@ -427,14 +427,14 @@ string divide_decl(bool transformed, const std::string& typein, const std::strin
     if (transformed) {
         ss << "\t//divide function\n";
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
-        ss << "\t\t" << "auto schedule = " << schedule << ";\n";
+        ss << "\t\t" << "size_t schedule = " << schedule << ";\n";
         ss << "\t\t" << "auto new_size = in.size() / schedule;\n";
         ss << "\t\t" << "in_vec.resize(schedule);\n";
         ss << "\t\t" << "size_t j = 0;\n";
         ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
-        ss << "\t\t\t" << "in_vec[j].push_back(in[i]);\n";
-        ss << "\t\t\t" << "if (i >= (j+1)*new_size)\n";
+        ss << "\t\t\t" << "if (i >= (j+1)*new_size && j<schedule-1)\n";
         ss << "\t\t\t\t" << "j++;\n";
+        ss << "\t\t\t" << "in_vec[j].push_back(in[i]);\n";
         ss << "\t\t" << "}\n";
 //        ss << "\t\t" << "in_vec.emplace_back(in.begin(), in.begin() + half_size);\n";
 //        ss << "\t\t" << "in_vec.emplace_back(in.begin() + half_size, in.end());\n";
@@ -452,10 +452,10 @@ string combine_decl(bool transformed, const std::string& typeout, const std::str
     if (transformed) {
         ss << "\t//combine function\n";
         ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
-        ss << "\t\t" << "auto schedule = " << schedule << ";\n";
+        ss << "\t\t" << "size_t schedule = " << schedule << ";\n";
         ss << "\t\t" << "size_t final_size = 0;\n";
         ss << "\t\t" << "//compute size of out vector\n";
-        ss << "\t\t" << "for (auto k=0; k<schedule; ++k) {\n";
+        ss << "\t\t" << "for (size_t k=0; k<schedule; ++k) {\n";
         ss << "\t\t\t" << "final_size += out_vec[k].size();\n";
         ss << "\t\t" << "}\n";
         ss << "\t\t" << "out.resize(final_size);\n";

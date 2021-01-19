@@ -238,20 +238,24 @@ bool ann_grain::operator()(skel_node &n, ann_node &a) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ann_step::ann_step(rpl_environment &env) : ann_visitor(env) {
+ann_step::ann_step(rpl_environment &env) : ann_visitor(env), value(1) {
 
 }
 
 void ann_step::visit(map_node &n) {
-    ann_visitor::visit(n);
+    result = (value >= 1);
+    n.step = result ? value : 1;
 }
 
 void ann_step::visit(reduce_node &n) {
-    ann_visitor::visit(n);
+    result = (value >= 1);
+    n.step = result ? value : 1;
 }
 
 bool ann_step::operator()(skel_node &n, ann_node &a) {
-    return false;
+    value = (long) a.value;
+    n.accept(*this);
+    return result;
 }
 
 

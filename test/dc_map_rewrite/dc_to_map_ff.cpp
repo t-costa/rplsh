@@ -23,7 +23,7 @@
 
 class source_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_ordered_vec_stage> src;
+	std::unique_ptr<source_ordered_vec_stage> src; 
 
 public:
 	source_ordered_vec_stage_stage() : src(new source_ordered_vec_stage()) {}
@@ -43,7 +43,7 @@ public:
 
 class drain_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_ordered_vec_stage> drn;
+	std::unique_ptr<drain_ordered_vec_stage> drn; 
 
 public:
 	drain_ordered_vec_stage_stage() : drn(new drain_ordered_vec_stage()) {}
@@ -70,30 +70,24 @@ public:
 	std::vector<utils::elem_type>* svc(std::vector<utils::elem_type> *t) {
 		std::vector<utils::elem_type>& _task = *t;
 		std::vector<utils::elem_type>* out = &_task;
-		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
+		size_t step = 1;
+		pfr.parallel_for_static(0, _task.size(), step, 0, [this, &_task, &out, step](const long i) {
 			std::vector<utils::elem_type> tmp;
-			tmp.push_back(_task[i]);
+			for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
+				tmp.push_back(_task[i+j]);
+			}
 			auto partial = wrapper0.compute(tmp);
-			(*out)[i] = partial[0];
+			for (size_t j=0; j<step &&(i+j)<_task.size(); ++j) {
+				(*out)[i+j] = partial[j];
+			}
 		},1);
-		// size_t step = 1;
-		// pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out, step](const long i) {
-		// 	std::vector<utils::elem_type> tmp;
-		// 	for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
-		// 		tmp.push_back(_task[i+j]);
-		// 	}
-		// 	auto partial = wrapper0.compute(tmp);
-		// 	for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
-		// 		(*out)[i+j] = partial[j];
-		// 	}
-		// },1);
 
 		return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping
+	// worker mapping 
 	const char worker_mapping[] = "0,1,2,3,4,5";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_ordered_vec_stage_stage _source_ordered_vec_stage;
@@ -119,15 +113,15 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_dc0_);
 	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_drain_ordered_vec_stage);
-
-
+	
+	
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-
+	
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-
+	
 }

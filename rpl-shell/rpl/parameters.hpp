@@ -49,7 +49,7 @@ namespace par
     const std::string resources      = "resources";
     const std::string datap          = "datap";
     const std::string grain          = "grain";
-    const std:string step            = "step";
+    const std::string step           = "step";
     const std::string dc_capable     = "dc_capable";
     const std::string cutoff         = "cutoff";
     const std::string schedule       = "schedule";

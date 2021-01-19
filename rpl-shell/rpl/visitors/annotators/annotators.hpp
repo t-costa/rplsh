@@ -116,6 +116,9 @@ struct ann_step : public ann_visitor
     void visit (reduce_node& n) override;
 
     bool operator() (skel_node& n, ann_node& a) override;
+
+private:
+    long value;
 };
 
 struct ann_dc_capable : public ann_visitor

@@ -23,7 +23,7 @@
 
 class source_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_ordered_vec_stage> src;
+	std::unique_ptr<source_ordered_vec_stage> src; 
 
 public:
 	source_ordered_vec_stage_stage() : src(new source_ordered_vec_stage()) {}
@@ -43,7 +43,7 @@ public:
 
 class drain_ordered_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_ordered_vec_stage> drn;
+	std::unique_ptr<drain_ordered_vec_stage> drn; 
 
 public:
 	drain_ordered_vec_stage_stage() : drn(new drain_ordered_vec_stage()) {}
@@ -70,7 +70,8 @@ public:
 	std::vector<utils::elem_type>* svc(std::vector<utils::elem_type> *t) {
 		std::vector<utils::elem_type>& _task = *t;
 		std::vector<utils::elem_type>* out = &_task;
-		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
+		size_t step = 1;
+		pfr.parallel_for_static(0, _task.size(), step, 0, [this, &_task, &out, step](const long i) {
 			(*out)[i] = wrapper0.op(_task[i]);
 		},1);
 
@@ -79,7 +80,7 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping
+	// worker mapping 
 	const char worker_mapping[] = "0,1,2,3,4,5";
 	threadMapper::instance()->setMappingList(worker_mapping);
 	source_ordered_vec_stage_stage _source_ordered_vec_stage;
@@ -88,26 +89,32 @@ int main( int argc, char* argv[] ) {
 	ff_DC<std::vector<utils::elem_type>, std::vector<utils::elem_type>> _dc0_(
 		//divide function
 		[&](const std::vector<utils::elem_type>& in, std::vector<std::vector<utils::elem_type>>& in_vec) {
-			auto half_size = in.size() / 2;
-			std::vector<utils::elem_type> a, b;
-			in_vec.emplace_back(in.begin(), in.begin() + half_size);
-			in_vec.emplace_back(in.begin() + half_size, in.end());
-			// std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));
-			// std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));
-			// in_vec.push_back(a);
-			// in_vec.push_back(b);
+			size_t schedule = 2;
+			auto new_size = in.size() / schedule;
+			in_vec.resize(schedule);
+			size_t j = 0;
+			for (size_t i=0; i<in.size(); ++i) {
+				if (i >= (j+1)*new_size && j<schedule-1)
+					j++;
+				in_vec[j].push_back(in[i]);
+			}
 		},
 		//combine function
 		[&](std::vector<std::vector<utils::elem_type>>& out_vec, std::vector<utils::elem_type>& out) {
-			out.resize(out_vec[0].size() + out_vec[1].size());
-			size_t i = 0;
-			for(auto& a : out_vec[0]) {
-				out[i] = a;
-				i++;
+			size_t schedule = 2;
+			size_t final_size = 0;
+			//compute size of out vector
+			for (size_t k=0; k<schedule; ++k) {
+				final_size += out_vec[k].size();
 			}
-			for(auto& b : out_vec[1]) {
-				out[i] = b;
-				i++;
+			out.resize(final_size);
+			//combine results
+			size_t i = 0, j = 0;
+			for (j=0; j<schedule; ++j) {
+				for(auto& a : out_vec[j]) {
+					out[i] = a;
+					i++;
+				}
 			}
 		},
 		//sequential case function
@@ -126,15 +133,15 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_map0_);
 	pipe.add_stage(&_dc0_);
 	pipe.add_stage(&_drain_ordered_vec_stage);
-
-
+	
+	
 	pipe.run_and_wait_end();
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-
+	
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-
+	
 }
