@@ -402,21 +402,21 @@ std::cout << "[drain_vec_stage] result:\n";
 utils::print_vec(*in);
 #endif
 
-    bool ordered = true;
+    // bool ordered = true;
     for (size_t i=0; i<in->size()-1; ++i) {
       if ((*in)[i] > (*in)[i+1]) {
         std::cout << "NOT ORDERED!" << std::endl;
         std::cout << "v[" << i << "] = " << (*in)[i] << ";";
         std::cout << "v[" << i+1 << "] = " << (*in)[i+1] << std::endl;
-        ordered = false;
+        // ordered = false;
       }
     }
 
     //print_vec(*in);
 
-    if (ordered) {
-      std::cout << "OK!" << std::endl;
-    }
+    // if (ordered) {
+    //   std::cout << "OK!" << std::endl;
+    // }
 
     delete in;
   }

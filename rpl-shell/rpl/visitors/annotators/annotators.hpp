@@ -120,4 +120,25 @@ struct ann_dc_capable : public ann_visitor
 private:
     bool dc_flag;
 };
+
+struct ann_cutoff : public ann_visitor {
+    explicit ann_cutoff(rpl_environment& env);
+    void visit (dc_node& n) override;
+
+    bool operator() (skel_node& n, ann_node& a) override;
+
+private:
+    long value;
+};
+
+struct ann_schedule : public ann_visitor {
+    explicit ann_schedule(rpl_environment& env);
+    void visit(dc_node& n) override;
+
+    bool operator() (skel_node& n, ann_node& a) override;
+
+private:
+    long value;
+    std::string scheduling_type;    //TODO: later
+};
 #endif

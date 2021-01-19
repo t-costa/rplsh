@@ -112,7 +112,7 @@ struct drain_node : public concrete_skel_node<drain_node> {
  * Composition node
  */
 struct comp_node : public concrete_skel_node<comp_node> {
-    explicit comp_node( std::initializer_list<skel_node*> init );
+    comp_node( std::initializer_list<skel_node*> init );
     comp_node( const comp_node& other );
     skel_node* clone() override;
 
@@ -123,7 +123,7 @@ struct comp_node : public concrete_skel_node<comp_node> {
  * Pipeline node
  */
 struct pipe_node : public concrete_skel_node<pipe_node> {
-    explicit pipe_node( std::initializer_list<skel_node*> init );
+    pipe_node( std::initializer_list<skel_node*> init );
     pipe_node( const pipe_node& other );
     skel_node* clone() override;
 };
@@ -144,7 +144,7 @@ struct farm_node : public concrete_skel_node<farm_node> {
  * Map node
  */
 struct map_node : public concrete_skel_node<map_node> {
-    explicit map_node( std::initializer_list<skel_node*> init );
+    map_node( std::initializer_list<skel_node*> init );
     explicit map_node( skel_node* pattexp, int pardegree = 1 );
     map_node( const map_node& other );
     skel_node* clone() override;
@@ -168,13 +168,15 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
 };
 
 struct dc_node : public concrete_skel_node<dc_node> {
-    explicit dc_node(std::initializer_list<skel_node*> init);
+    dc_node(std::initializer_list<skel_node*> init);
     explicit dc_node(skel_node* pattexp, int pardegree = 1 );
     dc_node(const dc_node& other);
     skel_node* clone() override;
 
     int pardegree;
     bool transformed;
+    size_t cutoff; //default 1 (stop when single element)
+    long schedule;     //default 2 (divide in half)
 };
 
 /**

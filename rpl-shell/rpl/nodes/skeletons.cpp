@@ -336,15 +336,16 @@ skel_node* reduce_node::clone() {
 // dc_node implementation
 ///////////////////////////////////////////////////////////////////////////////
 dc_node::dc_node(std::initializer_list<skel_node *> init)
-    : concrete_skel_node(*this, init), pardegree(1), transformed(false) {}
+    : concrete_skel_node(*this, init), pardegree(1), transformed(false), cutoff(1), schedule(2) {}
 
 dc_node::dc_node(skel_node *pattexp, int pardegree)
-    : concrete_skel_node(*this), pardegree(pardegree), transformed(false) {
+    : concrete_skel_node(*this), pardegree(pardegree), transformed(false), cutoff(1), schedule(2) {
     add(pattexp);
 }
 
 dc_node::dc_node(const dc_node &other)
-    : concrete_skel_node(*this, other), pardegree(other.pardegree), transformed(other.transformed) {}
+    : concrete_skel_node(*this, other), pardegree(other.pardegree), transformed(other.transformed),
+        cutoff(other.cutoff), schedule(other.schedule) {}
 
 skel_node* dc_node::clone() {
     return new dc_node(*this);

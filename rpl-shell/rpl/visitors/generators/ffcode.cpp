@@ -413,6 +413,91 @@ string main_wrapper( const string& code ) {
     return ss.str();
 }
 
+string divide_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, long schedule) {
+    stringstream ss;
+    if (transformed) {
+        ss << "\t//divide function\n";
+        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+        ss << "\t\t" << "auto schedule = " << schedule << ";\n";
+        ss << "\t\t" << "auto new_size = in.size() / schedule;\n";
+        ss << "\t\t" << "in_vec.resize(schedule);\n";
+        ss << "\t\t" << "size_t j = 0;\n";
+        ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
+        ss << "\t\t\t" << "in_vec[j].push_back(in[i]);\n";
+        ss << "\t\t\t" << "if (i >= (j+1)*new_size)\n";
+        ss << "\t\t\t\t" << "j++;\n";
+        ss << "\t\t" << "}\n";
+//        ss << "\t\t" << "in_vec.emplace_back(in.begin(), in.begin() + half_size);\n";
+//        ss << "\t\t" << "in_vec.emplace_back(in.begin() + half_size, in.end());\n";
+        ss << "\t},\n";
+    } else {
+        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
+        ss << "\t\t" << wrapper_name << ".divide(in, in_vec);\n";
+        ss << "\t},\n";
+    }
+    return ss.str();
+}
+
+string combine_decl(bool transformed, const std::string& typeout, const std::string& wrapper_name, long schedule) {
+    stringstream ss;
+    if (transformed) {
+        ss << "\t//combine function\n";
+        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+        ss << "\t\t" << "auto schedule = " << schedule << ";\n";
+        ss << "\t\t" << "size_t final_size = 0;\n";
+        ss << "\t\t" << "//compute size of out vector\n";
+        ss << "\t\t" << "for (auto k=0; k<schedule; ++k) {\n";
+        ss << "\t\t\t" << "final_size += out_vec[k].size();\n";
+        ss << "\t\t" << "}\n";
+        ss << "\t\t" << "out.resize(final_size);\n";
+        ss << "\t\t" << "//combine results\n";
+        ss << "\t\t" << "size_t i = 0, j = 0;\n";
+        ss << "\t\t" << "for (j=0; j<schedule; ++j) {\n";
+        ss << "\t\t\t" << "for(auto& a : out_vec[j]) {\n";
+        ss << "\t\t\t\t" << "out[i] = a;\n";
+        ss << "\t\t\t\t" << "i++;\n";
+        ss << "\t\t\t" << "}\n";
+        ss << "\t\t" << "}\n";
+        ss << "\t},\n";
+    } else {
+        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
+        ss << "\t\t" << wrapper_name << ".combine(out_vec, out);\n";
+        ss << "\t},\n";
+    }
+    return ss.str();
+}
+
+string seq_decl(bool transformed, const std::string& typein, const std::string& typeout, const std::string& wrapper_name) {
+    stringstream ss;
+    if (transformed) {
+        ss << "\t//sequential case function\n";
+        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+        ss << "\t\t" << "auto in_arg = in;\n";  //solves const conflict
+        ss << "\t\t" << "out = " << wrapper_name << ".compute(in_arg);\n";
+        ss << "\t},\n";
+    } else {
+        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
+        ss << "\t\t" << wrapper_name << ".seq(in, out);\n";
+        ss << "\t},\n";
+    }
+    return ss.str();
+}
+
+string cond_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, size_t cutoff) {
+    stringstream ss;
+    if (transformed) {
+        ss << "\t//condition function\n";
+        ss << "\t[&](const " << typein << "& in) {\n";
+        ss << "\t\treturn in.size() <= " << cutoff << ";\n";
+        ss << "\t},\n";
+    } else {
+        ss << "\t[&](const " << typein << "& in) {\n";
+        ss << "\t\treturn " << wrapper_name << ".cond(in);\n";
+        ss << "\t},\n";
+    }
+    return ss.str();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 ffcode::ffcode( rpl_environment& env ) :
@@ -493,7 +578,7 @@ void ffcode::visit( farm_node& n ) {
     ss << "\n// add " << wvar << " to " << fvar << "\n";
     ss << "ff_farm " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
-    ss << fvar << ".add_collector(NULL);\n\n";
+//    ss << fvar << ".add_collector(NULL);\n\n";
 
     assert(code_lines.empty());
     code_lines.push({fvar, ss.str()});
@@ -551,72 +636,12 @@ void ffcode::visit(dc_node &n) {
     string typein  = wrapper->typein;
     string typeout = wrapper->typeout;
 
-    if (n.transformed) {
-        //before it was a map, so I assume it's defined as a map_wrapper in the header code
-        //declare ff_dc
-        ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
-        //divide
-        //TODO: option for zip/tie?
-        ss << "\t//divide function\n";
-        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
-        ss << "\t\t" << "auto half_size = in.size() / 2;\n";
-        ss << "\t\t" << "in_vec.emplace_back(in.begin(), in.begin() + half_size);\n";
-        ss << "\t\t" << "in_vec.emplace_back(in.begin() + half_size, in.end());\n";
-        ss << "\t},\n";
-        //combine
-        //TODO: option for zip/tie?
-        ss << "\t//combine function\n";
-        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
-        ss << "\t\t" << "out.resize(out_vec[0].size() + out_vec[1].size());\n";
-        ss << "\t\t" << "size_t i = 0;\n";
-        ss << "\t\t" << "for(auto& a : out_vec[0]) {\n";
-        ss << "\t\t\t" << "out[i] = a;\n";
-        ss << "\t\t\t" << "i++;\n";
-        ss << "\t\t" << "}\n";
-        ss << "\t\t" << "for(auto& b : out_vec[1]) {\n";
-        ss << "\t\t\t" << "out[i] = b;\n";
-        ss << "\t\t\t" << "i++;\n";
-        ss << "\t\t" << "}\n";
-        ss << "\t},\n";
-        //seq -> calls the compute of the map node (solves typing problems)
-        ss << "\t//sequential case function\n";
-        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
-        ss << "\t\t" << "auto in_arg = in;\n";  //solves const conflict
-        ss << "\t\t" << "out = " << wrapper_name << ".compute(in_arg);\n";
-        ss << "\t},\n";
-        //cond -> stops at size <= k
-        //TODO: option for personalized cond?
-        ss << "\t//condition function\n";
-        ss << "\t[&](const " << typein << "& in) {\n";
-        ss << "\t\treturn in.size() <= 1;\n";
-        ss << "\t},\n";
-        //nworker
-        ss << to_string(nw(n)) << ");\n";
-    } else {
-        //normal dc
-        //declare ff_dc
-        ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
-        //divide
-        ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
-        ss << "\t\t" << wrapper_name << ".divide(in, in_vec);\n";
-        ss << "\t},\n";
-        //combine
-        ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
-        ss << "\t\t" << wrapper_name << ".combine(out_vec, out);\n";
-        ss << "\t},\n";
-        //seq
-        ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
-        ss << "\t\t" << wrapper_name << ".seq(in, out);\n";
-        ss << "\t},\n";
-        //cond
-        ss << "\t[&](const " << typein << "& in) {\n";
-        ss << "\t\treturn " << wrapper_name << ".cond(in);\n";
-        ss << "\t},\n";
-        //nworker
-        ss << to_string(nw(n)) << ");\n";
-    }
-
-
+    ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
+    ss << divide_decl(n.transformed, typein, wrapper_name, n.schedule);
+    ss << combine_decl(n.transformed, typeout, wrapper_name, n.schedule);
+    ss << seq_decl(n.transformed, typein, typeout, wrapper_name);
+    ss << cond_decl(n.transformed, typein, wrapper_name, n.cutoff);
+    ss << to_string(nw(n)) << ");\n";
 
     assert(code_lines.empty());
     code_lines.push({name, ss.str()});

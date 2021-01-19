@@ -21,6 +21,8 @@ struct ann_dispatcher : public dispatcher<std::string, std::unique_ptr<ann_visit
         add(par::typeout        ,  std::unique_ptr<ann_visitor>(new ann_typeout(env)));
         add(par::grain          ,  std::unique_ptr<ann_visitor>(new ann_grain(env)));
         add(par::dc_capable     ,  std::unique_ptr<ann_visitor>(new ann_dc_capable(env)));
+        add(par::cutoff         ,  std::unique_ptr<ann_visitor>(new ann_cutoff(env)));
+        add(par::schedule       ,  std::unique_ptr<ann_visitor>(new ann_schedule(env)));
     }
 };
 

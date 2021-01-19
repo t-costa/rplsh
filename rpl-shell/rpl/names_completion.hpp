@@ -89,7 +89,9 @@ const std::unordered_set<std::string> non_functional_parameters {
     "resources",
     "datap",
     "grain",
-    "dc_capable"
+    "dc_capable",
+    "cutoff",
+    "schedule"
 };
 
 const std::unordered_set<std::string> grain_parameters {

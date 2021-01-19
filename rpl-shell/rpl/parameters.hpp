@@ -40,7 +40,7 @@ namespace par
     const std::string farmfarmopt    = "farmfarmopt";
     const std::string mapmapopt      = "mapmapopt";
 
-    /* non functional name parameters used for performance evaluation */
+    /* non functional name parameters used for performance evaluation and annotations */
     const std::string servicetime    = "servicetime";
     const std::string efficiency     = "efficiency";
     const std::string latency        = "latency";
@@ -50,6 +50,8 @@ namespace par
     const std::string datap          = "datap";
     const std::string grain          = "grain";
     const std::string dc_capable     = "dc_capable";
+    const std::string cutoff         = "cutoff";
+    const std::string schedule       = "schedule";
 
     /* types for seq/source/drain */
     const std::string typein         = "typein";

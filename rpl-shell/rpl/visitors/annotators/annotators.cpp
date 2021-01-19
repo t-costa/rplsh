@@ -252,3 +252,52 @@ bool ann_dc_capable::operator()(skel_node &n, ann_node &a) {
     n.accept(*this);
     return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+ann_cutoff::ann_cutoff(rpl_environment &env) :
+    ann_visitor(env), value(1)
+{ }
+
+void ann_cutoff::visit(dc_node &n) {
+    if (n.transformed) {
+        result = (value >= 1);
+        n.cutoff = result ? value : 1;
+    } else {
+        result = false;
+    }
+
+}
+
+bool ann_cutoff::operator()(skel_node &n, ann_node &a) {
+    value = (long) a.value;
+    n.accept(*this);
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+ann_schedule::ann_schedule(rpl_environment &env) :
+    ann_visitor(env), value(2), scheduling_type("tie")
+{ }
+
+void ann_schedule::visit(dc_node &n) {
+    if (n.transformed) {
+        result = (value >= 2);
+        n.schedule = result ? value : 2;
+        //if explicit zip, negative schedule, otherwise standard tie
+        if (scheduling_type == "zip") {
+            n.schedule = -n.schedule;
+        }
+    } else {
+        result = false;
+    }
+
+}
+
+bool ann_schedule::operator()(skel_node &n, ann_node &a) {
+    value = (long) a.value;
+//    scheduling_type = a.word;
+    n.accept(*this);
+    return result;
+}
