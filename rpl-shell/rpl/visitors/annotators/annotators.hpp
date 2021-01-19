@@ -109,6 +109,14 @@ private:
     std::string scheduling_type;
 };
 
+struct ann_step : public ann_visitor
+{
+    explicit ann_step(rpl_environment& env);
+    void visit (map_node& n) override;
+    void visit (reduce_node& n) override;
+
+    bool operator() (skel_node& n, ann_node& a) override;
+};
 
 struct ann_dc_capable : public ann_visitor
 {

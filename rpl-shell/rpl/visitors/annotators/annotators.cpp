@@ -238,6 +238,25 @@ bool ann_grain::operator()(skel_node &n, ann_node &a) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ann_step::ann_step(rpl_environment &env) : ann_visitor(env) {
+
+}
+
+void ann_step::visit(map_node &n) {
+    ann_visitor::visit(n);
+}
+
+void ann_step::visit(reduce_node &n) {
+    ann_visitor::visit(n);
+}
+
+bool ann_step::operator()(skel_node &n, ann_node &a) {
+    return false;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
 ann_dc_capable::ann_dc_capable(rpl_environment &env) :
     ann_visitor(env), dc_flag(false)
 {}
@@ -301,3 +320,4 @@ bool ann_schedule::operator()(skel_node &n, ann_node &a) {
     n.accept(*this);
     return result;
 }
+

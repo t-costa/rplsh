@@ -150,17 +150,17 @@ string mapred_constructor( const string& name, int nw ) {
  * @param nw number of workers
  * @return line of code that starts the execution of the pfr
  */
-string parallel_for_declaration(const long grain, const string& out_name, const size_t n_wrappers, const string& nw,
+string parallel_for_declaration(const long grain, const long step, const string& out_name, const size_t n_wrappers, const string& nw,
                                 bool transformed=false, const string& typeout="") {
     stringstream ss;
     if (grain > 0) {
         //dynamic
         //start, end, step, grain
-        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), 1, " << grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for(0, _task.size(), " << step << ", " << grain << ", ";
     } else {
         //static
         //start, end, step, grain
-        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), 1, " << grain << ", ";
+        ss << "\t\t" << "pfr.parallel_for_static(0, _task.size(), " << step << ", " << grain << ", ";
     }
 
     // begin lambda
@@ -215,17 +215,19 @@ string parallel_for_declaration(const long grain, const string& out_name, const 
  * @param nw number of workers
  * @return code line that calls the pfr
  */
-string parallel_for_reduce_declaration(const long grain, const string& task_size, const size_t wrapper_idx , const string& nw ) {
+string parallel_for_reduce_declaration(const long grain, const long step, const string& task_size, const size_t wrapper_idx , const string& nw ) {
     stringstream ss;
 
     if (grain > 0) {
         //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-        ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << wrapper_idx << ".identity, 0, " << task_size << ", 1, "
-           << grain << ", bodyF, reduceF, " << nw << ");\n";
+        ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << wrapper_idx
+            << ".identity, 0, " << task_size << ", " << step << ", "
+            << grain << ", bodyF, reduceF, " << nw << ");\n";
     } else {
         //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
-        ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << wrapper_idx << ".identity, 0, " << task_size << ", 1, "
-           << grain << ", bodyF, reduceF, " << nw << ");\n";
+        ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << wrapper_idx
+            << ".identity, 0, " << task_size << ", " << step << ", "
+            << grain << ", bodyF, reduceF, " << nw << ");\n";
     }
 
     return ss.str();
@@ -280,7 +282,7 @@ string map_declaration( map_node& n, rpl_environment& env ) {
     }
 
     // start parallel for
-    ss << parallel_for_declaration(n.grain, "out", datap_nodes.size()-1,
+    ss << parallel_for_declaration(n.grain, n.step, "out", datap_nodes.size()-1,
                                    to_string(nw(n)), n.transformed, typeout);
 
     if (typein != typeout) {
@@ -349,14 +351,14 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
         string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
         ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
         ss << "\t\tmapout->resize(_task.size());\n";
-        ss << parallel_for_declaration(n.grain, "mapout", datap_nodes.size()-2, to_string(nw(n)));
+        ss << parallel_for_declaration(n.grain, n.step, "mapout", datap_nodes.size()-2, to_string(nw(n)));
 
         ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
-        ss << parallel_for_reduce_declaration(n.grain, "mapout->size()", idx, to_string(nw(n)));
+        ss << parallel_for_reduce_declaration(n.grain, n.step, "mapout->size()", idx, to_string(nw(n)));
         ss << "\n\t\tdelete mapout;\n";
     } else {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
-        ss << parallel_for_reduce_declaration(n.grain, "_task.size()", idx, to_string(nw(n)));
+        ss << parallel_for_reduce_declaration(n.grain, n.step, "_task.size()", idx, to_string(nw(n)));
     }
 
     //delete received ptr

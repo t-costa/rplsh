@@ -71,6 +71,7 @@ map<string, token::type> token::st_map =
    {par::resources,     token::parameter},
    {par::datap,         token::parameter},
    {par::grain,         token::parameter},
+   {par::step,          token::parameter},
    {par::dc_capable,    token::parameter},
    {par::cutoff,        token::parameter},
    {par::schedule,      token::parameter},

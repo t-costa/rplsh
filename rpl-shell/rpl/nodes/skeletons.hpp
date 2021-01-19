@@ -151,6 +151,7 @@ struct map_node : public concrete_skel_node<map_node> {
 
     int pardegree;
     long grain;
+    long step;
     bool transformed;
 };
 
@@ -165,6 +166,7 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
 
     int pardegree;
     long grain;
+    long step;
 };
 
 struct dc_node : public concrete_skel_node<dc_node> {

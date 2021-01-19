@@ -89,6 +89,7 @@ const std::unordered_set<std::string> non_functional_parameters {
     "resources",
     "datap",
     "grain",
+    "step",
     "dc_capable",
     "cutoff",
     "schedule"
