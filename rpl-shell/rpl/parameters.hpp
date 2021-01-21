@@ -5,7 +5,7 @@
 
 /**
  * Contains all the parameter names for the optimization rules,
- * the rewriting rules and so long as constant std::string
+ * the rewriting rules and so on as constant std::string
  */
 namespace par
 {

@@ -125,7 +125,7 @@ struct maxresources : public optrule
     void visit(dc_node& n) override;
     void operator()( skel_node& n ) override;
 private:
-    //void operator()( skel_node& n, size_t maxres );
+//    void operator()( skel_node& n, size_t maxres );
     reduce_resources reduce_res;
     resources res;
     size_t maxres;

@@ -21,7 +21,7 @@ struct visitor
     virtual void visit(gencode_node& n) = 0;
     virtual void visit(expand_node& n)  = 0;
     virtual void visit(add_node& n)     = 0;
-    virtual void visit(load_node& n)  = 0;
+    virtual void visit(load_node& n)    = 0;
 
     virtual void visit(seq_node& n)     = 0;
     virtual void visit(source_node& n)  = 0;
