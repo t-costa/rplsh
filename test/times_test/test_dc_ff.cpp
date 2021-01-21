@@ -21,9 +21,10 @@
 #include </home/costanzo/rplsh/test/definition.hpp>
 
 
+
 class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_vec_stage> src;
 
 public:
 	source_vec_stage_stage() : src(new source_vec_stage()) {}
@@ -43,7 +44,7 @@ public:
 
 class drain_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_vec_stage> drn; 
+	std::unique_ptr<drain_vec_stage> drn;
 
 public:
 	drain_vec_stage_stage() : drn(new drain_vec_stage()) {}
@@ -61,39 +62,45 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_vec_stage_stage _source_vec_stage;
-	dc_dummy dc_stage;
-	ff_DC<std::vector<utils::elem_type>, std::vector<utils::elem_type>> _dc0_(
-		[&](const std::vector<utils::elem_type>& in, std::vector<std::vector<utils::elem_type>>& in_vec) {
-			dc_stage.divide(in, in_vec);
-		},
-		[&](std::vector<std::vector<utils::elem_type>>& out_vec, std::vector<utils::elem_type>& out) {
-			dc_stage.combine(out_vec, out);
-		},
-		[&](const std::vector<utils::elem_type>& in, std::vector<utils::elem_type>& out) {
-			dc_stage.seq(in, out);
-		},
-		[&](const std::vector<utils::elem_type>& in) {
-			return dc_stage.cond(in);
-		},
-	1);
-	drain_vec_stage_stage _drain_vec_stage;
-	ff_pipeline pipe;
-	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_dc0_);
-	pipe.add_stage(&_drain_vec_stage);
-	
-	
-	pipe.run_and_wait_end();
-	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+	int nw = 1;
+
+	while (nw <= 128) {
+		source_vec_stage_stage _source_vec_stage;
+		dc_dummy dc_stage;
+		ff_DC<std::vector<utils::elem_type>, std::vector<utils::elem_type>> _dc0_(
+			[&](const std::vector<utils::elem_type>& in, std::vector<std::vector<utils::elem_type>>& in_vec) {
+				dc_stage.divide(in, in_vec);
+			},
+			[&](std::vector<std::vector<utils::elem_type>>& out_vec, std::vector<utils::elem_type>& out) {
+				dc_stage.combine(out_vec, out);
+			},
+			[&](const std::vector<utils::elem_type>& in, std::vector<utils::elem_type>& out) {
+				dc_stage.seq(in, out);
+			},
+			[&](const std::vector<utils::elem_type>& in) {
+				return dc_stage.cond(in);
+			},
+		nw);
+		drain_vec_stage_stage _drain_vec_stage;
+		ff_pipeline pipe;
+		pipe.add_stage(&_source_vec_stage);
+		pipe.add_stage(&_dc0_);
+		pipe.add_stage(&_drain_vec_stage);
+
+		pipe.run_and_wait_end();
+		std::cout << "Divide and conquer: nw = " << nw << ". ";
+		std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
+	}
+
+
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-	
+
 }

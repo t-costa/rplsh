@@ -87,7 +87,7 @@ int main( int argc, char* argv[] ) {
 	threadMapper::instance()->setMappingList(worker_mapping);
 
 
-	while (nw < 100) {
+	while (nw <= 128) {
 		source_vec_stage_stage _source_vec_stage;
 		reduce0_stage _red0_;
 		drain_stage_stage _drain_stage;
@@ -96,7 +96,7 @@ int main( int argc, char* argv[] ) {
 		pipe.add_stage(&_red0_);
 		pipe.add_stage(&_drain_stage);
 		pipe.run_and_wait_end();
-		std::cout << "nw = " << nw << ". ";
+		std::cout << "Reduce: nw = " << nw << ". ";
 		std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
 		nw++;
 	}

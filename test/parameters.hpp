@@ -6,8 +6,8 @@ namespace parameters {
   const size_t matrix_size = 4;
   const int cut_off = 1;
 #else
-  const int dimension = 150;
-  const size_t inputsize = 500;
+  const int dimension = 100;
+  const size_t inputsize = 1024;
   const size_t matrix_size = 512;
   const int cut_off = 200;
 #endif

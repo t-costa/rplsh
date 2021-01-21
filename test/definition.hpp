@@ -195,7 +195,7 @@ std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
-    utils::waste(parameters::minimum_wait);
+    // utils::waste(parameters::minimum_wait);
 
     return v;
   }
@@ -500,7 +500,7 @@ public:
   }
 
   utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(4*parameters::minimum_wait);
+    utils::waste(parameters::minimum_wait);
     return in+2;
   }
 };
@@ -718,7 +718,7 @@ std::cout << out << std::endl;
   }
 
   utils::elem_type op(utils::elem_type& a, utils::elem_type& b) override {
-    utils::waste(6*parameters::minimum_wait);
+    utils::waste(parameters::minimum_wait);
     return a + b;
   }
 };
@@ -881,7 +881,7 @@ public:
   }
 
   void seq(const std::vector<elem_type>& in, std::vector<elem_type>& out) override {
-    waste(4 * parameters::minimum_wait);
+    waste(parameters::minimum_wait);
     out.push_back(in[0] + 2);
   }
 

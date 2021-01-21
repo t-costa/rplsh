@@ -20,10 +20,11 @@
 // business code headers
 #include </home/costanzo/rplsh/test/definition.hpp>
 
+int nw = 1;
 
 class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_vec_stage> src;
 
 public:
 	source_vec_stage_stage() : src(new source_vec_stage()) {}
@@ -43,7 +44,7 @@ public:
 
 class drain_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_vec_stage> drn; 
+	std::unique_ptr<drain_vec_stage> drn;
 
 public:
 	drain_vec_stage_stage() : drn(new drain_vec_stage()) {}
@@ -64,7 +65,7 @@ class map0_stage : public ff_Map<std::vector<utils::elem_type>,std::vector<utils
 protected:
 	map_vec_vec_stage wrapper0;
 public:
-	map0_stage() : ff_Map(1) {
+	map0_stage() : ff_Map(nw) {
 	}
 
 	std::vector<utils::elem_type>* svc(std::vector<utils::elem_type> *t) {
@@ -73,32 +74,38 @@ public:
 		size_t step = 1;
 		pfr.parallel_for_static(0, _task.size(), step, 0, [this, &_task, &out, step](const long i) {
 			(*out)[i] = wrapper0.op(_task[i]);
-		},1);
+		},nw);
 
 		return out;
 	}
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	source_vec_stage_stage _source_vec_stage;
-	map0_stage _map0_;
-	drain_vec_stage_stage _drain_vec_stage;
-	ff_pipeline pipe;
-	pipe.add_stage(&_source_vec_stage);
-	pipe.add_stage(&_map0_);
-	pipe.add_stage(&_drain_vec_stage);
-	
-	
-	pipe.run_and_wait_end();
-	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
+	while (nw <= 128) {
+		source_vec_stage_stage _source_vec_stage;
+		map0_stage _map0_;
+		drain_vec_stage_stage _drain_vec_stage;
+		ff_pipeline pipe;
+		pipe.add_stage(&_source_vec_stage);
+		pipe.add_stage(&_map0_);
+		pipe.add_stage(&_drain_vec_stage);
+
+
+		pipe.run_and_wait_end();
+		std::cout << "Map: nw = " << nw << ". ";
+		std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
+	}
+
+
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
 	return 0;
-	
+
 }
