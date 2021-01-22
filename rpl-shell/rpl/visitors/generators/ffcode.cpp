@@ -388,7 +388,8 @@ string includes() {
     stringstream ss;
     ss << "#include <iostream>\n";
     ss << "#include <algorithm>\n";
-    ss << "#include <vector>\n\n";
+    ss << "#include <vector>\n";
+    ss << "#include <functional>\n\n";
     ss << "// specify include directory for fastflow\n";
     ss << "#include <ff/ff.hpp>\n";     //always needed for fastflow 3.0
     ss << "#include <ff/farm.hpp>\n";

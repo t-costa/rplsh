@@ -1,0 +1,6 @@
+==129837== Memcheck, a memory error detector
+==129837== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==129837== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==129837== Command: ./test_dc_pipe_ff
+==129837== Parent PID: 92803
+==129837== 

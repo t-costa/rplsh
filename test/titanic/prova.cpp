@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <functional>
 
 // specify include directory for fastflow
 #include <ff/ff.hpp>
@@ -18,7 +19,7 @@
 #include <aux/ff_comp.hpp>
 
 // business code headers
-#include </home/tommaso/forked/rplsh/test/definition.hpp>
+#include </home/costanzo/rplsh/test/definition.hpp>
 
 using namespace ff;
 using namespace std;

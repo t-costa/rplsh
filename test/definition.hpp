@@ -859,24 +859,48 @@ public:
   explicit dc_dummy() {}
 
   void divide(const std::vector<elem_type>& in, std::vector<std::vector<elem_type>>& in_vec) override {
-    auto half_size = in.size() / 2;
-    std::vector<utils::elem_type> a, b;
-    std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));
-    std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));
-    in_vec.push_back(a);
-    in_vec.push_back(b);
+    // auto half_size = in.size() / 2;
+    // std::vector<utils::elem_type> a, b;
+    // std::copy(in.begin(), in.begin() + half_size, std::back_inserter(a));
+    // std::copy(in.begin() + half_size, in.end(), std::back_inserter(b));
+    // in_vec.push_back(a);
+    // in_vec.push_back(b);
+    size_t schedule = 2;
+    auto new_size = in.size() / schedule;
+    in_vec.resize(schedule);
+    size_t j = 0;
+    for (size_t i=0; i<in.size(); ++i) {
+      if (i >= (j+1)*new_size && j<schedule-1)
+        j++;
+      in_vec[j].push_back(in[i]);
+    }
   }
 
   void combine(std::vector<std::vector<elem_type>>& out_vec, std::vector<elem_type>& out) override {
-    out.resize(out_vec[0].size() + out_vec[1].size());
-    size_t i = 0;
-    for(auto& a : out_vec[0]) {
-      out[i] = a;
-      i++;
+    // out.resize(out_vec[0].size() + out_vec[1].size());
+    // size_t i = 0;
+    // for(auto& a : out_vec[0]) {
+    //   out[i] = a;
+    //   i++;
+    // }
+    // for(auto& b : out_vec[1]) {
+    //   out[i] = b;
+    //   i++;
+    // }
+    size_t schedule = 2;
+    size_t final_size = 0;
+    //compute size of out vector
+    for (size_t k=0; k<schedule; ++k) {
+      final_size += out_vec[k].size();
     }
-    for(auto& b : out_vec[1]) {
-      out[i] = b;
-      i++;
+    out.resize(final_size);
+    //combine results
+    size_t i = 0, j = 0;
+    for (j=0; j<schedule; ++j) {
+      for(auto& a : out_vec[j]) {
+        out[i] = a;
+        i++;
+      }
     }
   }
 
