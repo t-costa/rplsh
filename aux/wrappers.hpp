@@ -49,13 +49,10 @@ template<typename Tin,
           typename Tout,
           typename Tin_el, //tipo degli elementi di Tin
           typename Tout_el>  //tipo degli elementi di Tout, o direttamente Tout se non è un vettore
-          //typename T>
 class map_stage_wrapper {
 
   //lascio la compute perchè così lo stadio può essere
   //messo dentro un qualsiasi pattern (farm, pipe, seq...)
-  //FIXME: problema! devo dichiarare la compute con const
-  //per la trasformazione in dc
   virtual Tout compute(Tin& input) = 0;
 
   virtual Tout_el op(const Tin_el& input) = 0;

@@ -689,7 +689,6 @@ void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
 
 /**
  * Builds all the source code
- * Builds all the source code
  * @param n root of the skeletons tree
  * @return code as a string representation
  */
@@ -714,7 +713,6 @@ string ffcode::operator()(skel_node& n) {
     tds(n);     // start visit to get datap wrappers
     auto map_nodes = tds.get_map_nodes();
     auto red_nodes = tds.get_reduce_nodes();
-    //auto dc_nodes  = tds.get_dc_nodes();
 
     size_t idx;
     string code;
@@ -752,12 +750,6 @@ string ffcode::operator()(skel_node& n) {
         redn->setid(idx++);
         decls += red_declaration(*redn, env);
     }
-
-    /*idx = 0;
-    for (auto dcn : dc_nodes) {
-        dcn->setid(idx++);
-        decls += dc_declaration(*dcn, env);
-    }*/
 
     n.accept(*this);
     stringstream ss;

@@ -101,7 +101,7 @@ struct import_node : public verb_node<import_node> {
 };
 
 /**
- * Node representing the "import" verb
+ * Node representing the "gencode" verb
  */
 struct gencode_node : public verb_node<gencode_node> {
     explicit gencode_node(const std::string& id, int index = 0);

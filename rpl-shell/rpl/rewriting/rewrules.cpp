@@ -403,8 +403,4 @@ skel_node * maptodc::rewrite(skel_node &tree) {
     } else {
         return nullptr;
     }
-
-//    return match(&tree, left0.get()) ?
-//        Dc(POS(0)) :
-//        nullptr;
 }

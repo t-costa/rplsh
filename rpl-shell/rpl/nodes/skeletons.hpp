@@ -14,7 +14,7 @@ struct skel_node : public rvalue_node {
     skel_node(std::initializer_list<skel_node*> init);
     virtual ~skel_node();
 
-    void accept(visitor& v)                 override = 0;
+    void accept(visitor& v) override                = 0;
     virtual skel_node* clone()                      = 0;
     virtual bool operator==( const skel_node& rhs ) = 0;
     virtual bool operator!=( const skel_node& rhs ) = 0;
@@ -169,6 +169,9 @@ struct reduce_node : public concrete_skel_node<reduce_node> {
     long step;
 };
 
+/**
+ * Divide and conquer node
+ */
 struct dc_node : public concrete_skel_node<dc_node> {
     dc_node(std::initializer_list<skel_node*> init);
     explicit dc_node(skel_node* pattexp, int pardegree = 1 );

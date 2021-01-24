@@ -89,6 +89,17 @@ bool tree_matcher<T,S>::match(T* root, T* rule, bool reset) {
 //    return ptr == nullptr ? nullptr : ptr.get();
 //}
 
+/**
+ * Checks if the subtree rooted in root is the same of
+ * the subtree rooted in rule
+ * @tparam T type of the roots of the two trees
+ * @tparam S type of the leaves of rule
+ * @param env environment
+ * @param root subtree to be checked
+ * @param rule rewriting rule
+ * @param reset true only on the first call, resets state
+ * @return true iff the two subtrees root and rule are equal
+ */
 template<typename T, typename S>
 bool tree_matcher<T, S>::match(rpl_environment &env, T *root, T *rule, bool reset) {
     if (reset)
