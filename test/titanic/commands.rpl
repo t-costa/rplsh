@@ -5,8 +5,14 @@ r = reduce(reduce_vec_double_stage)
 m = map(map_vec_vec_stage)
 f = farm(dc_dummy)
 
+annotate d with pardegree 16
+annotate r with pardegree 16
+annotate m with pardegree 16
+annotate f with pardegree 16
+
 fd = farm(d)
-md = map(d)
+
+annotate fd with pardegree 8
 
 #pipe
 
@@ -22,28 +28,8 @@ gencode main as test_pipe_map_ff in "test/titanic/"
 main = pipe(source_vec_stage, r, drain_stage)
 gencode main as test_pipe_reduce_ff in "test/titanic/"
 
-main = pipe(source_vec_stge, seq_vec_vec_stage, drain_stage)
+main = pipe(source_vec_stage, seq_vec_vec_stage, drain_stage)
 gencode main as test_pipe_seq_ff in "test/titanic/"
-
-#comp
-
-main = comp(source_vec_stage, dc_dummy, drain_vec_stage)
-gencode main as dc_comp_seq_ff in "test/titanic/"
-
-main = comp(source_vec_stage, d, drain_vec_stage)
-gencode main as test_comp_dc_ff in "test/titanic/"
-
-main = comp(source_vec_stage, f, drain_vec_stage)
-gencode main as test_comp_farm_dc_ff in "test/titanic/"
-
-main = comp(source_vec_stage, m, drain_vec_stage)
-gencode main as test_comp_map_ff in "test/titanic/"
-
-main = comp(source_vec_stage, r, drain_stage)
-gencode main as test_comp_reduce_ff in "test/titanic/"
-
-main = comp(source_vec_stge, seq_vec_vec_stage, drain_stage)
-gencode main as test_comp_seq_ff in "test/titanic/"
 
 #robe strane dc
 
@@ -52,9 +38,3 @@ gencode main as dc_pipe_seq_dc_ff in "test/titanic/"
 
 main = pipe(source_vec_stage, fd, drain_vec_stage)
 gencode main as test_pipe_farm_dc_ff in "test/titanic/"
-
-main = comp(source_vec_stage, dc_dummy, drain_vec_stage)
-gencode main as dc_comp_seq_dc_ff in "test/titanic/"
-
-main = comp(source_vec_stage, fd, drain_vec_stage)
-gencode main as test_comp_farm_dc_ff in "test/titanic/"

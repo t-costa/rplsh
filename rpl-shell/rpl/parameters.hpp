@@ -53,6 +53,8 @@ namespace par
     const std::string dc_capable     = "dc_capable";
     const std::string cutoff         = "cutoff";
     const std::string schedule       = "schedule";
+    const std::string tie            = "tie";
+    const std::string zip            = "zip";
 
     /* types for seq/source/drain */
     const std::string typein         = "typein";

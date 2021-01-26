@@ -150,6 +150,6 @@ struct ann_schedule : public ann_visitor {
 
 private:
     long value;
-    std::string scheduling_type;    //TODO: later
+    std::string scheduling_type;
 };
 #endif

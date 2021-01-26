@@ -335,9 +335,12 @@ void completiontime::visit( comp_node& n ) {
  */
 void completiontime::visit( pipe_node& n ) {
     /* ts*(num_stages-1) + ts*dimension */
+    /* more precise: (dimension-1)*Ts + L */
     double t = ts(n);
-    count_stages cs(env);
-    res = static_cast<double>(cs(n)-1)*t + env.get_dim()*t;
+    double l = lat(n);
+//    count_stages cs(env);
+//    res = static_cast<double>(cs(n)-1)*t + env.get_dim()*t;
+    res = std::max(((long) env.get_dim() - 1), (long) 0) * t + l;
 }
 
 /**

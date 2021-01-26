@@ -183,11 +183,21 @@ void reduceopt::visit( reduce_node& n ) {
     n.pardegree = 1;
     assignres(n, n.inputsize);
 
+    /* compute the "optimal" pardegree */
+    double tsc = env.get_scatter_time();
+    double tsg = env.get_gather_time();
+    double tw  = ts( *n.get(0) );
+    size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
+    n.pardegree = nw;
+
+    /* reassign resources with the new pardegree */
+    assignres(n, n.inputsize);
+
     //std::cout << "reduceopt second: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* compute the optimal number of workers */
     //TODO: I don't get it... TC
-    n.pardegree = static_cast<int>( (n.inputsize) * log(2) );
-    assignres(n, n.inputsize);
+//    n.pardegree = static_cast<int>( (n.inputsize) * log(2) );
+//    assignres(n, n.inputsize);
     //std::cout << "npardegree : " << n.pardegree << std::endl;
     //std::cout << "reduceopt third: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* recurse; TODO Or not?*/
@@ -300,10 +310,19 @@ void pipebalance::visit( pipe_node& n ) {
  * @param n farm node
  */
 void pipebalance::visit( farm_node& n ) {
-    double tw  = ts( *n.get(0) );
-    n.pardegree = ceil( tw / ts_max );
-    if (!n.pardegree)
-        n.pardegree = 1;
+    // iterative solution
+    double t = ts(n);
+    assign_resources assignres;
+
+    while (t < ts_max && n.pardegree > 1) {
+        n.pardegree--;
+        assignres(n, n.inputsize);
+        t = ts(n);
+    }
+//    double tw  = ts( *n.get(0) );
+//    n.pardegree = ceil( tw / ts_max );
+//    if (!n.pardegree)
+//        n.pardegree = 1;
 }
 
 /**
@@ -311,16 +330,25 @@ void pipebalance::visit( farm_node& n ) {
  * @param n map node
  */
 void pipebalance::visit( map_node& n ) {
-    /* in order to get the inner time...  */
+    // iterative solution
+    double t = ts(n);
     assign_resources assignres;
-    n.pardegree = 1;
-    assignres(n, n.inputsize);
 
-    double tw  = ts( *n.get(0) );
-    n.pardegree = ceil( tw / ts_max );
-    if (!n.pardegree)
-        n.pardegree = 1;
-    assignres(n, n.inputsize);
+    while (t < ts_max && n.pardegree > 1) {
+        n.pardegree--;
+        assignres(n, n.inputsize);
+        t = ts(n);
+    }
+    /* in order to get the inner time...  */
+//    assign_resources assignres;
+//    n.pardegree = 1;
+//    assignres(n, n.inputsize);
+//
+//    double tw  = ts( *n.get(0) );
+//    n.pardegree = ceil( tw / ts_max );
+//    if (!n.pardegree)
+//        n.pardegree = 1;
+//    assignres(n, n.inputsize);
 }
 
 /**
@@ -334,7 +362,7 @@ void pipebalance::visit( reduce_node& n ) {
     double t = ts(n);
     assign_resources assignres;
 
-    while (t < ts_max && 1 < n.pardegree) {
+    while (t < ts_max && n.pardegree > 1) {
         n.pardegree--;
         assignres(n, n.inputsize);
         t = ts(n);
@@ -348,15 +376,24 @@ void pipebalance::visit( reduce_node& n ) {
  * @param n
  */
 void pipebalance::visit(dc_node &n) {
+    // iterative solution
+    double t = ts(n);
     assign_resources assignres;
-    n.pardegree = 1;
-    assignres(n, n.inputsize);
 
-    double tw  = ts( *n.get(0) );
-    n.pardegree = ceil( tw / ts_max );
-    if (!n.pardegree)
-        n.pardegree = 1;
-    assignres(n, n.inputsize);
+    while (t < ts_max && n.pardegree > 1) {
+        n.pardegree--;
+        assignres(n, n.inputsize);
+        t = ts(n);
+    }
+//    assign_resources assignres;
+//    n.pardegree = 1;
+//    assignres(n, n.inputsize);
+//
+//    double tw  = ts( *n.get(0) );
+//    n.pardegree = ceil( tw / ts_max );
+//    if (!n.pardegree)
+//        n.pardegree = 1;
+//    assignres(n, n.inputsize);
 }
 
 /**

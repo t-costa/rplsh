@@ -426,19 +426,27 @@ string main_wrapper( const string& code ) {
 string divide_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, long schedule) {
     stringstream ss;
     if (transformed) {
+        bool zip = (schedule < 0);
+        schedule = zip ? -schedule : schedule;
         ss << "\t//divide function\n";
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
         ss << "\t\t" << "size_t schedule = " << schedule << ";\n";
         ss << "\t\t" << "auto new_size = in.size() / schedule;\n";
         ss << "\t\t" << "in_vec.resize(schedule);\n";
-        ss << "\t\t" << "size_t j = 0;\n";
-        ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
-        ss << "\t\t\t" << "if (i >= (j+1)*new_size && j<schedule-1)\n";
-        ss << "\t\t\t\t" << "j++;\n";
-        ss << "\t\t\t" << "in_vec[j].push_back(in[i]);\n";
-        ss << "\t\t" << "}\n";
-//        ss << "\t\t" << "in_vec.emplace_back(in.begin(), in.begin() + half_size);\n";
-//        ss << "\t\t" << "in_vec.emplace_back(in.begin() + half_size, in.end());\n";
+        if (zip) {
+            ss << "\t\t" << "//zip scheduling\n";
+            ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
+            ss << "\t\t\t" << "in_vec[i % schedule].push_back(in[i]);\n";
+            ss << "\t\t" << "}\n";
+        } else {
+            ss << "\t\t" << "//tie scheduling\n";
+            ss << "\t\t" << "size_t j = 0;\n";
+            ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
+            ss << "\t\t\t" << "if (i >= (j+1)*new_size && j<schedule-1)\n";
+            ss << "\t\t\t\t" << "j++;\n";
+            ss << "\t\t\t" << "in_vec[j].push_back(in[i]);\n";
+            ss << "\t\t" << "}\n";
+        }
         ss << "\t},\n";
     } else {
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
@@ -451,6 +459,8 @@ string divide_decl(bool transformed, const std::string& typein, const std::strin
 string combine_decl(bool transformed, const std::string& typeout, const std::string& wrapper_name, long schedule) {
     stringstream ss;
     if (transformed) {
+        bool zip = (schedule < 0);
+        schedule = zip ? -schedule : schedule;
         ss << "\t//combine function\n";
         ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
         ss << "\t\t" << "size_t schedule = " << schedule << ";\n";
@@ -462,12 +472,22 @@ string combine_decl(bool transformed, const std::string& typeout, const std::str
         ss << "\t\t" << "out.resize(final_size);\n";
         ss << "\t\t" << "//combine results\n";
         ss << "\t\t" << "size_t i = 0, j = 0;\n";
-        ss << "\t\t" << "for (j=0; j<schedule; ++j) {\n";
-        ss << "\t\t\t" << "for(auto& a : out_vec[j]) {\n";
-        ss << "\t\t\t\t" << "out[i] = a;\n";
-        ss << "\t\t\t\t" << "i++;\n";
-        ss << "\t\t\t" << "}\n";
-        ss << "\t\t" << "}\n";
+        if (zip) {
+            ss << "\t\t" << "// zip merge\n";
+            ss << "\t\t" << "while (i < final_size) {\n";
+            ss << "\t\t\t" << "out[i] = out_vec[i % schedule][j];\n";
+            ss << "\t\t\t" << "i++;\n";
+            ss << "\t\t\t" << "if (i % schedule == 0) j++;\n";
+            ss << "\t\t" << "}\n";
+        } else {
+            ss << "\t\t" << "// tie merge\n";
+            ss << "\t\t" << "for (j=0; j<schedule; ++j) {\n";
+            ss << "\t\t\t" << "for(auto& a : out_vec[j]) {\n";
+            ss << "\t\t\t\t" << "out[i] = a;\n";
+            ss << "\t\t\t\t" << "i++;\n";
+            ss << "\t\t\t" << "}\n";
+            ss << "\t\t" << "}\n";
+        }
         ss << "\t},\n";
     } else {
         ss << "\t[&](std::vector<" << typeout << ">& out_vec, " << typeout << "& out) {\n";
@@ -477,9 +497,9 @@ string combine_decl(bool transformed, const std::string& typeout, const std::str
     return ss.str();
 }
 
-string seq_decl(bool transformed, const std::string& typein, const std::string& typeout, const std::string& wrapper_name) {
+string seq_decl(bool transformed, const std::string& typein, const std::string& typeout, const std::string& wrapper_name, const size_t cutoff) {
     stringstream ss;
-    if (transformed) {
+    if (transformed || cutoff > 1) {
         ss << "\t//sequential case function\n";
         ss << "\t[&](const " << typein << "& in, " << typeout << "& out) {\n";
         ss << "\t\t" << "auto in_arg = in;\n";  //solves const conflict
@@ -588,7 +608,7 @@ void ffcode::visit( farm_node& n ) {
     ss << "\n// add " << wvar << " to " << fvar << "\n";
     ss << "ff_farm " << fvar << ";\n";
     ss << fvar << ".add_workers(" << wvar << ");\n";
-//    ss << fvar << ".add_collector(NULL);\n\n";
+    ss << fvar << ".add_collector(nullptr);\n\n";
 
     assert(code_lines.empty());
     code_lines.push({fvar, ss.str()});
@@ -649,7 +669,7 @@ void ffcode::visit(dc_node &n) {
     ss << "ff_DC<" << typein << ", " << typeout << "> " << name << "(\n";
     ss << divide_decl(n.transformed, typein, wrapper_name, n.schedule);
     ss << combine_decl(n.transformed, typeout, wrapper_name, n.schedule);
-    ss << seq_decl(n.transformed, typein, typeout, wrapper_name);
+    ss << seq_decl(n.transformed, typein, typeout, wrapper_name, n.cutoff);
     ss << cond_decl(n.transformed, typein, wrapper_name, n.cutoff);
     ss << to_string(nw(n)) << ");\n";
 
@@ -768,6 +788,9 @@ string ffcode::operator()(skel_node& n) {
 
     /* run the program */
     ss << p.first << ".run_and_wait_end();\n";
+
+    //TODO: potrei mettere un controllo se p.first != pipe
+    //  warning: code might not work out of the box
 
     /* time and stats*/
     ss << "std::cout << \"Spent: \" << ";

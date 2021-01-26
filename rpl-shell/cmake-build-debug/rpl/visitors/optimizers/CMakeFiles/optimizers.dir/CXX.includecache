@@ -88,18 +88,6 @@ visitor_interface.hpp
 utils/printable.hpp
 ../rpl/visitors/utils/printable.hpp
 
-/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/normalform.cpp
-normalform.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/normalform.hpp
-
-/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/normalform.hpp
-visitors/visitor_interface.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/visitors/visitor_interface.hpp
-environment/rpl_environment.hpp
-/home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/environment/rpl_environment.hpp
-vector
--
-
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/optimizers.cpp
 optimizers.hpp
 /home/tommaso/forked/rplsh/rpl-shell/rpl/visitors/optimizers/optimizers.hpp

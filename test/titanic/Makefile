@@ -30,7 +30,7 @@ ff:	$(FFBIN)
 sequential: $(SEQBIN)
 
 $(FFBIN): $(FFSRC) $(HEADERS)
-	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -o $@ $@.cpp $(LIBS)
+	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) $(LIBS) -o $@ $@.cpp
 
 $(SEQBIN): $(SEQSRC) $(HEADERS)
 	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -o $@ $@.cpp

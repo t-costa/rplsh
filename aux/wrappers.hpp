@@ -3,10 +3,55 @@
 
 #include <cstdlib>
 
+template <typename Tout>
+class source {
+public:
+  virtual bool has_next() = 0;
+  virtual Tout* next() = 0;
+};
+
+template <typename Tin>
+class drain {
+public:
+  virtual void process(Tin * x) = 0;
+};
+
 template <typename Tin, typename Tout>
 class seq_wrapper {
 public:
   virtual Tout compute(Tin& input) = 0;
+};
+
+template<typename Tin,
+          typename Tout,
+          typename Tin_el, //tipo degli elementi di Tin
+          typename Tout_el>  //tipo degli elementi di Tout, o direttamente Tout se non è un vettore
+class map_stage_wrapper {
+
+  //lascio la compute perchè così lo stadio può essere
+  //messo dentro un qualsiasi pattern (farm, pipe, seq...)
+  virtual Tout compute(Tin& input) = 0;
+  // virtual Tout compute(Tin& input) {
+  //   Tout out(input.size());
+  //
+  //   for (size_t i=0; i<input.size(); ++i) {
+  //     out[i] = op(input[i]);
+  //   }
+  //
+  //   return out;
+  // }
+
+  virtual Tout_el op(const Tin_el& input) = 0;
+};
+
+template <typename Tin, typename Tout>
+class reduce_stage_wrapper {
+
+  virtual Tout compute (Tin& input) = 0;
+
+  virtual Tout op(Tout& input1, Tout& input2) = 0;
+
+  Tout identity;
 };
 
 template <typename Tin, typename Tout>
@@ -45,26 +90,7 @@ private:
   }
 };
 
-template<typename Tin,
-          typename Tout,
-          typename Tin_el, //tipo degli elementi di Tin
-          typename Tout_el>  //tipo degli elementi di Tout, o direttamente Tout se non è un vettore
-class map_stage_wrapper {
 
-  //lascio la compute perchè così lo stadio può essere
-  //messo dentro un qualsiasi pattern (farm, pipe, seq...)
-  virtual Tout compute(Tin& input) = 0;
-
-  virtual Tout_el op(const Tin_el& input) = 0;
-};
-
-template <typename Tin, typename Tout>
-class reduce_stage_wrapper {
-
-  virtual Tout compute (Tin& input) = 0;
-
-  virtual Tout op(Tout& input1, Tout& input2) = 0;
-};
 
 // template<typename Tin,
 //           typename Tout,
@@ -81,18 +107,7 @@ class reduce_stage_wrapper {
 //   Tout identity{};
 // };
 
-template <typename Tout>
-class source {
-public:
-  virtual bool has_next() = 0;
-  virtual Tout* next() = 0;
-};
 
-template <typename Tin>
-class drain {
-public:
-  virtual void process(Tin * x) = 0;
-};
 
 /*template <typename T>
 class composable {

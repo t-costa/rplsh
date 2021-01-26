@@ -225,16 +225,16 @@ rpl_node* parser::ann_rule(token& tok)
         expect(tok, token::word, word);
     else if ( tok.kind == token::integer ) {
         expect(tok, token::integer, value);
-        //for grain
+        //for grain or schedule
         if (tok.kind == token::as) {
             expect(tok, token::as);
             //only two options, static or dynamic
             expect(tok, token::parameter, word);
             /*
-             * par = grain
+             * par = grain - schedule
              * id = (name_stage, index_stage)
-             * value = value_grain
-             * word = static/dynamic
+             * value = value_grain - value_schedule
+             * word = static/dynamic - zip/tie
              * */
         }
     }

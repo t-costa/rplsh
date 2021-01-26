@@ -92,7 +92,9 @@ const std::unordered_set<std::string> non_functional_parameters {
     "step",
     "dc_capable",
     "cutoff",
-    "schedule"
+    "schedule",
+    "tie",
+    "zip"
 };
 
 const std::unordered_set<std::string> grain_parameters {

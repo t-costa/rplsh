@@ -75,6 +75,8 @@ map<string, token::type> token::st_map =
    {par::dc_capable,    token::parameter},
    {par::cutoff,        token::parameter},
    {par::schedule,      token::parameter},
+   {par::tie,           token::parameter},
+   {par::zip,           token::parameter},
 
    {par::emitter_time,  token::parameter},
    {par::collector_time,token::parameter},
