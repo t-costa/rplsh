@@ -167,35 +167,26 @@ string parallel_for_declaration(const long grain, const long step, const string&
     // begin lambda
     ss << "[this, &_task, &" << out_name << ", step](const long i) {\n";
 
-    if (transformed) {
+    if (transformed || step > 1) {
         //assumptions:
         // map(comp(...)) not acceptable
-        /*
-         * If we want to personalize the step (cond stops at size <= step)
-         * (maybe with iterators is a little better...)
-         *  size_t step = 1;
-		    pfr.parallel_for_static(0, _task.size(), step, 0, [this, &_task, &out, step](const long i) {
-                typein tmp;
-                for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
-                    tmp.push_back(_task[i+j]);
-                }
-                auto partial = wrapper0.compute(tmp);
-                for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {
-                    (*out_name)[i+j] = partial[j];
-                }
-		    },1);
-         */
         ss << "\t\t\t" << typein << " tmp;\n";
         ss << "\t\t\t" << "for (size_t j=0; j<step && (i+j)<_task.size(); ++j) {\n";
         ss << "\t\t\t\t" << "tmp.push_back(_task[i+j]);\n";
         ss << "\t\t\t" << "}\n";
-//        ss << "\t\t\ttmp.push_back(_task[i]);\n";
-        ss << "\t\t\t" << "auto partial = wrapper0.compute(tmp);\n";
+        size_t i;
+        string par;
+        for (i = 0; i < n_wrappers; i++) {
+            par = !i ? "tmp" : ("res" + to_string(i-1));
+            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".compute(" << par << ");\n";
+        }
+        par = !i ? "tmp" : ("res" + to_string(i-1));
+        ss << "\t\t\t" << "auto partial = wrapper" << i << ".compute(" << par << ");\n";
         ss << "\t\t\t" << "for (size_t j=0; j<step &&(i+j)<_task.size(); ++j) {\n";
         ss << "\t\t\t\t" << "(*" << out_name << ")[i+j] = partial[j];\n";
         ss << "\t\t\t" << "}\n";
-//        ss << "\t\t\t(*" << out_name << ")[i] = partial[0];\n";
     } else {
+        //default case
         size_t i;
         string par;
         for (i = 0; i < n_wrappers; i++) {
@@ -654,6 +645,9 @@ void ffcode::visit(dc_node &n) {
     if (!src_nodes.empty() || !drn_nodes.empty() || !seq_nodes.empty() || datap_nodes.size() > 1 ) {
         cerr << "WARNING: the divide and conquer pattern supports only a single sequential node inside" << endl;
     }
+
+    //non ha molto senso, ma per non avere errori potrei trasformare una
+    //dc(comp(a, b, ... , k)) in un comp di k dc -> comp(dc(a), dc(b), ... , dc(k))
 
     string name = new_name("_dc"+to_string(n.getid())+"_");
 
