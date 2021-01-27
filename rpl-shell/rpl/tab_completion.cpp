@@ -96,6 +96,12 @@ void tab_completion::match_grain_parameters(const std::string &textstr, std::vec
     }
 }
 
+void tab_completion::match_schedule_parameters(const std::string &textstr, std::vector<std::string> &matches) {
+    for (const auto& word : schedule_parameters) {
+        add_match(word, textstr, matches);
+    }
+}
+
 void tab_completion::match_rew_rules(const std::string& textstr, std::vector<std::string>& matches) {
     for (const auto& word : refactoring_rules) {
         add_match(word, textstr, matches);
@@ -290,13 +296,16 @@ char* tab_completion::character_name_generator(const char *text, int state){
                             //number || bool
                             break;
                         case 6:
-                            if (splitted[3] == "grain") {
+                            if (splitted[3] == "grain" || splitted[3] == "schedule") {
                                 match_as(textstr, matches);
                             }
                             break;
                         case 7:
-                            if (splitted[3] == "grain") {
+                            if (splitted[3] == "grain" ) {
                                 match_grain_parameters(textstr, matches);
+                            }
+                            if (splitted[3] == "schedule") {
+                                match_schedule_parameters(textstr, matches);
                             }
                             break;
                         default:
@@ -367,3 +376,4 @@ char* tab_completion::character_name_generator(const char *text, int state){
         return strdup(matches[match_index++].c_str());
     }
 }
+

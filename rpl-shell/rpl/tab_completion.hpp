@@ -42,6 +42,8 @@ private:
 
     static void match_grain_parameters(const std::string& textstr, std::vector<std::string>& matches);
 
+    static void match_schedule_parameters(const std::string& textstr, std::vector<std::string>& matches);
+
     static void match_rew_rules(const std::string& textstr, std::vector<std::string>& matches);
 
     static void match_opt_rules(const std::string& textstr, std::vector<std::string>& matches);

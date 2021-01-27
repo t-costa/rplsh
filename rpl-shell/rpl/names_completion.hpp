@@ -93,13 +93,16 @@ const std::unordered_set<std::string> non_functional_parameters {
     "dc_capable",
     "cutoff",
     "schedule",
-    "tie",
-    "zip"
 };
 
 const std::unordered_set<std::string> grain_parameters {
     "static",
     "dynamic"
+};
+
+const std::unordered_set<std::string> schedule_parameters {
+    "tie",
+    "zip"
 };
 
 const std::unordered_set<std::string> environmental_parameters {
