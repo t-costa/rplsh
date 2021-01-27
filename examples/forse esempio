@@ -12,6 +12,7 @@ annotate dc_dummy with servicetime 7
 
 m = map(map_vec_vec )
 mf = map(farm( map_vec_vec ))
+optimize mf with twotier
 c = comp( m, mf)
 dc = divide_conquer( dc_dummy )
 cr = comp( map_minus , reduce_vec_double )
@@ -29,6 +30,7 @@ show main by servicetime , compltime , resources , unrank, full
 
 rewrite c with mapofcomp 
 show main by servicetime , compltime , resources , unrank, full 
+#potrei mettere sia rew c che rew main con rec
 
 rewrite seq_vec_vec with farmintro 
 show main by servicetime , compltime , resources , unrank, full  

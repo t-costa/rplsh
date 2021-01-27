@@ -31,7 +31,7 @@ double compute(Visitor& v, skel_node& n, BinaryOp op) {
 ///////////////////////////////////////////////////////////////////////////////
 
 eval_visitor::eval_visitor(rpl_environment& env) :
-    env( env )
+    env( env ), global_inputsize(1)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,11 +108,15 @@ void servicetime::visit(map_node& n) {
 void servicetime::visit(reduce_node& n) {
     // assuming Tf is the servicetime  of the reduce function f (datap):
     // ts(n) = Tf / nw + log2(nw) * Tf
-    //FIXME: trying empirically it seems pretty much the same as map...
+    //trying empirically it seems pretty much the same as map...
 
-    int nw = n.pardegree;
-    res = (*this)(*n.get(0));            // res == Tf / nw
-    res = res + log2(n.pardegree) * (res/nw);   //  Tf == res*nw
+    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_scatter_time());
+
+//    int nw = n.pardegree;
+//    res = (*this)(*n.get(0));            // res == Tf
+//    res = res/nw + log2(nw) * res;
+//    the inputsize for nodes after the reduce is 1
+    global_inputsize = 1;
 }
 
 /**
@@ -121,8 +125,8 @@ void servicetime::visit(reduce_node& n) {
  * @param n dc node
  */
 void servicetime::visit(dc_node &n) {
-    //like a map
-    res = (*this)(*n.get(0)) / n.pardegree;
+    //like a map but implemented with a farm
+    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_emitter_time());
 }
 
 /**
@@ -135,7 +139,8 @@ void servicetime::visit(id_node& n) {
         // we need to assign resources before
         auto ptr = env.get(n.id, n.index);
         assign_resources assignres;
-        assignres(*ptr, n.inputsize);
+//        assignres(*ptr, n.inputsize);
+        assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
         cout << "error, not found: " << n.id << endl;
@@ -156,6 +161,7 @@ string servicetime::print( skel_node& sk ){
  * @return the value of the service time of sk
  */
 double servicetime::operator()(skel_node& sk){
+    global_inputsize = sk.inputsize;
     sk.accept(*this);
     return res;
 }
@@ -234,9 +240,11 @@ void latencytime::visit(reduce_node& n) {
     // assuming Tf is the servicetime  of the reduce function f:
     // lat(n) = Tf / nw + log2(nw) * Tf
 
-    int nw = n.pardegree;
-    res = (*this)(*n.get(0));                   // res == Tf / nw
-    res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
+//    int nw = n.pardegree;
+//    res = (*this)(*n.get(0));                   // res == Tf / nw
+//    res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
+    res = env.get_scatter_time() + (*this)( *n.get(0) ) / n.pardegree + env.get_gather_time();
+    global_inputsize = 1;
 }
 
 /**
@@ -245,8 +253,8 @@ void latencytime::visit(reduce_node& n) {
  * @param n dc node
  */
 void latencytime::visit(dc_node &n) {
-    //like a map
-    res = (*this)(*n.get(0)) / n.pardegree;
+    //like a map, but implemented with a farm
+    res = env.get_emitter_time() + (*this)( *n.get(0) ) / n.pardegree + env.get_scatter_time();
 }
 
 /**
@@ -258,7 +266,8 @@ void latencytime::visit(id_node& n) {
     try {
         auto ptr = env.get(n.id, n.index);
         assign_resources assignres;
-        assignres(*ptr, n.inputsize);
+//        assignres(*ptr, n.inputsize);
+        assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
         cout << "error, not found: " << n.id << endl;
@@ -279,6 +288,7 @@ string latencytime::print( skel_node& sk ){
  * @return value of latency of sk
  */
 double latencytime::operator()(skel_node& sk) {
+    global_inputsize = sk.inputsize;
     sk.accept(*this);
     return res;
 }
@@ -349,8 +359,8 @@ void completiontime::visit( pipe_node& n ) {
  */
 void completiontime::visit( farm_node& n ) {
     //    res = static_cast<double>(env.get_dim())/n.pardegree*lat(n);  //old definition (I think wrong)
-    //1 emitter at the beginning, nw-1 emitters + 1 collector at the end + ts of farm*dimension
-    res = n.pardegree*env.get_emitter_time() + env.get_dim() * ts(n) + env.get_collector_time();
+    // approx for long stream
+    res = env.get_emitter_time() +  env.get_dim()*ts(n) + env.get_collector_time();
 }
 
 /**
@@ -369,6 +379,7 @@ void completiontime::visit( map_node& n ) {
 void completiontime::visit( reduce_node& n ) {
     //res = env.get_dim() * lat(n); //old definition (I think wrong)
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
+    global_inputsize = 1;
 }
 
 /**
@@ -376,8 +387,8 @@ void completiontime::visit( reduce_node& n ) {
  * @param n dc node
  */
 void completiontime::visit(dc_node &n) {
-    //like a map
-    res = env.get_dim() * ts(n);
+    //like a map but implemented with farm
+    res = env.get_emitter_time() +  env.get_dim()*ts(n) + env.get_collector_time();
 }
 
 /**
@@ -389,7 +400,8 @@ void completiontime::visit( id_node& n ) {
     try {
         auto ptr = env.get(n.id, n.index);
         assign_resources assignres;
-        assignres(*ptr, n.inputsize);
+//        assignres(*ptr, n.inputsize);
+        assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);
     } catch (out_of_range& e) {
         cout << "error, not found: " << n.id << endl;
@@ -410,6 +422,7 @@ string completiontime::print( skel_node& n ){
  * @return value of completion time for n
  */
 double completiontime::operator()(skel_node& n){
+    global_inputsize = n.inputsize;
     n.accept(*this);
     return res;
 }

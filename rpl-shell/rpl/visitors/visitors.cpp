@@ -489,7 +489,7 @@ void assign_resources::visit( farm_node& n ) {
  * @param n map node
  */
 void assign_resources::visit( map_node& n ) {
-    (*this)(*n.get(0), n.inputsize/n.pardegree);
+    (*this)(*n.get(0), n.inputsize);
 }
 
 /**
@@ -497,12 +497,12 @@ void assign_resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void assign_resources::visit( reduce_node& n ) {
-    (*this)(*n.get(0), n.inputsize/n.pardegree);
+    (*this)(*n.get(0), n.inputsize);
 }
 
 void assign_resources::visit(dc_node &n) {
     //TODO: check if ok
-    (*this)(*n.get(0), n.inputsize/n.pardegree);
+    (*this)(*n.get(0), n.inputsize);
 }
 
 /**

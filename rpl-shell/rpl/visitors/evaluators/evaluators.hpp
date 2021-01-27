@@ -10,6 +10,7 @@ struct eval_visitor : public skel_visitor, public printable
     explicit eval_visitor( rpl_environment& env );
 protected:
     rpl_environment& env;
+    double global_inputsize;
 };
 
 struct servicetime: public eval_visitor
