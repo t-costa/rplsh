@@ -422,7 +422,6 @@ string divide_decl(bool transformed, const std::string& typein, const std::strin
         ss << "\t//divide function\n";
         ss << "\t[&](const " << typein << "& in, std::vector<" << typein << ">& in_vec) {\n";
         ss << "\t\t" << "size_t schedule = " << schedule << ";\n";
-        ss << "\t\t" << "auto new_size = in.size() / schedule;\n";
         ss << "\t\t" << "in_vec.resize(schedule);\n";
         if (zip) {
             ss << "\t\t" << "//zip scheduling\n";
@@ -431,6 +430,7 @@ string divide_decl(bool transformed, const std::string& typein, const std::strin
             ss << "\t\t" << "}\n";
         } else {
             ss << "\t\t" << "//tie scheduling\n";
+            ss << "\t\t" << "auto new_size = in.size() / schedule;\n";
             ss << "\t\t" << "size_t j = 0;\n";
             ss << "\t\t" << "for (size_t i=0; i<in.size(); ++i) {\n";
             ss << "\t\t\t" << "if (i >= (j+1)*new_size && j<schedule-1)\n";
