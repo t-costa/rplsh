@@ -37,7 +37,7 @@ eval_visitor::eval_visitor(rpl_environment& env) :
 ///////////////////////////////////////////////////////////////////////////////
 
 servicetime::servicetime(rpl_environment& env) :
-    eval_visitor( env ), res (0)
+    eval_visitor( env ), res (0), start(true)
 {}
 
 /**
@@ -46,7 +46,7 @@ servicetime::servicetime(rpl_environment& env) :
  */
 void servicetime::visit(seq_node& n) {
     if (n.datap_flag)
-        res = n.servicetime * n.inputsize;
+        res = n.servicetime * global_inputsize;
     else
         res = n.servicetime;
 }
@@ -152,6 +152,8 @@ void servicetime::visit(id_node& n) {
  * @return a string representation of the service time of sk
  */
 string servicetime::print( skel_node& sk ){
+    //reset start for future calls
+    start = true;
     return std::to_string( (*this)( sk ) );
 }
 
@@ -161,15 +163,23 @@ string servicetime::print( skel_node& sk ){
  * @return the value of the service time of sk
  */
 double servicetime::operator()(skel_node& sk){
-    global_inputsize = sk.inputsize;
+    if (start) {
+        //inputsize unchanged until reduce
+        global_inputsize = sk.inputsize;
+        start = false;
+    }
     sk.accept(*this);
     return res;
+}
+
+void servicetime::reset_start() {
+    start = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 latencytime::latencytime(rpl_environment& env) :
-    eval_visitor( env ), res (0)
+    eval_visitor( env ), res (0), start(true)
 {}
 
 /**
@@ -178,7 +188,7 @@ latencytime::latencytime(rpl_environment& env) :
  */
 void latencytime::visit(seq_node& n) {
     if (n.datap_flag)
-        res = n.servicetime * n.inputsize;
+        res = n.servicetime * global_inputsize;
     else
         res = n.servicetime;
 }
@@ -279,6 +289,7 @@ void latencytime::visit(id_node& n) {
  * @return a string representation of the latency of sk
  */
 string latencytime::print( skel_node& sk ){
+    start = true;
     return std::to_string( (*this)( sk ) );
 }
 
@@ -288,9 +299,16 @@ string latencytime::print( skel_node& sk ){
  * @return value of latency of sk
  */
 double latencytime::operator()(skel_node& sk) {
-    global_inputsize = sk.inputsize;
+    if (start) {
+        global_inputsize = sk.inputsize;
+        start = false;
+    }
     sk.accept(*this);
     return res;
+}
+
+void latencytime::reset_start() {
+    start = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -299,7 +317,8 @@ completiontime::completiontime( rpl_environment& env ) :
     eval_visitor( env ),
     lat( env ),
     ts( env ),
-    res (0)
+    res (0),
+    start (true)
 {}
 
 /**
@@ -308,7 +327,7 @@ completiontime::completiontime( rpl_environment& env ) :
  */
 void completiontime::visit( seq_node& n ) {
     if (n.datap_flag)
-        res = n.servicetime * n.inputsize;
+        res = n.servicetime * global_inputsize;
     else
         res = n.servicetime;
 
@@ -346,6 +365,8 @@ void completiontime::visit( comp_node& n ) {
 void completiontime::visit( pipe_node& n ) {
     /* ts*(num_stages-1) + ts*dimension */
     /* more precise: (dimension-1)*Ts + L */
+    ts.reset_start();
+    lat.reset_start();
     double t = ts(n);
     double l = lat(n);
 //    count_stages cs(env);
@@ -360,6 +381,7 @@ void completiontime::visit( pipe_node& n ) {
 void completiontime::visit( farm_node& n ) {
     //    res = static_cast<double>(env.get_dim())/n.pardegree*lat(n);  //old definition (I think wrong)
     // approx for long stream
+    ts.reset_start();
     res = env.get_emitter_time() +  env.get_dim()*ts(n) + env.get_collector_time();
 }
 
@@ -369,6 +391,7 @@ void completiontime::visit( farm_node& n ) {
  */
 void completiontime::visit( map_node& n ) {
     //res = env.get_dim() * lat(n); //old definition (I think wrong)
+    ts.reset_start();
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
 }
 
@@ -378,6 +401,7 @@ void completiontime::visit( map_node& n ) {
  */
 void completiontime::visit( reduce_node& n ) {
     //res = env.get_dim() * lat(n); //old definition (I think wrong)
+    ts.reset_start();
     res = env.get_scatter_time() + env.get_dim() * ts(n) + env.get_gather_time();
     global_inputsize = 1;
 }
@@ -388,6 +412,7 @@ void completiontime::visit( reduce_node& n ) {
  */
 void completiontime::visit(dc_node &n) {
     //like a map but implemented with farm
+    ts.reset_start();
     res = env.get_emitter_time() +  env.get_dim()*ts(n) + env.get_collector_time();
 }
 
@@ -413,6 +438,7 @@ void completiontime::visit( id_node& n ) {
  * @return returns a string representation of the completion time of sk
  */
 string completiontime::print( skel_node& n ){
+    start = true;
     return std::to_string( (*this)( n ));
 }
 
@@ -422,7 +448,10 @@ string completiontime::print( skel_node& n ){
  * @return value of completion time for n
  */
 double completiontime::operator()(skel_node& n){
-    global_inputsize = n.inputsize;
+    if (start) {
+        global_inputsize = n.inputsize;
+        start = false;
+    }
     n.accept(*this);
     return res;
 }

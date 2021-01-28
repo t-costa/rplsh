@@ -29,8 +29,11 @@ struct servicetime: public eval_visitor
 
     std::string print(skel_node& n) override;
     double operator()(skel_node& n);
+
+    void reset_start();
 private:
     double res;
+    bool start;
 };
 
 struct latencytime: public eval_visitor
@@ -49,8 +52,11 @@ struct latencytime: public eval_visitor
 
     std::string print(skel_node& n) override;
     double operator()(skel_node& n);
+
+    void reset_start();
 protected:
     double res;
+    bool start;
 };
 
 struct completiontime: public eval_visitor
@@ -73,6 +79,7 @@ protected:
     latencytime lat;
     servicetime ts;
     double res;
+    bool start;
 };
 
 struct pardegree: public eval_visitor
