@@ -506,7 +506,7 @@ string seq_decl(bool transformed, const std::string& typein, const std::string& 
 
 string cond_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, size_t cutoff) {
     stringstream ss;
-    if (transformed) {
+    if (transformed || cutoff > 1) {
         ss << "\t//condition function\n";
         ss << "\t[&](const " << typein << "& in) {\n";
         ss << "\t\treturn in.size() <= " << cutoff << ";\n";
