@@ -245,11 +245,19 @@ void dcopt::visit(dc_node &n) {
      * from work-span
      * work: inputsize seq + O(log(n)) div and merge
      * span: O(log(n))
-     * with schedule and cutoff, tree height is log_schedule(n/cutoff)
+     * with schedule and cutoff, tree height (div+merge) is 2*log_schedule(n/cutoff)
+     * but remove constant for big O notation
      */
-    auto div = abs(n.schedule);
-    auto work = static_cast<int>(ceil((n.inputsize / n.cutoff)));  //cutoff could be > inputsize
-    n.pardegree = ceil(log( n.inputsize + work) / log(div));
+    double t_sk = ts(*n.get(0));
+    auto base = abs(n.schedule);
+    //TODO: check formulas
+    auto crit_path = static_cast<int>(ceil(log( n.inputsize + n.cutoff) / log(base)));
+    //should be 2*crit_path also on the numerator, but inputsize
+    //should be much bigger, and in practice is probably better
+    //to reduce a bit the pardegree
+    //if not datap annotated
+    auto work = max(t_sk, n.inputsize*t_sk);
+    n.pardegree = ceil(work / (2*crit_path));
 
     /* reassign resources with the new pardegree */
     assignres(n, env.get_inputsize());
@@ -521,8 +529,10 @@ void twotier::visit( map_node& n ) {
 
     auto* comp = new comp_node{};
     auto seqwrappers = gsw.get_seq_nodes();
-    for (auto ptr : seqwrappers)
+    for (auto ptr : seqwrappers) {
+        ptr->datap_flag = true;
         comp->add(ptr->clone());
+    }
 
     n.set(comp, 0);
 }

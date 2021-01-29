@@ -399,6 +399,7 @@ void interpreter::visit(import_node& n) {
             else if (it->wtype == wrapper_info::dc) {
                 sk = new seq_node(name, tin, tout, path);
                 dynamic_cast<seq_node*>(sk)->dc_flag = true;
+                dynamic_cast<seq_node*>(sk)->datap_flag = true;
             }
             else {
                 cerr << "Error: no type recognized for " << name << endl;
