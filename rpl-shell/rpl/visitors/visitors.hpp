@@ -116,6 +116,8 @@ struct assign_resources : public skel_visitor {
     void visit(dc_node& n) override;
     void visit(id_node& n) override;
     void operator()(skel_node& n, double inputsize);
+private:
+    double inputsize = 0;
 };
 
 struct get_seq_wrappers : public skel_visitor {

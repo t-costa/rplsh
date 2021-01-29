@@ -36,17 +36,12 @@ show main by servicetime , compltime , resources , unrank, full
 rewrite seq_vec_vec with farmintro 
 show main by servicetime , compltime , resources , unrank, full  
 
-optimize main with twotier , subexp 
+optimize main with mapopt , farmopt , dcopt , reduceopt 
+show main by servicetime , compltime , resources , unrank, full 
+optimize main with mapopt , farmopt , dcopt , reduceopt , subexp 
 show main by servicetime , compltime , resources , unrank, full  
-
-#optimize main with mapopt , farmopt , dcopt , reduceopt 
-#show main by servicetime , compltime , resources , unrank, full 
-#optimize main with mapopt , farmopt , dcopt , reduceopt , subexp 
-#show main by servicetime , compltime , resources , unrank, full 
-#optimize main with pipeopt 
-#show main by servicetime , compltime , resources , unrank, full 
-#optimize main with pipeopt , subexp 
-#show main by servicetime , compltime , resources , unrank, full 
+optimize main with pipeopt , subexp 
+show main by servicetime , compltime , resources , unrank, full 
 #optimize main with maxresources 
 #show main by servicetime , compltime , resources , unrank, full 
 #optimize main with maxresources , subexp 

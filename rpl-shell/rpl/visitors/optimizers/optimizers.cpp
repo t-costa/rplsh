@@ -112,6 +112,7 @@ farmopt::farmopt( rpl_environment& env ) :
  */
 void farmopt::visit( farm_node& n ) {
     (*this)( *n.get(0) );
+    ts.reset_start();
     double tw = ts( *n.get(0) );
     double te = env.get_emitter_time();
     size_t nw = ceil( tw / te );
@@ -141,9 +142,10 @@ void mapopt::visit( map_node& n ) {
     /* reassign resources assuming only one worker */
     assign_resources assignres;
     n.pardegree = 1;
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 
     /* compute the "optimal" pardegree */
+    ts.reset_start();
     double tsc = env.get_scatter_time();
     double tsg = env.get_gather_time();
     double tw  = ts( *n.get(0) );
@@ -151,7 +153,7 @@ void mapopt::visit( map_node& n ) {
     n.pardegree = nw;
 
     /* reassign resources with the new pardegree */
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 
     /* recurse; TODO or not? */
     (*this)( *n.get(0) );
@@ -181,17 +183,21 @@ void reduceopt::visit( reduce_node& n ) {
     /* reassign resources assuming only one worker */
     assign_resources assignres;
     n.pardegree = 1;
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 
     /* compute the "optimal" pardegree */
-    double tsc = env.get_scatter_time();
-    double tsg = env.get_gather_time();
+    ts.reset_start();
+    //double tsc = env.get_scatter_time();
+    //double tsg = env.get_gather_time();
     double tw  = ts( *n.get(0) );
-    size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
-    n.pardegree = nw;
+    //size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
+    //n.pardegree = nw;
+
+    //from work-span model
+    n.pardegree = static_cast<int>(ceil(tw/log2(tw)));
 
     /* reassign resources with the new pardegree */
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 
     //std::cout << "reduceopt second: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* compute the optimal number of workers */
@@ -224,17 +230,29 @@ void dcopt::visit(dc_node &n) {
     /* reassign resources assuming only one worker */
     assign_resources assignres;
     n.pardegree = 1;
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 
     /* compute the "optimal" pardegree */
-    double tsc = env.get_scatter_time();
-    double tsg = env.get_gather_time();
-    double tw  = ts( *n.get(0) );
-    size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
-    n.pardegree = nw;
+    ts.reset_start();
+    //double tsc = env.get_scatter_time();
+    //double tsg = env.get_gather_time();
+//    double tw  = ts( *n.get(0) );
+    //size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
+    //n.pardegree = nw;
+
+
+    /*
+     * from work-span
+     * work: inputsize seq + O(log(n)) div and merge
+     * span: O(log(n))
+     * with schedule and cutoff, tree height is log_schedule(n/cutoff)
+     */
+    auto div = abs(n.schedule);
+    auto work = static_cast<int>(ceil((n.inputsize / n.cutoff)));  //cutoff could be > inputsize
+    n.pardegree = ceil(log( n.inputsize + work) / log(div));
 
     /* reassign resources with the new pardegree */
-    assignres(n, n.inputsize);
+    assignres(n, env.get_inputsize());
 }
 
 /**
@@ -311,12 +329,14 @@ void pipebalance::visit( pipe_node& n ) {
  */
 void pipebalance::visit( farm_node& n ) {
     // iterative solution
-    double t = ts(n);
     assign_resources assignres;
+    assignres(n, env.get_inputsize());
+    ts.reset_start();
+    double t = ts(n);
 
     while (t < ts_max && n.pardegree > 1) {
         n.pardegree--;
-        assignres(n, n.inputsize);
+        ts.reset_start();
         t = ts(n);
     }
 //    double tw  = ts( *n.get(0) );
@@ -331,12 +351,14 @@ void pipebalance::visit( farm_node& n ) {
  */
 void pipebalance::visit( map_node& n ) {
     // iterative solution
-    double t = ts(n);
     assign_resources assignres;
+    assignres(n, env.get_inputsize());
+    ts.reset_start();
+    double t = ts(n);
 
     while (t < ts_max && n.pardegree > 1) {
         n.pardegree--;
-        assignres(n, n.inputsize);
+        ts.reset_start();
         t = ts(n);
     }
     /* in order to get the inner time...  */
@@ -359,12 +381,14 @@ void pipebalance::visit( map_node& n ) {
  */
 void pipebalance::visit( reduce_node& n ) {
     // iterative solution
-    double t = ts(n);
     assign_resources assignres;
+    assignres(n, env.get_inputsize());
+    ts.reset_start();
+    double t = ts(n);
 
     while (t < ts_max && n.pardegree > 1) {
         n.pardegree--;
-        assignres(n, n.inputsize);
+        ts.reset_start();
         t = ts(n);
     }
 }
@@ -377,12 +401,14 @@ void pipebalance::visit( reduce_node& n ) {
  */
 void pipebalance::visit(dc_node &n) {
     // iterative solution
-    double t = ts(n);
     assign_resources assignres;
+    assignres(n, env.get_inputsize());
+    ts.reset_start();
+    double t = ts(n);
 
     while (t < ts_max && n.pardegree > 1) {
         n.pardegree--;
-        assignres(n, n.inputsize);
+        ts.reset_start();
         t = ts(n);
     }
 //    assign_resources assignres;
@@ -585,6 +611,7 @@ pair<size_t, double> findmax( const skel_node& n, servicetime& ts ) {
     size_t idx = 0;
     double max = 0;
     for ( size_t i = 0; i < n.size(); i++ ) {
+        ts.reset_start();
         double tmp = ts( *n.get(i) );
         if ( max <= tmp ) {
             idx = i;
@@ -609,6 +636,7 @@ tuple<int, int, int> longestrun( const pipe_node& n, servicetime& ts )
     size_t thresh = 0;
     std::vector<size_t> values;
     for ( size_t i = 0; i < n.size(); i++ ) {
+        ts.reset_start();
         size_t value = ts(*n.get(i));
         thresh = thresh < value ? value : thresh;
         values.push_back(value);

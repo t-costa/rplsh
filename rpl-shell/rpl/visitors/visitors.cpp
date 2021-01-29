@@ -315,6 +315,7 @@ typedef std::tuple<skel_node*, double, size_t> sds_t;
 template < typename triples_container >
 void fill_triples( triples_container& triples, skel_node& n, servicetime& ts, resources& res ) {
     for (size_t i = 0; i < n.size(); i++) {
+        ts.reset_start();
         triples.push_back( make_tuple(
             n.get(i),
             ts ( *n.get(i) ),
@@ -456,6 +457,7 @@ bool reduce_resources::operator()(skel_node& n) {
  * @param n seq node
  */
 void assign_resources::visit( seq_node& n ) {
+    n.inputsize = inputsize;
 }
 
 /**
@@ -463,8 +465,9 @@ void assign_resources::visit( seq_node& n ) {
  * @param n comp node
  */
 void assign_resources::visit( comp_node& n ) {
+    n.inputsize = inputsize;
     for (size_t i = 0; i < n.size(); i++)
-        (*this)(*n.get(i), n.inputsize);
+        (*this)(*n.get(i), inputsize);
 }
 
 /**
@@ -472,8 +475,9 @@ void assign_resources::visit( comp_node& n ) {
  * @param n pipe node
  */
 void assign_resources::visit( pipe_node& n ) {
+    n.inputsize = inputsize;
     for (size_t i = 0; i < n.size(); i++)
-        (*this)(*n.get(i), n.inputsize);
+        (*this)(*n.get(i), inputsize);
 }
 
 /**
@@ -481,7 +485,8 @@ void assign_resources::visit( pipe_node& n ) {
  * @param n farm node
  */
 void assign_resources::visit( farm_node& n ) {
-    (*this)(*n.get(0), n.inputsize);
+    n.inputsize = inputsize;
+    (*this)(*n.get(0), inputsize);
 }
 
 /**
@@ -489,7 +494,8 @@ void assign_resources::visit( farm_node& n ) {
  * @param n map node
  */
 void assign_resources::visit( map_node& n ) {
-    (*this)(*n.get(0), n.inputsize);
+    n.inputsize = inputsize;
+    (*this)(*n.get(0), inputsize);
 }
 
 /**
@@ -497,12 +503,15 @@ void assign_resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void assign_resources::visit( reduce_node& n ) {
-    (*this)(*n.get(0), n.inputsize);
+    n.inputsize = inputsize;
+    (*this)(*n.get(0), inputsize);
+    //the other nodes will be after the reduce
+    inputsize = 1;
 }
 
 void assign_resources::visit(dc_node &n) {
-    //TODO: check if ok
-    (*this)(*n.get(0), n.inputsize);
+    n.inputsize = inputsize;
+    (*this)(*n.get(0), inputsize);
 }
 
 /**
@@ -518,7 +527,7 @@ void assign_resources::visit( id_node& n ) {
  * @param inputsize real input size for the node
  */
 void assign_resources::operator()(skel_node& n, double inputsize) {
-    n.inputsize = inputsize;
+    this->inputsize = inputsize;
     n.accept(*this);
 }
 
