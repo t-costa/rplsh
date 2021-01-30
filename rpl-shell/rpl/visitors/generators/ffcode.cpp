@@ -136,7 +136,11 @@ string drain_declaration( const drain_node& n ) {
  */
 string mapred_constructor( const string& name, int nw ) {
     stringstream ss;
+#ifdef DEBUG
+    ss << "\t" << name << "() : ff_Map(nw) {\n";
+#else
     ss << "\t" << name << "() : ff_Map(" << nw << ") {\n";
+#endif
     ss << "\t}\n";
     return ss.str();
 }
@@ -199,8 +203,11 @@ string parallel_for_declaration(const long grain, const long step, const string&
 
     ss << "\t\t}";
     // end lambda
-
+#ifdef DEBUG
+    ss << ", nw);\n";
+#else
     ss << "," << nw << ");\n";
+#endif
     return ss.str();
 }
 
@@ -218,14 +225,27 @@ string parallel_for_reduce_declaration(const long grain, const long step, const 
 
     if (grain > 0) {
         //dynamic: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+#ifdef DEBUG
+        ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << wrapper_idx
+           << ".identity, 0, " << task_size << ", " << step << ", "
+           << grain << ", bodyF, reduceF, nw);\n";
+#else
         ss << "\t\t" << "pfr.parallel_reduce(*out, wrapper" << wrapper_idx
             << ".identity, 0, " << task_size << ", " << step << ", "
             << grain << ", bodyF, reduceF, " << nw << ");\n";
+#endif
+
     } else {
         //static: var, identity, start, end, step, grain, bodyFun, reduceFun, nw
+#ifdef DEBUG
+        ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << wrapper_idx
+           << ".identity, 0, " << task_size << ", " << step << ", "
+           << grain << ", bodyF, reduceF, nw);\n";
+#else
         ss << "\t\t" << "pfr.parallel_reduce_static(*out, wrapper" << wrapper_idx
             << ".identity, 0, " << task_size << ", " << step << ", "
             << grain << ", bodyF, reduceF, " << nw << ");\n";
+#endif
     }
 
     return ss.str();
@@ -397,6 +417,11 @@ string includes() {
         ss << "#include <" << kv.first << ">\n";
     }
     ss << "\n\n";
+
+#ifdef DEBUG
+    ss << "int nw = 1;\n";
+#endif
+
     return ss.str();
 }
 
@@ -665,7 +690,11 @@ void ffcode::visit(dc_node &n) {
     ss << combine_decl(n.transformed, typeout, wrapper_name, n.schedule);
     ss << seq_decl(n.transformed, typein, typeout, wrapper_name, n.cutoff);
     ss << cond_decl(n.transformed, typein, wrapper_name, n.cutoff);
+#ifdef DEBUG
+    ss << "nw);\n";
+#else
     ss << to_string(nw(n)) << ");\n";
+#endif
 
     assert(code_lines.empty());
     code_lines.push({name, ss.str()});
@@ -776,6 +805,11 @@ string ffcode::operator()(skel_node& n) {
     for (size_t i = 0; i < ids.size(); i++)
         ss << ids[i] << ( i+1 < ids.size() ? "," : "\";\n");
     ss << "threadMapper::instance()->setMappingList(worker_mapping);\n";
+
+#ifdef DEBUG
+    ss << "while (nw <= 128) {\n";
+#endif
+
     /* code lines */
     auto p = code_lines.front();
     ss << p.second << "\n";
@@ -787,12 +821,21 @@ string ffcode::operator()(skel_node& n) {
     //  warning: code might not work out of the box
 
     /* time and stats*/
+#ifdef DEBUG
+    ss << "std::cout << \"nw = \" << nw << \". \"\n;";
+#endif
     ss << "std::cout << \"Spent: \" << ";
     ss <<  p.first << ".ffTime() << \" msecs\" << std::endl;\n\n";
     ss << "#ifdef TRACE_FASTFLOW\n";
     ss << "std::cout << \"Stats: \" << std::endl;\n";
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
+#ifdef DEBUG
+    ss << "if (nw < 32)\n";
+    ss << "\tnw++;\n";
+    ss << "else\n";
+    ss << "\tnw *= 2;\n";
+#endif
 
     ss << "return 0;\n";
 
