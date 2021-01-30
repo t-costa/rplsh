@@ -16,6 +16,61 @@
 using namespace utils;
 
 ////////////////////////////////////////////////////////////////////////////////
+struct source_matrix_vectors : public source<std::vector<utils::elem_elem_idx_idx>> {
+public:
+  source_matrix_vectors() : i(0), j(0), count(0), create(true) {
+    utils::init_random();
+    total = parameters::inputsize*parameters::inputsize;
+  }
+
+  //dimension must be size*size
+  bool has_next() override {
+    return count++ < parameters::matrix_production;
+  }
+
+  //for simplicity, square matrix
+  std::vector<utils::elem_elem_idx_idx>* next() {
+    if (create) {
+      j = 0;
+      create = false;
+    }
+    //create vectors
+    auto row = std::vector<utils::elem_type>(parameters::matrix_size);
+    auto col = std::vector<utils::elem_type>(parameters::matrix_size);
+    //cerco di avere seed diversi, almeno un po'
+    utils::init(row.begin(), row.end(), i*2+1); //seed sempre dispari
+    utils::init(col.begin(), col.end(), j*3+3); //seed sempre pari, tranne 0
+
+    auto out = new std::vector<utils::elem_elem_idx_idx>();
+    for (size_t k=0; k<parameters::matrix_size; k++) {
+      out->emplace_back(elem_elem_idx_idx(row[k], col[k], i, j));
+    }
+
+    // auto out = new utils::vec_vec_idx_idx(row, col, i, j);
+    if (count % parameters::matrix_size == 0) {
+      //ho creato tutte le colonne, serve nuova riga
+      create = true;
+      i++;
+    } else {
+      j++;
+    }
+
+    #ifdef DEBUG
+    std::cout << "source:" << std::endl;
+    for (auto el : *out) {
+      std::cout << el.a << " " << el.b << " " << el.i << " " << el.j << std::endl;
+    }
+    #endif
+
+    return out;
+  }
+
+private:
+  int i, j, count;
+  long total;
+  bool create;
+};
+
 struct source_matrix_stage : public source<matrix> {
 public:
   source_matrix_stage() : i(0) {
@@ -157,7 +212,6 @@ public:
     utils::init(a.begin(), a.end());
     utils::init(b.begin(), b.end());
 
-    //TODO: potrei farlo shared?
     auto vp = new utils::vec_pair();
 
     for (size_t i=0; i<a.size(); ++i) {
@@ -319,6 +373,31 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+struct drain_matrixelem : public drain<utils::elem_idx_idx> {
+public:
+  drain_matrixelem() {
+    res = utils::matrix();
+    for (size_t i=0; i<parameters::matrix_size; ++i) {
+      auto v = std::vector<utils::elem_type>(parameters::matrix_size);
+      res.emplace_back(v);
+    }
+  }
+
+  void process(utils::elem_idx_idx* in) {
+    res[in->i][in->j] = in->a;
+  #ifdef DEBUG
+    std::cout << "riempiendo matrice" << std::endl;
+    for (auto v : res) {
+      utils::print_vec(v);
+    }
+  #endif
+    delete in;
+  }
+
+private:
+  utils::matrix res;
+};
+
 struct drain_matrix_stage : public drain<matrix> {
 public:
     void process(matrix* in) {
@@ -453,6 +532,66 @@ std::cout << (*in) << std::endl;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct map_vec_prod : public map_stage_wrapper<std::vector<utils::elem_elem_idx_idx>, std::vector<utils::elem_idx_idx>, utils::elem_elem_idx_idx, utils::elem_idx_idx> {
+public:
+  explicit map_vec_prod() {}
+
+  std::vector<utils::elem_idx_idx> compute(std::vector<utils::elem_elem_idx_idx>& in) override {
+    std::vector<utils::elem_idx_idx> v(parameters::matrix_size);
+
+    for (size_t i=0; i<in.size(); ++i) {
+      v[i] = op(in[i]);
+    }
+
+    #ifdef DEBUG
+    std::cout << "map compute" << std::endl;
+    for (auto el : v) {
+      std::cout << el.a << " " << el.i << " " << el.j << std::endl;
+    }
+    #endif
+
+    delete &in;
+
+    return v;
+  }
+
+  utils::elem_idx_idx op(const utils::elem_elem_idx_idx& in) override {
+    utils::waste(parameters::minimum_wait);
+    auto res = (in.a)*(in.b);
+    auto out = utils::elem_idx_idx(res, in.i, in.j);
+    return out;
+  }
+};
+
+struct red_sum : public reduce_stage_wrapper<std::vector<utils::elem_idx_idx>, utils::elem_idx_idx> {
+public:
+  utils::elem_idx_idx identity;
+
+  explicit red_sum() { }
+
+  utils::elem_idx_idx compute(std::vector<utils::elem_idx_idx>& in) override {
+    auto out = identity;
+
+    for (size_t i=0; i<in.size(); ++i) {
+      out = op(out, in[i]);
+    }
+
+    #ifdef DEBUG
+    std::cout << "reduce compute" << std::endl;
+    out.print();
+    #endif
+
+    return out;
+  }
+
+  utils::elem_idx_idx op (utils::elem_idx_idx& a, utils::elem_idx_idx& b) override {
+    utils::waste(parameters::minimum_wait);
+    auto res = a.a + b.a;
+    return elem_idx_idx(res, b.i, b.j);
+  }
+
+};
 
 //ogni elemento + 2
 struct seq_vec_vec_stage : public seq_wrapper<std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
@@ -747,21 +886,26 @@ public:
     utils::waste(7*parameters::minimum_wait);
 
     utils::elem_type res = 0;
-    std::cout << "RICEVUTO OP:" << std::endl;
-    utils::print_vec(b);
-
+#ifdef DEBUG
+std::cout << "RICEVUTO OP:" << std::endl;
+utils::print_vec(b);
+#endif
     for (auto& n : b) {
       res += n;
     }
-
+#ifdef DEBUG
     std::cout << "RES DI OP" << std::endl;
     std::cout << res << std::endl;
-
+#endif
     mtx.lock();
-    std::cout << "index = " << index << std::endl;
-    std::cout << "res = " << res << std::endl;
+#ifdef DEBUG
+std::cout << "index = " << index << std::endl;
+std::cout << "res = " << res << std::endl;
+#endif
     v[index] = res;
-    std::cout << "v[index] = " << v[index] << std::endl;
+#ifdef DEBUG
+std::cout << "v[index] = " << v[index] << std::endl;
+#endif
     index++;
     index = index % parameters::inputsize;
     mtx.unlock();

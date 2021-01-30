@@ -21,10 +21,16 @@ namespace utils {
   typedef std::vector<vec> matrix;
   typedef std::vector<matrix> matrix_3d;
   typedef std::pair<vec, vec> vec_couple;
+
+  // typedef std::tuple<elem_type, size_t, size_t> matrix_elem;
+  // typedef std::tuple<elem_type, elem_type, size_t, size_t> matrix_vectors_elem;
+  // typedef std::tuple<vec, size_t, size_t> matrix_vec;
+  // typedef std::tuple<vec, vec, size_t, size_t> matrix_vectors;
   // typedef std::pair<matrix, matrix> matrix_couple;
   // typedef std::pair<vec, matrix> vec_matrix_couple;
 
   // typedef std::pair<std::vector<elem_type>, std::vector<elem_type>> vec_couple;
+
 
 
   uint seed = 1;
@@ -45,6 +51,22 @@ namespace utils {
       std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
       std::default_random_engine re(seed);
       seed++;
+      while (begin != end) {
+          (*begin++) = unif(re);
+      }
+  }
+
+  template <typename Iterator>
+  void init(Iterator begin, Iterator end, uint fixed_seed) {
+  #ifdef DEBUG
+      elem_type lower_bound = 0;
+      elem_type upper_bound = 9;
+  #else
+      elem_type lower_bound = -99999;
+      elem_type upper_bound = 99999;
+  #endif
+      std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+      std::default_random_engine re(fixed_seed);
       while (begin != end) {
           (*begin++) = unif(re);
       }
@@ -232,6 +254,128 @@ namespace utils {
     std::pair<matrix, matrix> m;
   };
 
+  struct elem_elem_idx_idx {
+  public:
+    elem_type a, b;
+    size_t i, j;
+
+    explicit elem_elem_idx_idx() : a(0), b(0), i(0), j(0) {}
+
+    elem_elem_idx_idx(elem_type& a, elem_type& b, elem_type i, elem_type j) {
+      this->a = a;
+      this->b = b;
+      this->i = i;
+      this->j = j;
+    }
+
+    elem_elem_idx_idx& operator= (elem_elem_idx_idx & v) {
+      this->a = v.a;
+      this->b = v.b;
+      this->i = v.i;
+      this->j = v.j;
+      return *this;
+    }
+
+    void print() const {
+      std::cout << "elem_elem_idx_idx" << std::endl;
+      std::cout << "a: " << a << std::endl;
+      std::cout << "b: " << b << std::endl;
+      std::cout << "i: " << i << std::endl;
+      std::cout << "j: " << j << std::endl;
+    }
+  };
+
+  struct vec_vec_idx_idx {
+  public:
+    vec a, b;
+    size_t i, j;
+
+    explicit vec_vec_idx_idx() : i(0), j(0) {
+      a = vec(parameters::matrix_size);
+      b = vec(parameters::matrix_size);
+    }
+
+    explicit vec_vec_idx_idx(const vec& a, const vec& b, size_t i, size_t j) :
+      a(a), b(b), i(i), j(j) { }
+
+    elem_elem_idx_idx& operator[](size_t idx) {
+      out.a = a[idx];
+      out.b = b[idx];
+      out.i = i;
+      out.j = j;
+      //elem_elem_idx_idx(a[idx], b[idx], i, j)
+      return out;
+    }
+
+    size_t size() {
+      return a.size();
+    }
+
+    void print() {
+      std::cout << "vec_vec_idx_idx" << std::endl;
+      std::cout << "a: ";
+      print_vec(a);
+      std::cout << "b: ";
+      print_vec(b);
+      std::cout << "i: " << i << std::endl;
+      std::cout << "j: " << j << std::endl;
+    }
+  private:
+    elem_elem_idx_idx out;
+  };
+
+  struct elem_idx_idx {
+  public:
+    elem_type a;
+    size_t i, j;
+
+    explicit elem_idx_idx() : a(0), i(0), j(0) {}
+
+    elem_idx_idx(elem_type& a, size_t i, size_t j) : a(a), i(i), j(j) {}
+
+    void print() {
+      std::cout << "elem_idx_idx" << std::endl;
+      std::cout << "a: " << a << std::endl;
+      std::cout << "i: " << i << std::endl;
+      std::cout << "j: " << j << std::endl;
+    }
+  };
+
+  struct vec_idx_idx {
+  public:
+    vec a;
+    size_t i, j;
+
+    explicit vec_idx_idx() : i(0), j(0) {
+      a = vec(parameters::matrix_size);
+    }
+
+    vec_idx_idx(const vec& a, size_t i, size_t j) : a(a), i(i), j(j) {}
+
+    elem_idx_idx& operator[](size_t idx) {
+      // auto out = elem_idx_idx(a[idx], i, j);
+      out.a = a[idx];
+      out.i = i;
+      out.j = j;
+      return out;
+    }
+
+    size_t size() {
+      return a.size();
+    }
+
+    void print() {
+      std::cout << "vec_idx_idx" << std::endl;
+      std::cout << "a: ";
+      print_vec(a);
+      std::cout << "i: " << i << std::endl;
+      std::cout << "j: " << j << std::endl;
+    }
+
+  private:
+    elem_idx_idx out;
+
+  };
 
 
   // typedef std::pair<matrix<elem_type>, matrix<elem_type>> matrix_couple;
