@@ -835,6 +835,7 @@ string ffcode::operator()(skel_node& n) {
     ss << "\tnw++;\n";
     ss << "else\n";
     ss << "\tnw *= 2;\n";
+    ss << "}\n";
 #endif
 
     ss << "return 0;\n";
