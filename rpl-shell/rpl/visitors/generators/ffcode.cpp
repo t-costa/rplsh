@@ -831,11 +831,7 @@ string ffcode::operator()(skel_node& n) {
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
 #ifdef DEBUG
-    ss << "if (nw < 32)\n";
-    ss << "\tnw++;\n";
-    ss << "else\n";
-    ss << "\tnw *= 2;\n";
-    ss << "}\n";
+    ss << "nw *= 2;\n";
 #endif
 
     ss << "return 0;\n";

@@ -21,6 +21,40 @@
 // business code headers
 #include </home/tommaso/forked/rplsh/test/definition.hpp>
 
+#include "sys/types.h"
+#include "sys/sysinfo.h"
+
+#include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
+
+struct sysinfo memInfo;
+
+int parseLine(char* line){
+    // This assumes that a digit will be found and the line ends in " Kb".
+    int i = strlen(line);
+    const char* p = line;
+    while (*p <'0' || *p > '9') p++;
+    line[i-3] = '\0';
+    i = atoi(p);
+    return i;
+}
+
+int getValue(){ //Note: this value is in KB!
+    FILE* file = fopen("/proc/self/status", "r");
+    int result = -1;
+    char line[128];
+
+    while (fgets(line, 128, file) != NULL){
+        if (strncmp(line, "VmSize:", 7) == 0){
+            result = parseLine(line);
+            break;
+        }
+    }
+    fclose(file);
+    return result;
+}
+
 
 int nw = 1;
 class source_matrix_vectors_stage : public ff_node {
@@ -57,6 +91,17 @@ public:
 	}
 
 	void * svc(void *t) {
+
+		// sysinfo (&memInfo);
+		// long long virtualMemUsed = memInfo.totalram - memInfo.freeram;
+		// //Add other values in next statement to avoid int overflow on right hand side...
+		// virtualMemUsed += memInfo.totalswap - memInfo.freeswap;
+		// virtualMemUsed *= memInfo.mem_unit;
+		//
+		// std::cout << "virtual mem used: " << virtualMemUsed << std::endl;
+
+		std::cout << "mem used: " << getValue() << std::endl;
+
 		drn->process((utils::elem_idx_idx*) t);
 		return (GO_ON);
 	}
