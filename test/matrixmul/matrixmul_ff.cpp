@@ -100,7 +100,7 @@ public:
 		//
 		// std::cout << "virtual mem used: " << virtualMemUsed << std::endl;
 
-		std::cout << "mem used: " << getValue() << std::endl;
+		// std::cout << "mem used: " << getValue() << std::endl;
 
 		drn->process((utils::elem_idx_idx*) t);
 		return (GO_ON);
@@ -167,7 +167,13 @@ int main( int argc, char* argv[] ) {
 	// worker mapping
 	const char worker_mapping[] = "0,1,2,3,4,5,6,7";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	while (nw <= 6) {
+
+  std::string problem = "matrix mul as stream";
+  double seq_time;
+  std::vector<std::pair<int, double>> par_time;
+  std::vector<int> par_degree;
+
+	while (nw <= 3) {
 		source_matrix_vectors_stage _source_matrix_vectors;
 		map0_stage _map0_;
 		reduce0_stage _red0_;
@@ -180,18 +186,26 @@ int main( int argc, char* argv[] ) {
 
 
 		pipe.run_and_wait_end();
-		std::cout << "nw = " << nw << ". "
-		;std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
+    auto t = pipe.ffTime();
+		std::cout << "nw = " << nw << ". ";
+		std::cout << "Spent: " << t << " msecs" << std::endl;
+
+    par_time.emplace_back(nw, t);
+    par_degree.push_back(nw);
+    if (nw==1) {
+      //questo sarebbe da fare in modo diverso
+      seq_time = t;
+    }
 
 		#ifdef TRACE_FASTFLOW
 		std::cout << "Stats: " << std::endl;
 		pipe.ffStats(std::cout);
 		#endif
-		if (nw < 32)
 			nw++;
-		else
-			nw *= 2;
 		}
+
+    build_json(seq_time, par_time, par_degree, problem);
+
 	return 0;
 
 }

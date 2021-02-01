@@ -822,7 +822,7 @@ string ffcode::operator()(skel_node& n) {
 
     /* time and stats*/
 #ifdef DEBUG
-    ss << "std::cout << \"nw = \" << nw << \". \"\n;";
+    ss << "std::cout << \"nw = \" << nw << \". \";\n";
 #endif
     ss << "std::cout << \"Spent: \" << ";
     ss <<  p.first << ".ffTime() << \" msecs\" << std::endl;\n\n";
@@ -832,6 +832,7 @@ string ffcode::operator()(skel_node& n) {
     ss << "#endif\n";
 #ifdef DEBUG
     ss << "nw *= 2;\n";
+    ss << "}\n";
 #endif
 
     ss << "return 0;\n";

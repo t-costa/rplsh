@@ -4,6 +4,7 @@ CXX	= g++ -std=c++17
 CFLAGS = -Wall
 LIBS = -pthread
 RPL	= ../../
+JSON = ../
 FF = $(FF_HOME)
 #FF	= ../../fastflow/
 OPT = -O3
@@ -32,10 +33,10 @@ ff:	$(FFBIN)
 sequential: $(SEQBIN)
 
 $(FFBIN): $(FFSRC) $(HEADERS)
-	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -o $@ $@.cpp $(LIBS)
+	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) -o $@ $@.cpp $(LIBS)
 
 $(SEQBIN): $(SEQSRC) $(HEADERS)
-	$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
+	$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $@.cpp
 
 
 test_seq: $(SEQBIN)

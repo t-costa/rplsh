@@ -1,0 +1,27 @@
+{
+    "all_x": [
+        1,
+        2,
+        3
+    ],
+    "all_y": [
+        1.0,
+        1.572360210694866,
+        1.2711293425137156
+    ],
+    "name": "matrix mul as stream",
+    "seq_time": 141103.327,
+    "title": "Graph of speedup w.r.t. parallel degree for matrix mul as stream",
+    "x": [
+        1,
+        2,
+        3
+    ],
+    "xaxis": "Parallelism degree",
+    "y": [
+        1.0,
+        1.572360210694866,
+        1.2711293425137156
+    ],
+    "yaxis": "Speedup"
+}
