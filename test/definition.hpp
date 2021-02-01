@@ -249,7 +249,7 @@ std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
-    // utils::waste(parameters::minimum_wait);
+    utils::waste(parameters::minimum_wait);
 
     return v;
   }
@@ -463,6 +463,8 @@ struct drain_vec_stage : public drain<std::vector<utils::elem_type>> {
 public:
   void process(std::vector<utils::elem_type>* in) {
 
+    utils::waste(parameters::minimum_wait);
+
 #ifdef DEBUG
 std::cout << "[drain_vec_stage] result:\n";
 utils::print_vec(*in);
@@ -599,7 +601,7 @@ public:
   explicit seq_vec_vec_stage() {}
 
   std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
-    utils::waste(3*parameters::minimum_wait);
+    utils::waste(100*parameters::minimum_wait);
     std::vector<utils::elem_type> out;
     out.reserve(in.size());
 

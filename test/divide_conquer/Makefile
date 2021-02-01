@@ -3,10 +3,11 @@ CXX	= g++ -std=c++17
 #CFLAGS 	= `pkg-config --cflags opencv` #-pg
 CFLAGS = -Wall
 LIBS = -pthread
-RPL	= ../../
+RPL	= $(RPL_HOME)
 FF = $(FF_HOME)
+JSON = ../
 #FF	= ../../fastflow/
-OPT = -O3 -finline-functions
+OPT = -O3
 DBG = -O0 -g -DDEBUG
 #LIBS 	= `pkg-config --libs opencv`
 
@@ -16,40 +17,33 @@ FFSRC=$(wildcard *ff.cpp)
 SEQSRC=$(wildcard *seq.cpp)
 #SRC=$(wildcard *.cpp)
 
-SEQBIN=$(patsubst %seq.cpp,%seq,$(SEQSRC))
-FFBIN=$(patsubst %ff.cpp,%ff,$(FFSRC))
-# SEQBINDEB=$(patsubst %seq.cpp,%seq,$(SEQSRC))
-# FFBINDEB=$(patsubst %ff.cpp,%ff,$(FFSRC))
+SEQBINDEB=$(patsubst %seq.cpp,%seq,$(SEQSRC))
+FFBINDEB=$(patsubst %ff.cpp,%ff,$(FFSRC))
+SEQBINOPT=$(patsubst %seq.cpp,%seq_opt,$(SEQSRC))
+FFBINOPT=$(patsubst %ff.cpp,%ff_opt,$(FFSRC))
 
 .SILENT: test_seq test_ff test_all clean
 
 all: ff sequential
 
-ff:	$(FFBIN)
+ff:	$(FFBINDEB)
 
-sequential: $(SEQBIN)
+sequential: $(SEQBINDEB)
 
-$(FFBIN): $(FFSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(FF) -I$(RPL) $(LIBS) -o $@ $@.cpp
+opt: $(SEQBINOPT) $(FFBINOPT)
 
-$(SEQBIN): $(SEQSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
+$(FFBINDEB): $(FFSRC) $(HEADERS)
+	$(CXX) $(DBG) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) $(LIBS) -o $@ $@.cpp
 
-#per opt
-#$(CXX) $(OPT) $(CFLAGS) -I$(RPL) -o $@ $@.cpp
+$(SEQBINDEB): $(SEQSRC) $(HEADERS)
+	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $@.cpp
 
-# ff_debug: $(FFBINDEB)
-#
-# sequential_debug: $(SEQBINDEB)
-#
-# $(SEQBINDEB): $(SEQSRC) $(HEADERS)
-# 	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -o debug_$@ $@.cpp
-#
-# $(FFBINDEB): $(FFSRC) $(HEADERS)
-# 	$(CXX) $(DBG) $(CFLAGS) -I$(FF) -I$(RPL) -o debug_ $@.cpp $(LIBS)
+$(FFBINOPT): $(FFSRC) $(HEADERS)
+	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) $(LIBS) -o $@ $<
 
-# test_seq_debug: $(SEQBINDEB)
-# 	$(foreach exec, $(SEQBINDEB), echo "Executing $(exec)\n"; ./$(exec); echo "------------\n")
+$(SEQBINOPT): $(SEQSRC) $(HEADERS)
+	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $<
+
 
 test_seq: $(SEQBIN)
 	$(foreach exec, $(SEQBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
@@ -69,12 +63,12 @@ test_all: $(SEQBIN) $(FFBIN)
 	$(foreach exec, $(FFBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
 
 remove_ff_code:
-	rm $(FFSRC)
+	$(RM) $(FFSRC)
 
 clean:
-	$(RM) $(SEQBIN)
+	$(RM) $(SEQBINOPT)
 	$(RM) $(SEQBINDEB)
-	$(RM) $(FFBIN)
+	$(RM) $(FFBINOPT)
 	$(RM) $(FFBINDEB)
 	$(RM) res_seq.txt
 	$(RM) res_ff.txt
