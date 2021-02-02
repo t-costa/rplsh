@@ -113,7 +113,7 @@ public:
   }
 
   bool has_next() override {
-    return i++ < parameters::dimension;
+    return i++ < parameters::matrix_stream;
   }
 
   matrix_couple* next() {
@@ -797,7 +797,7 @@ public:
   }
 
   std::vector<elem_type> op(const vec_matrix_couple& vm_pair) override {
-    utils::waste(10*parameters::minimum_wait);
+    // utils::waste(10*parameters::minimum_wait);
     const auto a = vm_pair._vec;
     const auto b = vm_pair._mat;
 

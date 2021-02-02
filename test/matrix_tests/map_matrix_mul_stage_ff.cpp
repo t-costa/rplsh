@@ -63,7 +63,7 @@ class map0_stage : public ff_Map<matrix_couple,matrix> {
 protected:
 	map_matrix_mul_stage wrapper0;
 public:
-	map0_stage() : ff_Map(4) {
+	map0_stage() : ff_Map(6) {
 	}
 
 	matrix* svc(matrix_couple *t) {
@@ -72,7 +72,7 @@ public:
 		out->resize(_task.size());
 		pfr.parallel_for_static(0, _task.size(), 1, 0, [this, &_task, &out](const long i) {
 			(*out)[i] = wrapper0.op(_task[i]);
-		},4);
+		},6);
 
 		delete t;
 
