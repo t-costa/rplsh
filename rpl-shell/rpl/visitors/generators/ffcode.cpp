@@ -583,11 +583,38 @@ void ffcode::visit( drain_node& n ) {
  * @param n composite node
  */
 void ffcode::visit( comp_node& n ) {
-    comp_build("ff_comb", "comp", n);
-//    if (n.compseq)
-//        comp_pipe("ff_comp", "comp", n);
-//    else
-//        comp_pipe("ff_pipeline", "pipe", n);
+    stringstream ss;
+
+    //comp node is unranked, children != comp
+
+    // recursion over the children
+    // and pick from code_lines
+    std::vector<pair<string,string>> vec;
+    for (size_t i = 0; i < n.size(); i++) {
+        n.get(i)->accept(*this);
+        vec.push_back(code_lines.front());
+        ss << vec.back().second;
+        code_lines.pop();
+    }
+
+    if (n.size() == 1) {
+        //no need for comp
+        std::cout << "Warning: comp of single node will not generate an actual comp object." << std::endl;
+        assert(code_lines.empty());
+        code_lines.push({vec[0].first, ss.str()});
+        return;
+    }
+
+    string last_comp = new_name("comp"), var;
+    for (size_t i=0; i<n.size()-1; ++i) {
+        string par = !i ? vec[i].first : last_comp;
+        ss << "ff_comb " << var << "(" << par << ", " << vec[i+1].first << ");\n";
+        last_comp = var;
+        var = new_name("comp");
+    }
+
+    assert(code_lines.empty());
+    code_lines.push({var, ss.str()});
 }
 
 /**
@@ -595,8 +622,26 @@ void ffcode::visit( comp_node& n ) {
  * @param n pipe node
  */
 void ffcode::visit( pipe_node& n ) {
-//    comp_pipe("ff_pipeline", "pipe", n);
-    pipe_build("ff_pipeline", "pipe", n);
+    stringstream ss;
+    string var = new_name("pipe");
+
+    // recursion over the children
+    // and pick from code_lines
+    std::vector<pair<string,string>> vec;
+    for (size_t i = 0; i < n.size(); i++) {
+        n.get(i)->accept(*this);
+        vec.push_back(code_lines.front());
+        ss << vec.back().second;
+        code_lines.pop();
+    }
+
+    ss << "ff_pipeline " << var << ";\n";
+    for (const auto& p : vec)
+        ss << var << ".add_stage(&" << p.first << ");\n";
+    ss << "\n";
+
+    assert(code_lines.empty());
+    code_lines.push({var, ss.str()});
 }
 
 /**
@@ -839,6 +884,9 @@ string ffcode::operator()(skel_node& n) {
 
     ss << "return 0;\n";
 
+    //FIXME: if comp(source, ..., drain) the run_and_wait_end()
+    //  will give problems!
+
     code_lines.pop();
     assert(code_lines.empty());
 
@@ -856,93 +904,5 @@ void ffcode::seq_wraps(const string& name) {
     stringstream ss;
     string var = new_name("_"+name);
     ss << name << "_stage " << var << ";\n";
-    code_lines.push({var, ss.str()});
-}
-
-/**
- * Declares and add stages to a sequential composition or a pipeline
- * @param type sequential comp or pipe
- * @param name name of the stage
- * @param n comp or pipe node
- */
-void ffcode::comp_pipe(const string& type, const string& name, skel_node& n) {
-    stringstream ss;
-    string var = new_name(name);
-
-    // recursion over the children
-    // and pick from code_lines
-    std::vector<pair<string,string>> vec;
-    for (size_t i = 0; i < n.size(); i++) {
-        n.get(i)->accept(*this);
-        vec.push_back(code_lines.front());
-        ss << vec.back().second;
-        code_lines.pop();
-    }
-
-    ss << type << " " << var << ";\n";
-    for (const auto& p : vec)
-        ss << var << ".add_stage(&" << p.first << ");\n";
-    ss << "\n";
-
-    assert(code_lines.empty());
-    code_lines.push({var, ss.str()});
-}
-
-void ffcode::comp_build(const string &type, const string &name, skel_node &n) {
-    stringstream ss;
-
-    //comp node is unranked, children != comp
-
-    // recursion over the children
-    // and pick from code_lines
-    std::vector<pair<string,string>> vec;
-    for (size_t i = 0; i < n.size(); i++) {
-        n.get(i)->accept(*this);
-        vec.push_back(code_lines.front());
-        ss << vec.back().second;
-        code_lines.pop();
-    }
-
-    //se comp(seq) come faccio?
-    if (n.size() == 1) {
-        //no need for comp
-        assert(code_lines.empty());
-        code_lines.push({vec[0].first, ss.str()});
-        return;
-    }
-
-    string last_comp = new_name(name), var;
-    for (size_t i=0; i<n.size()-1; ++i) {
-        string par = !i ? vec[i].first : last_comp;
-        var = new_name(name);
-        ss << "ff_comb " << var << "(" << par << ", " << vec[i+1].first << ");\n";
-        last_comp = var;
-    }
-    //I think no need for more
-
-    assert(code_lines.empty());
-    code_lines.push({var, ss.str()});
-}
-
-void ffcode::pipe_build(const string &type, const string &name, skel_node &n) {
-    stringstream ss;
-    string var = new_name(name);
-
-    // recursion over the children
-    // and pick from code_lines
-    std::vector<pair<string,string>> vec;
-    for (size_t i = 0; i < n.size(); i++) {
-        n.get(i)->accept(*this);
-        vec.push_back(code_lines.front());
-        ss << vec.back().second;
-        code_lines.pop();
-    }
-
-    ss << type << " " << var << ";\n";
-    for (const auto& p : vec)
-        ss << var << ".add_stage(&" << p.first << ");\n";
-    ss << "\n";
-
-    assert(code_lines.empty());
     code_lines.push({var, ss.str()});
 }

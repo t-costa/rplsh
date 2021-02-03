@@ -27,9 +27,6 @@ struct ffcode : public skel_visitor {
     std::string operator()(skel_node& n);
 
 private:
-    void comp_pipe(const std::string& type, const std::string& name, skel_node& n);
-    void comp_build(const std::string& type, const std::string& name, skel_node& n);
-    void pipe_build(const std::string& type, const std::string& name, skel_node& n);
     void seq_wraps(const std::string& name);
 
 protected:
