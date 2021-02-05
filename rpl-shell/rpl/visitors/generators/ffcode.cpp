@@ -854,6 +854,8 @@ string ffcode::operator()(skel_node& n) {
     ss << "threadMapper::instance()->setMappingList(worker_mapping);\n";
 
 #ifdef DEBUG
+    ss << "std::vector<std::pair<int, double>> par_time;\n";
+    ss << "std::vector<int> par_degree;\n";
     ss << "while (nw <= 128) {\n";
 #endif
 
@@ -878,9 +880,11 @@ string ffcode::operator()(skel_node& n) {
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
 #ifdef DEBUG
-    ss << "utils::build_json(0, " << p.first << ".ffTime(), nw, " << pr.print(n) << ");\n";
+    ss << "par_time.emplace_back(nw, " << p.first << ".ffTime());\n";
+    ss << "par_degree.push_back(nw);\n";
     ss << "nw *= 2;\n";
     ss << "}\n";
+    ss << "\nutils::build_json(0, par_time, par_degree, \"" << pr.print(n) << "\");\n";
 #endif
 
     ss << "return 0;\n";

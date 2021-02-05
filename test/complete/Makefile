@@ -1,7 +1,7 @@
 
 CXX	= g++ -std=c++17
 #CFLAGS 	= `pkg-config --cflags opencv` #-pg
-CFLAGS = -Wall
+CFLAGS = -Wall -DTRACE_FASTFLOW
 LIBS = -pthread
 RPL	= $(RPL_HOME)
 FF = $(FF_HOME)
@@ -24,7 +24,7 @@ FFBINOPT=$(patsubst %ff.cpp,%ff_opt,$(FFSRC))
 
 .SILENT: test_seq test_ff test_all clean
 
-all: ff sequential
+all: ff sequential opt
 
 ff:	$(FFBINDEB)
 
@@ -39,28 +39,28 @@ $(SEQBINDEB): $(SEQSRC) $(HEADERS)
 	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $@.cpp
 
 $(FFBINOPT): $(FFSRC) $(HEADERS)
-	$(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) $(LIBS) -o $@ $<
+	$(foreach f, $(FFBINDEB), $(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) $(LIBS) -o $(f)_opt  $(f).cpp;)
 
 $(SEQBINOPT): $(SEQSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $<
+	$(foreach f, $(SEQBINDEB), $(CXX) $(OPT) $(CFLAGS) -I$(RPL) -I$(JSON) $(LIBS) -o $(f)_opt  $(f).cpp;)
 
 
-test_seq: $(SEQBIN)
-	$(foreach exec, $(SEQBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
+test_seq: $(SEQBINOPT)
+	$(foreach exec, $(SEQBINOPT), echo "\nExecuting $(exec)\n"; ./$(exec);)
 
 # test_ff_debug: $(FFBINDEB)
 # 	$(foreach exec, $(FFBINDEB), echo "Executing $(exec)\n"; ./$(exec); echo "------------\n")
 
-test_ff: $(FFBIN)
-	$(foreach exec, $(FFBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
+test_ff: $(FFBINOPT)
+	$(foreach exec, $(FFBINOPT), echo "\nExecuting $(exec)\n"; ./$(exec);)
 
 # test_all_debug: $(SEQBINDEB) $(FFBINDEB)
 # 	$(foreach exec, $(SEQBINDEB), echo "Executing $(exec)\n"; ./$(exec); echo "------------\n")
 # 	$(foreach exec, $(FFBINDEB), echo "Executing $(exec)\n"; ./$(exec); echo "------------\n")
 
-test_all: $(SEQBIN) $(FFBIN)
-	$(foreach exec, $(SEQBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
-	$(foreach exec, $(FFBIN), echo "\nExecuting $(exec)\n"; ./$(exec);)
+test_all: $(SEQBINOPT) $(FFBINOPT)
+	$(foreach exec, $(SEQBINOPT), echo "\nExecuting $(exec)\n"; ./$(exec);)
+	$(foreach exec, $(FFBINOPT), echo "\nExecuting $(exec)\n"; ./$(exec);)
 
 remove_ff_code:
 	$(RM) $(FFSRC)

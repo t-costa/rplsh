@@ -24,7 +24,7 @@ FFBINOPT=$(patsubst %ff.cpp,%ff_opt,$(FFSRC))
 
 .SILENT: test_seq test_ff test_all clean
 
-all: ff sequential
+all: ff sequential opt
 
 ff:	$(FFBINDEB)
 
@@ -42,7 +42,7 @@ $(FFBINOPT): $(FFSRC) $(HEADERS)
 	$(foreach f, $(FFBINDEB), $(CXX) $(OPT) $(CFLAGS) -I$(FF) -I$(RPL) -I$(JSON) $(LIBS) -o $(f)_opt  $(f).cpp;)
 
 $(SEQBINOPT): $(SEQSRC) $(HEADERS)
-	$(CXX) $(DBG) $(CFLAGS) -I$(RPL) -I$(JSON) -o $@ $<
+	$(foreach f, $(SEQBINDEB), $(CXX) $(OPT) $(CFLAGS) -I$(RPL) -I$(JSON) $(LIBS) -o $(f)_opt  $(f).cpp;)
 
 
 test_seq: $(SEQBINOPT)
