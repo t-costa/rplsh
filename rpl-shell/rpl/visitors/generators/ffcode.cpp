@@ -878,6 +878,7 @@ string ffcode::operator()(skel_node& n) {
     ss << p.first << ".ffStats(std::cout);\n";
     ss << "#endif\n";
 #ifdef DEBUG
+    ss << "utils::build_json(0, " << p.first << ".ffTime(), nw, " << pr.print(n) << ");\n";
     ss << "nw *= 2;\n";
     ss << "}\n";
 #endif
