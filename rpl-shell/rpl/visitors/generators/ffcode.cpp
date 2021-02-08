@@ -856,6 +856,7 @@ string ffcode::operator()(skel_node& n) {
 #ifdef DEBUG
     ss << "std::vector<std::pair<int, double>> par_time;\n";
     ss << "std::vector<int> par_degree;\n";
+    ss << "double t_seq = 0;\n";
     ss << "while (nw <= 128) {\n";
 #endif
 
@@ -882,6 +883,7 @@ string ffcode::operator()(skel_node& n) {
 #ifdef DEBUG
     ss << "par_time.emplace_back(nw, " << p.first << ".ffTime());\n";
     ss << "par_degree.push_back(nw);\n";
+    ss << "if (nw == 1) t_seq = pipe.ffTime();\n";
     ss << "nw *= 2;\n";
     ss << "}\n";
     ss << "\nutils::build_json(0, par_time, par_degree, \"" << pr.print(n) << "\");\n";
