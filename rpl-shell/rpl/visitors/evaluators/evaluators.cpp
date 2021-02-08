@@ -37,7 +37,9 @@ eval_visitor::eval_visitor(rpl_environment& env) :
 ///////////////////////////////////////////////////////////////////////////////
 
 servicetime::servicetime(rpl_environment& env) :
-    eval_visitor( env ), res (0), start(true)
+    eval_visitor( env ), res (0), start(true),
+    computing_reduce(false),
+    partial_res_map(0), partial_res_red(0)
 {}
 
 /**
@@ -72,7 +74,16 @@ void servicetime::visit(drain_node& n) {
  * @param n comp node
  */
 void servicetime::visit(comp_node& n) {
-    res = compute(*this, n, std::plus<double>());
+    if (computing_reduce) {
+        //only the last one is reduce, the others are map
+        for (size_t i=0; i<n.size()-1; ++i) {
+            partial_res_map += (*this)(*n.get(i));
+        }
+        //the last one is for reduce
+        partial_res_red = (*this)(*n.get(n.size()-1));
+    } else {
+        res = compute(*this, n, std::plus<double>());
+    }
 }
 
 /**
@@ -110,7 +121,30 @@ void servicetime::visit(reduce_node& n) {
     // ts(n) = Tf / nw + log2(nw) * Tf
     //trying empirically it seems pretty much the same as map...
 
-    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_scatter_time());
+//    res = std::max((*this)(*n.get(0)) / n.pardegree, env.get_scatter_time());
+
+    int nw = n.pardegree;
+    computing_reduce = true;
+    partial_res_red = 0;
+    partial_res_map = 0;
+    auto res_child = (*this)(*n.get(0));
+    double ts_map = 0, ts_red = 0;
+
+    if (partial_res_map != 0 || partial_res_red != 0) {
+        //i think it's comp case
+        ts_map = partial_res_map/nw;
+        ts_red = partial_res_red/nw + partial_res_red*log2(nw)/global_inputsize;
+    } else {
+        //reduce(seq)
+        ts_red = res_child/nw + res_child*log2(nw)/global_inputsize;
+    }
+
+    //clean
+    computing_reduce = false;
+    partial_res_red = 0;
+    partial_res_map = 0;
+
+    res = std::max(ts_map+ts_red, env.get_scatter_time());
 
 //    int nw = n.pardegree;
 //    res = (*this)(*n.get(0));            // res == Tf
@@ -179,7 +213,9 @@ void servicetime::reset_start() {
 ///////////////////////////////////////////////////////////////////////////////
 
 latencytime::latencytime(rpl_environment& env) :
-    eval_visitor( env ), res (0), start(true)
+    eval_visitor( env ), res (0), start(true),
+    computing_reduce(false),
+    partial_res_map(0), partial_res_red(0)
 {}
 
 /**
@@ -214,7 +250,16 @@ void latencytime::visit(drain_node& n) {
  * @param n comp node
  */
 void latencytime::visit(comp_node& n) {
-    res = compute(*this, n, std::plus<double>());
+    if (computing_reduce) {
+        //only the last one is reduce, the others are map
+        for (size_t i=0; i<n.size()-1; ++i) {
+            partial_res_map += (*this)(*n.get(i));
+        }
+        //the last one is for reduce
+        partial_res_red = (*this)(*n.get(n.size()-1));
+    } else {
+        res = compute(*this, n, std::plus<double>());
+    }
 }
 
 /**
@@ -247,13 +292,31 @@ void latencytime::visit(map_node& n) {
  * @param n reduce node
  */
 void latencytime::visit(reduce_node& n) {
-    // assuming Tf is the servicetime  of the reduce function f:
-    // lat(n) = Tf / nw + log2(nw) * Tf
+    //just like ts
 
-//    int nw = n.pardegree;
-//    res = (*this)(*n.get(0));                   // res == Tf / nw
-//    res = res + log2(n.pardegree) * (res/nw);           // Tf == res*nw
-    res = env.get_scatter_time() + (*this)( *n.get(0) ) / n.pardegree + env.get_gather_time();
+    int nw = n.pardegree;
+    computing_reduce = true;
+    partial_res_red = 0;
+    partial_res_map = 0;
+    auto res_child = (*this)(*n.get(0));
+    double ts_map = 0, ts_red = 0;
+
+    if (partial_res_map != 0 || partial_res_red != 0) {
+        //i think it's comp case
+        ts_map = partial_res_map/nw;
+        ts_red = partial_res_red/nw + partial_res_red*log2(nw)/global_inputsize;
+    } else {
+        //reduce(seq)
+        ts_red = res_child/nw + res_child*log2(nw)/global_inputsize;
+    }
+
+    //clean
+    computing_reduce = false;
+    partial_res_red = 0;
+    partial_res_map = 0;
+
+    res = std::max(ts_map+ts_red, env.get_scatter_time());
+
     global_inputsize = 1;
 }
 

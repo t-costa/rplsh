@@ -34,6 +34,8 @@ struct servicetime: public eval_visitor
 private:
     double res;
     bool start;
+    bool computing_reduce;
+    double partial_res_map, partial_res_red;
 };
 
 struct latencytime: public eval_visitor
@@ -57,6 +59,8 @@ struct latencytime: public eval_visitor
 protected:
     double res;
     bool start;
+    bool computing_reduce;
+    double partial_res_map, partial_res_red;
 };
 
 struct completiontime: public eval_visitor

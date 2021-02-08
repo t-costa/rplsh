@@ -149,7 +149,7 @@ void mapopt::visit( map_node& n ) {
     double tsc = env.get_scatter_time();
     double tsg = env.get_gather_time();
     double tw  = ts( *n.get(0) );
-    size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
+    size_t nw  = ceil( sqrt( tw / (tsc + tsg) ) ); //Vanneschi's book 14.1 Map
     n.pardegree = nw;
 
     /* reassign resources with the new pardegree */
@@ -179,7 +179,6 @@ reduceopt::reduceopt( rpl_environment& env ) :
  * @param n reduce node
  */
 void reduceopt::visit( reduce_node& n ) {
-    //std::cout << "reduceopt first: " << n.pardegree << " - " << n.inputsize << std::endl;
     /* reassign resources assuming only one worker */
     assign_resources assignres;
     n.pardegree = 1;
@@ -187,26 +186,14 @@ void reduceopt::visit( reduce_node& n ) {
 
     /* compute the "optimal" pardegree */
     ts.reset_start();
-    //double tsc = env.get_scatter_time();
-    //double tsg = env.get_gather_time();
     double tw  = ts( *n.get(0) );
-    //size_t nw  = ceil( sqrt( tw / max(tsc,tsg) ) ); //Vanneschi's book 14.1 Map
-    //n.pardegree = nw;
 
     //from work-span model
-    n.pardegree = static_cast<int>(ceil(tw/log2(tw)));
+    n.pardegree = static_cast<int>(ceil(tw/log2(env.get_inputsize())));
 
     /* reassign resources with the new pardegree */
     assignres(n, env.get_inputsize());
 
-    //std::cout << "reduceopt second: " << n.pardegree << " - " << n.inputsize << std::endl;
-    /* compute the optimal number of workers */
-    //TODO: I don't get it... TC
-//    n.pardegree = static_cast<int>( (n.inputsize) * log(2) );
-//    assignres(n, n.inputsize);
-    //std::cout << "npardegree : " << n.pardegree << std::endl;
-    //std::cout << "reduceopt third: " << n.pardegree << " - " << n.inputsize << std::endl;
-    /* recurse; TODO Or not?*/
     (*this)( *n.get(0) );
 }
 
@@ -251,13 +238,12 @@ void dcopt::visit(dc_node &n) {
     double t_sk = ts(*n.get(0));
     auto base = abs(n.schedule);
     //TODO: check formulas
-    auto crit_path = static_cast<int>(ceil(log( n.inputsize + n.cutoff) / log(base)));
+    auto crit_path = static_cast<int>(ceil(max(log( n.inputsize / n.cutoff), 1.0) / log(base)));
     //should be 2*crit_path also on the numerator, but inputsize
     //should be much bigger, and in practice is probably better
     //to reduce a bit the pardegree
-    //if not datap annotated
-    auto work = max(t_sk, n.inputsize*t_sk);
-    n.pardegree = ceil(work / (2*crit_path));
+
+    n.pardegree = ceil(t_sk / (2*crit_path));
 
     /* reassign resources with the new pardegree */
     assignres(n, env.get_inputsize());
