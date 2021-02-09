@@ -1,1 +1,0 @@
-/usr/bin/g++-7 -std=c++17 -g -O0 -Wall -pedantic -pthread -rdynamic CMakeFiles/dotproduct.dir/ff_code.cpp.o -o dotproduct 

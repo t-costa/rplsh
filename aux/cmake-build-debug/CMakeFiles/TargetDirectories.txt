@@ -1,3 +1,0 @@
-/home/tommaso/forked/rplsh/aux/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/tommaso/forked/rplsh/aux/cmake-build-debug/CMakeFiles/aux.dir
-/home/tommaso/forked/rplsh/aux/cmake-build-debug/CMakeFiles/edit_cache.dir

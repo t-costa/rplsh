@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/tommaso/forked/rplsh/business/dotproduct/build",
-  "command": "/usr/bin/g++-7  -I/home/tommaso/fastflow -I/home/tommaso/forked/rplsh/business/dotproduct/../.. -std=c++17 -g -O0 -Wall -pedantic -pthread -o CMakeFiles/dotproduct.dir/ff_code.cpp.o -c /home/tommaso/forked/rplsh/business/dotproduct/ff_code.cpp",
-  "file": "/home/tommaso/forked/rplsh/business/dotproduct/ff_code.cpp"
-}
-]

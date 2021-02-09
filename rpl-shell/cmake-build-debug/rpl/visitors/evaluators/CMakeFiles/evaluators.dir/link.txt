@@ -1,2 +1,0 @@
-/usr/bin/ar qc libevaluators.a  CMakeFiles/evaluators.dir/evaluators.cpp.o
-/usr/bin/ranlib libevaluators.a

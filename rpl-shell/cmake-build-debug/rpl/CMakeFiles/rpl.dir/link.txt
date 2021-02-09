@@ -1,2 +1,0 @@
-/usr/bin/ar qc librpl.a  CMakeFiles/rpl.dir/interpreter.cpp.o CMakeFiles/rpl.dir/history.cpp.o CMakeFiles/rpl.dir/tab_completion.cpp.o
-/usr/bin/ranlib librpl.a
