@@ -35,6 +35,7 @@ interpreter::interpreter(rpl_environment& env, error_container& err_repo) :
     gdispatch(env),
     odispatch(env),
     vdispatch(env),
+    assignres(env),
     normform(env),
     ff(env),
     success(true),

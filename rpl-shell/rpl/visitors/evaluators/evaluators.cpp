@@ -128,15 +128,15 @@ void servicetime::visit(reduce_node& n) {
     partial_res_red = 0;
     partial_res_map = 0;
     auto res_child = (*this)(*n.get(0));
-    double ts_map = 0, ts_red = 0;
+    double ts_red = 0;
 
     if (partial_res_map != 0 || partial_res_red != 0) {
         //i think it's comp case
-        ts_map = partial_res_map/nw;
-        ts_red = partial_res_red/nw + partial_res_red*log2(nw)/global_inputsize;
+//        ts_map = partial_res_map/nw;
+        ts_red = (partial_res_red + partial_res_map)/nw + (partial_res_red*nw)/global_inputsize;
     } else {
         //reduce(seq)
-        ts_red = res_child/nw + res_child*log2(nw)/global_inputsize;
+        ts_red = res_child/nw + (res_child*nw)/global_inputsize;
     }
 
     //clean
@@ -144,7 +144,7 @@ void servicetime::visit(reduce_node& n) {
     partial_res_red = 0;
     partial_res_map = 0;
 
-    res = std::max(ts_map+ts_red, env.get_scatter_time());
+    res = std::max(ts_red, env.get_scatter_time());
 
 //    int nw = n.pardegree;
 //    res = (*this)(*n.get(0));            // res == Tf
@@ -172,7 +172,7 @@ void servicetime::visit(id_node& n) {
     try {
         // we need to assign resources before
         auto ptr = env.get(n.id, n.index);
-        assign_resources assignres;
+        assign_resources assignres(env);
 //        assignres(*ptr, n.inputsize);
         assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);
@@ -204,6 +204,20 @@ double servicetime::operator()(skel_node& sk){
     }
     sk.accept(*this);
     return res;
+}
+
+void servicetime::operator()(skel_node &sk, double &ts_map, double &ts_red) {
+    //called on child of reduce
+    if (start) {
+        global_inputsize = sk.inputsize;
+        start = false;
+        computing_reduce = true;
+        partial_res_red = 0;
+        partial_res_map = 0;
+    }
+    sk.accept(*this);
+    ts_map = partial_res_map;
+    ts_red = partial_res_red;
 }
 
 void servicetime::reset_start() {
@@ -299,15 +313,15 @@ void latencytime::visit(reduce_node& n) {
     partial_res_red = 0;
     partial_res_map = 0;
     auto res_child = (*this)(*n.get(0));
-    double ts_map = 0, ts_red = 0;
+    double l_red = 0;
 
     if (partial_res_map != 0 || partial_res_red != 0) {
         //i think it's comp case
-        ts_map = partial_res_map/nw;
-        ts_red = partial_res_red/nw + partial_res_red*log2(nw)/global_inputsize;
+//        ts_map = partial_res_map/nw;
+        l_red = (partial_res_red + partial_res_map)/nw + (partial_res_red*nw)/global_inputsize;
     } else {
         //reduce(seq)
-        ts_red = res_child/nw + res_child*log2(nw)/global_inputsize;
+        l_red = res_child/nw + (res_child*nw)/global_inputsize;
     }
 
     //clean
@@ -315,7 +329,7 @@ void latencytime::visit(reduce_node& n) {
     partial_res_red = 0;
     partial_res_map = 0;
 
-    res = std::max(ts_map+ts_red, env.get_scatter_time());
+    res = env.get_scatter_time() + l_red + env.get_gather_time();
 
     global_inputsize = 1;
 }
@@ -338,7 +352,7 @@ void latencytime::visit(dc_node &n) {
 void latencytime::visit(id_node& n) {
     try {
         auto ptr = env.get(n.id, n.index);
-        assign_resources assignres;
+        assign_resources assignres(env);
 //        assignres(*ptr, n.inputsize);
         assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);
@@ -487,7 +501,7 @@ void completiontime::visit(dc_node &n) {
 void completiontime::visit( id_node& n ) {
     try {
         auto ptr = env.get(n.id, n.index);
-        assign_resources assignres;
+        assign_resources assignres(env);
 //        assignres(*ptr, n.inputsize);
         assignres(*ptr, global_inputsize);
         res = (*this)(*ptr);

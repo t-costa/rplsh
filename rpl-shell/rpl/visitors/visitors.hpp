@@ -107,6 +107,7 @@ private:
 };
 
 struct assign_resources : public skel_visitor {
+    explicit  assign_resources(rpl_environment& env);
     void visit(seq_node& n) override;
     void visit(comp_node& n) override;
     void visit(pipe_node& n) override;
@@ -118,6 +119,7 @@ struct assign_resources : public skel_visitor {
     void operator()(skel_node& n, double inputsize);
 private:
     double inputsize = 0;
+    rpl_environment& env;
 };
 
 struct get_seq_wrappers : public skel_visitor {

@@ -29,6 +29,7 @@ struct servicetime: public eval_visitor
 
     std::string print(skel_node& n) override;
     double operator()(skel_node& n);
+    void operator()(skel_node& n, double& ts_map, double& ts_red);
 
     void reset_start();
 private:

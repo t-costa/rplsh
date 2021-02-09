@@ -386,7 +386,7 @@ void reduce_resources::visit( farm_node& n ) {
  * @param n map node
  */
 void reduce_resources::visit( map_node& n ) {
-    assign_resources assignres;
+    assign_resources assignres(env);
     res = n.pardegree > 1;
     if ( res ) {
         n.pardegree--;
@@ -402,7 +402,7 @@ void reduce_resources::visit( map_node& n ) {
  * @param n reduce node
  */
 void reduce_resources::visit( reduce_node& n ) {
-    assign_resources assignres;
+    assign_resources assignres(env);
     res = n.pardegree > 1;
     if ( res ) {
         n.pardegree--;
@@ -412,7 +412,7 @@ void reduce_resources::visit( reduce_node& n ) {
 }
 
 void reduce_resources::visit(dc_node &n) {
-    assign_resources assignres;
+    assign_resources assignres(env);
     res = n.pardegree > 1;
     if (res) {
         n.pardegree--;
@@ -451,6 +451,9 @@ bool reduce_resources::operator()(skel_node& n) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+
+assign_resources::assign_resources(rpl_environment& env) : env(env) { }
 
 /**
  * Does nothing
@@ -519,6 +522,11 @@ void assign_resources::visit(dc_node &n) {
  * @param n id node
  */
 void assign_resources::visit( id_node& n ) {
+    auto ptr = env.get(n.id, n.index);
+    if (ptr != nullptr)
+        (*this)(*ptr, inputsize);
+    else
+        cerr << n.id << "Unexpected error assigning resources" << endl;
 }
 
 /**
@@ -526,10 +534,11 @@ void assign_resources::visit( id_node& n ) {
  * @param n skeleton node
  * @param inputsize real input size for the node
  */
-void assign_resources::operator()(skel_node& n, double inputsize) {
-    this->inputsize = inputsize;
+void assign_resources::operator()(skel_node& n, double size) {
+    this->inputsize = size;
     n.accept(*this);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

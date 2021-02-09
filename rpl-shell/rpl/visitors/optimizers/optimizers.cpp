@@ -140,7 +140,7 @@ mapopt::mapopt( rpl_environment& env ) :
  */
 void mapopt::visit( map_node& n ) {
     /* reassign resources assuming only one worker */
-    assign_resources assignres;
+    assign_resources assignres(env);
     n.pardegree = 1;
     assignres(n, env.get_inputsize());
 
@@ -180,16 +180,19 @@ reduceopt::reduceopt( rpl_environment& env ) :
  */
 void reduceopt::visit( reduce_node& n ) {
     /* reassign resources assuming only one worker */
-    assign_resources assignres;
+    assign_resources assignres(env);
     n.pardegree = 1;
     assignres(n, env.get_inputsize());
 
     /* compute the "optimal" pardegree */
     ts.reset_start();
-    double tw  = ts( *n.get(0) );
+    double ts_map = 0, ts_red = 0;
+    ts( *n.get(0), ts_map, ts_red );
+
+    n.pardegree = static_cast<int>(sqrt(ceil((ts_map+ts_red)/(ts_red/env.get_inputsize()))));
 
     //from work-span model
-    n.pardegree = static_cast<int>(ceil(tw/log2(env.get_inputsize())));
+//    n.pardegree = static_cast<int>(ceil(tw/log2(env.get_inputsize())));
 
     /* reassign resources with the new pardegree */
     assignres(n, env.get_inputsize());
@@ -215,7 +218,7 @@ dcopt::dcopt(rpl_environment &env) : optrule(env) { }
  */
 void dcopt::visit(dc_node &n) {
     /* reassign resources assuming only one worker */
-    assign_resources assignres;
+    assign_resources assignres(env);
     n.pardegree = 1;
     assignres(n, env.get_inputsize());
 
@@ -323,7 +326,7 @@ void pipebalance::visit( pipe_node& n ) {
  */
 void pipebalance::visit( farm_node& n ) {
     // iterative solution
-    assign_resources assignres;
+    assign_resources assignres(env);
     assignres(n, env.get_inputsize());
     ts.reset_start();
     double t = ts(n);
@@ -345,7 +348,7 @@ void pipebalance::visit( farm_node& n ) {
  */
 void pipebalance::visit( map_node& n ) {
     // iterative solution
-    assign_resources assignres;
+    assign_resources assignres(env);
     assignres(n, env.get_inputsize());
     ts.reset_start();
     double t = ts(n);
@@ -375,7 +378,7 @@ void pipebalance::visit( map_node& n ) {
  */
 void pipebalance::visit( reduce_node& n ) {
     // iterative solution
-    assign_resources assignres;
+    assign_resources assignres(env);
     assignres(n, env.get_inputsize());
     ts.reset_start();
     double t = ts(n);
@@ -395,7 +398,7 @@ void pipebalance::visit( reduce_node& n ) {
  */
 void pipebalance::visit(dc_node &n) {
     // iterative solution
-    assign_resources assignres;
+    assign_resources assignres(env);
     assignres(n, env.get_inputsize());
     ts.reset_start();
     double t = ts(n);
