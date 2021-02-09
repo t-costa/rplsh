@@ -99,13 +99,13 @@ namespace utils {
       //[a, b, c, ... k, 0, ... 0]
   }
 
-  inline void waste(const double& microsec) {
+  inline void waste(const double& millisec) {
       auto t1 = std::chrono::high_resolution_clock::now();
       auto t2 = std::chrono::high_resolution_clock::now();
 
       auto elapsed = t2 - t1;
 
-      while (std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() < microsec) {
+      while (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() < millisec) {
           t2 = std::chrono::high_resolution_clock::now();
           elapsed = t2 - t1;
       }

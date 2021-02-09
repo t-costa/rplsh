@@ -8,13 +8,13 @@ namespace parameters {
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 1;
 #else
-  const int dimension = 10;
+  const int dimension = 1;
   const int matrix_stream = 1;
-  const size_t inputsize = 200000;
+  const size_t inputsize = 1024;
   const size_t matrix_size = 2000;
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 200;
 #endif
-  const int minimum_wait = 10;
+  const int minimum_wait = 100;
   bool sequential = true;
 }

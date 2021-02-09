@@ -8,8 +8,8 @@ if(EXPANSION)
 	add_definitions(-DEXPANSION)
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g -O0 -pedantic -Wall -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O3 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-std=c++17 -g -O0 -pedantic -Wall -DDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -O3 -Wall")
 
 add_subdirectory (rpl)
 add_executable (rplsh rplsh.cpp)

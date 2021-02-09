@@ -510,7 +510,7 @@ public:
 
 #ifdef DEBUG
 std::cout << "[drain_range_stage] result:\n";
-std::vector v(in->left, in->right);
+std::vector<utils::elem_type> v(in->left, in->right);
 utils::print_vec(v);
 #endif
 
