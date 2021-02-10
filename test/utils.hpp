@@ -86,17 +86,27 @@ namespace utils {
 
   template <typename Iterator>
   void init_unbalanced(Iterator begin, Iterator end) {
-      int i = 0;
-      auto size = end-begin;
-      while (i < size / 2) {
-            (*begin++) = 10;
-            i++;
-      }
-      while (begin != end) {
-        (*begin++) = 0;
-      }
-      //voglio qualcosa del tipo:
-      //[a, b, c, ... k, 0, ... 0]
+    #ifdef DEBUG
+        elem_type lower_bound = 1;
+        elem_type upper_bound = 5;
+    #else
+        elem_type lower_bound = 1;
+        elem_type upper_bound = 30;
+    #endif
+    std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+    std::default_random_engine re(seed);
+    seed++;
+    int i = 0;
+    auto size = end-begin;
+    while (i < size / 2) {
+          (*begin++) = unif(re);
+          i++;
+    }
+    while (begin != end) {
+      (*begin++) = 0;
+    }
+    //voglio qualcosa del tipo:
+    //[a, b, c, ... k, 0, ... 0]
   }
 
   inline void waste(const double& millisec) {
