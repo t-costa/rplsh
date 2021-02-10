@@ -605,16 +605,16 @@ void ffcode::visit( comp_node& n ) {
         return;
     }
 
-    string last_comp = new_name("comp"), var;
+    string var, last_comp;
     for (size_t i=0; i<n.size()-1; ++i) {
+        var = new_name("comp");
         string par = !i ? vec[i].first : last_comp;
         ss << "ff_comb " << var << "(" << par << ", " << vec[i+1].first << ");\n";
         last_comp = var;
-        var = new_name("comp");
     }
 
     assert(code_lines.empty());
-    code_lines.push({var, ss.str()});
+    code_lines.push({last_comp, ss.str()});
 }
 
 /**
@@ -856,7 +856,6 @@ string ffcode::operator()(skel_node& n) {
 #ifdef DEBUG
     ss << "std::vector<std::pair<int, double>> par_time;\n";
     ss << "std::vector<int> par_degree;\n";
-    ss << "double t_seq = 0;\n";
     ss << "while (nw <= 128) {\n";
 #endif
 
@@ -883,7 +882,6 @@ string ffcode::operator()(skel_node& n) {
 #ifdef DEBUG
     ss << "par_time.emplace_back(nw, " << p.first << ".ffTime());\n";
     ss << "par_degree.push_back(nw);\n";
-    ss << "if (nw == 1) t_seq = pipe.ffTime();\n";
     ss << "nw *= 2;\n";
     ss << "}\n";
     ss << "\nutils::build_json(0, par_time, par_degree, \"" << pr.print(n) << "\");\n";
