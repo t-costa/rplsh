@@ -469,6 +469,7 @@ namespace utils {
 
     j_speedup["x"] = par_degree;
     j_speedup["y"] = speed_vec_avg;
+    j_speedup["times"] = par;
     j_speedup["all_x"] = speed_x;
     j_speedup["all_y"] = speed_vec_all;
     j_speedup["title"] = "Graph of speedup w.r.t. parallel degree for " + problem;
@@ -482,39 +483,39 @@ namespace utils {
     of_speed << std::setw(4) << j_speedup << std::endl;
     of_speed.close();
 
-    std::vector<double> scalab;
-    for (const auto& t : par) {
-        scalab.push_back(par[0] / t);
-    }
-
-    j_scalab["x"] = par_degree;
-    j_scalab["y"] = scalab;
-    j_scalab["title"] = "Graph of scalability w.r.t. parallel degree for " + problem;
-    j_scalab["xaxis"] = "Parallelism degree";
-    j_scalab["yaxis"] = "Scalability";
-    j_scalab["name"] = problem;
-
-    std::ofstream of_scalab;
-    of_scalab.open("./json_files/" + problem + "-scalability.json");
-    of_scalab << std::setw(4) << j_scalab << std::endl;
-    of_scalab.close();
-
-    std::vector<double> eff;
-    for (size_t i=0; i<par_degree.size(); ++i) {
-        eff.push_back(speed_vec_avg[i] / (double) par_degree[i]);
-    }
-
-    j_eff["x"] = par_degree;
-    j_eff["y"] = eff;
-    j_eff["title"] = "Graph of efficiency w.r.t. parallel degree for " + problem;
-    j_eff["xaxis"] = "Parallelism degree";
-    j_eff["yaxis"] = "Efficiency";
-    j_eff["name"] = problem;
-
-    std::ofstream of_eff;
-    of_eff.open("./json_files/" + problem + "-efficiency.json");
-    of_eff << std::setw(4) << j_eff << std::endl;
-    of_eff.close();
+    // std::vector<double> scalab;
+    // for (const auto& t : par) {
+    //     scalab.push_back(par[0] / t);
+    // }
+    //
+    // j_scalab["x"] = par_degree;
+    // j_scalab["y"] = scalab;
+    // j_scalab["title"] = "Graph of scalability w.r.t. parallel degree for " + problem;
+    // j_scalab["xaxis"] = "Parallelism degree";
+    // j_scalab["yaxis"] = "Scalability";
+    // j_scalab["name"] = problem;
+    //
+    // std::ofstream of_scalab;
+    // of_scalab.open("./json_files/" + problem + "-scalability.json");
+    // of_scalab << std::setw(4) << j_scalab << std::endl;
+    // of_scalab.close();
+    //
+    // std::vector<double> eff;
+    // for (size_t i=0; i<par_degree.size(); ++i) {
+    //     eff.push_back(speed_vec_avg[i] / (double) par_degree[i]);
+    // }
+    //
+    // j_eff["x"] = par_degree;
+    // j_eff["y"] = eff;
+    // j_eff["title"] = "Graph of efficiency w.r.t. parallel degree for " + problem;
+    // j_eff["xaxis"] = "Parallelism degree";
+    // j_eff["yaxis"] = "Efficiency";
+    // j_eff["name"] = problem;
+    //
+    // std::ofstream of_eff;
+    // of_eff.open("./json_files/" + problem + "-efficiency.json");
+    // of_eff << std::setw(4) << j_eff << std::endl;
+    // of_eff.close();
 
   }
 
