@@ -523,8 +523,10 @@ void assign_resources::visit(dc_node &n) {
  */
 void assign_resources::visit( id_node& n ) {
     auto ptr = env.get(n.id, n.index);
-    if (ptr != nullptr)
+    if (ptr != nullptr) {
+        n.inputsize = inputsize;
         (*this)(*ptr, inputsize);
+    }
     else
         cerr << n.id << "Unexpected error assigning resources" << endl;
 }
