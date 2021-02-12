@@ -1,0 +1,57 @@
+{
+    "all_x": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128
+    ],
+    "all_y": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+    ],
+    "name": "pipe(source_strassen,dc,drain_strassen)",
+    "seq_time": 0.0,
+    "times": [
+        1.478,
+        58.62,
+        123.521,
+        183.002,
+        -1613052414690.466,
+        -1613052414690.705,
+        -1613052414690.931,
+        -1613052414691.243
+    ],
+    "title": "Graph of speedup w.r.t. parallel degree for pipe(source_strassen,dc,drain_strassen)",
+    "x": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128
+    ],
+    "xaxis": "Parallelism degree",
+    "y": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+    ],
+    "yaxis": "Speedup"
+}

@@ -15,6 +15,7 @@
 
 using json = nlohmann::json;
 
+#define MAX_DBL_NUM 999.9
 
 namespace utils {
 
@@ -519,6 +520,201 @@ namespace utils {
 
   }
 
+
+  ///////////////////////////////////////////////////////////////////////////
+  //////////////////////////  STRASSEN  /////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+  inline elem_type *allocateCompactMatrix(int n) __attribute__((always_inline));
+  inline elem_type *allocateCompactMatrix(int n) {
+      return new elem_type[n*n]();
+  }
+
+
+  inline void deallocateCompactMatrix(const elem_type *m) __attribute__((always_inline));
+  inline void deallocateCompactMatrix(const elem_type *m) {
+      delete []m;
+  }
+
+
+  inline int isPowerOfTwo (unsigned int x) {
+      return ((x != 0) && !(x & (x - 1)));
+  }
+
+
+  elem_type *generateCompactRandomMatrix(int n, uint seed) {
+      srand (seed);
+      elem_type *matrix=allocateCompactMatrix(n);
+
+      #ifdef DEBUG
+          elem_type lower_bound = 0;
+          elem_type upper_bound = 9;
+      #else
+          elem_type lower_bound = -99999;
+          elem_type upper_bound = 99999;
+      #endif
+      std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+      std::default_random_engine re(seed);
+      // seed++;
+      // while (begin != end) {
+      //     (*begin++) = unif(re);
+      // }
+
+      for(int i=0;i<n;i++) {
+        for(int j=0;j<n;j++) {
+            matrix[i*n+j] = unif(re);
+        }
+      }
+
+      // for(int i=0;i<n;i++) {
+      //     for(int j=0;j<n;j++) {
+      //         matrix[i*n+j]=(double) (rand()) / ((double)(RAND_MAX/MAX_DBL_NUM));
+      //     }
+      // }
+
+      return matrix;
+  }
+
+
+  elem_type *compactMatmul(const elem_type *a, int rs_a, const elem_type *b, int rs_b, int n) {
+      //allocate space for the result
+      elem_type *c=allocateCompactMatrix(n);
+
+      for(int i=0;i<n;i++) {
+          for(int j=0;j<n;j++) {
+              c[i*n+j]=0;
+              for(int k=0;k<n;k++)
+                  c[i*n+j]+=a[i*rs_a+k]*b[k*rs_b+j];
+          }
+      }
+
+      return c;
+  }
+
+
+  void addCompactMatrix(const elem_type *a, int rs_a, const elem_type *b, int rs_b, elem_type *c, int rs_c, int n) {
+      for(int i=0;i<n;i++)
+          for(int j=0;j<n;j++)
+              c[i*rs_c+j]=a[i*rs_a+j]+b[i*rs_b+j];
+  }
+
+
+  void subtCompactMatrix(const elem_type *a, int rs_a, const elem_type *b, int rs_b, elem_type *c, int rs_c, int n) {
+      for(int i=0;i<n;i++)
+          for(int j=0;j<n;j++)
+              c[i*rs_c+j]=a[i*rs_a+j]-b[i*rs_b+j];
+  }
+
+  /*
+   * The Operand (i.e. the Problem) contains the two matrices to be multiplied
+   * Matrices are memorized continuously (in a contiguos memory area).
+   * Since we want to reduce memory allocation, when possibile we reuse part of matrices already allocated (by properly setting the row stripe)
+   * For the same reason we don't want to delete matrices that will be reused and we have proper flag to set (see the Divide phase)
+   */
+  struct Operand{
+      elem_type *a;        //matrix allocated on contiguos space
+      int a_size;
+      int rs_a;       //row stripe
+      elem_type *b;
+      int b_size;
+      int rs_b;
+
+      bool deletable_a=false;
+      bool deletable_b=false;
+
+      Operand(elem_type *m1, int m1_size, int m1_rs,elem_type *m2, int m2_size,int m2_rs, bool del_a, bool del_b):
+              a(m1), a_size(m1_size), rs_a(m1_rs),
+              b(m2), b_size(m2_size), rs_b(m2_rs),
+              deletable_a(del_a), deletable_b(del_b) {
+          //this constructor simply copy the value passed
+      }
+
+      //move constructor
+      Operand(Operand &&op) {
+          a=op.a;
+          a_size=op.a_size;
+          rs_a=op.rs_a;
+          b=op.b;
+          b_size=op.b_size;
+          rs_b=op.rs_b;
+          deletable_a=op.deletable_a;
+          deletable_b=op.deletable_b;
+          //do not delete the original matrix in any case
+          op.deletable_a=false;
+          op.deletable_b=false;
+      }
+
+      ~Operand() {
+          if(deletable_a)
+              deallocateCompactMatrix(this->a);
+          if(deletable_b)
+              deallocateCompactMatrix(this->b);
+      }
+
+      void print() {
+        std::cout<< "matrix a" << std::endl;
+        for (int i=0; i<a_size*rs_a; ++i) {
+          if (i != 0 && i%rs_a == 0) {
+            std::cout << std::endl;
+          }
+          std::cout << a[i] << " ";
+        }
+        std::cout<< "\nmatrix b" << std::endl;
+        for (int i=0; i<b_size*rs_b; ++i) {
+          if (i != 0 && i%rs_b == 0) {
+            std::cout << std::endl;
+          }
+          std::cout << b[i] << " ";
+        }
+      }
+
+      //serve: size, costruttore vuoto, push_back, operator[]
+      //per dctomap
+  };
+
+
+  /*
+   * The Result contains the result matrix
+   */
+  struct Result{
+      elem_type *c;
+      int c_size;
+      int rs_c;
+
+      explicit Result(int size) {
+          //simply allocate the space for the matrix
+          c=allocateCompactMatrix(size);
+          c_size=size;
+          rs_c=size;
+      }
+
+      //move constructor
+      Result(Result &&op) {
+          c = op.c;
+          c_size = op.c_size;
+          rs_c = op.rs_c;
+      }
+
+      Result() = default;
+
+      //serve resize per dctomap
+
+      ~Result() {
+          deallocateCompactMatrix(this->c);
+      }
+
+      void print() {
+        std::cout<< "result matrix" << std::endl;
+        for (int i=0; i<c_size*rs_c; ++i) {
+          if (i != 0 && i%rs_c == 0) {
+            std::cout << std::endl;
+          }
+          std::cout << c[i] << " ";
+        }
+      }
+  };
+    ///////////////////////////////////////////////////////////////////////////
+    //////////////////////////  STRASSEN  /////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 }
 
 #endif

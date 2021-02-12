@@ -16,6 +16,37 @@
 using namespace utils;
 
 ////////////////////////////////////////////////////////////////////////////////
+struct source_strassen : public source<utils::Operand>{
+public:
+  source_strassen() : i(0) {}
+
+  bool has_next() {
+    return i++ < 1;
+  }
+
+  utils::Operand* next() {
+    //7 e 24 sono seed
+    utils::elem_type *a=generateCompactRandomMatrix(parameters::matrix_size, 7);
+    utils::elem_type *b=generateCompactRandomMatrix(parameters::matrix_size, 24);
+
+    auto op = new Operand(a,parameters::matrix_size,parameters::matrix_size,b,parameters::matrix_size,parameters::matrix_size,false,false);
+
+#ifdef DEBUG
+std::cout << "[source_strassen]" << std::endl;
+op->print();
+
+// std::cout << "print a mano:" << std::endl;
+// for(int i=0; i<parameters::matrix_size*parameters::matrix_size; ++i) {
+//   std::cout << a[i] << " ";
+// }
+#endif
+    return op;
+  }
+
+private:
+  int i;
+};
+
 struct source_matrix_vectors : public source<std::vector<utils::elem_elem_idx_idx>> {
 public:
   source_matrix_vectors() : i(0), j(0), count(0), create(true) {
@@ -373,6 +404,20 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+struct drain_strassen : public drain<utils::Result> {
+public:
+  drain_strassen() {}
+
+  void process(utils::Result* in) {
+#ifdef DEBUG
+std::cout << "[drain strassen]" << std::endl;
+in->print();
+#endif
+
+    delete in;
+  }
+};
+
 struct drain_matrixelem : public drain<utils::elem_idx_idx> {
 public:
   drain_matrixelem() {
@@ -669,7 +714,7 @@ utils::print_vec(out);
 
   //valori più grandi => attese maggiori
   utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(in*parameters::minimum_wait);
+    utils::waste(in*parameters::minimum_wait/20);
     return in-1;
   }
 };
@@ -1057,6 +1102,119 @@ public:
 
   bool cond(const std::vector<elem_type>& in) override {
     return in.size() <= 1;
+  }
+};
+
+struct dc_strassen : public dc_stage_wrapper<utils::Operand, utils::Result> {
+  /*
+   * Divide function: if possible reuses part of the operand (i.e. submatrices)
+   */
+  void divide(const Operand &op,std::vector<Operand> &subops) override {
+      int submatrix_size=op.a_size/2;
+      int rs_a=op.rs_a;
+      int rs_b=op.rs_b;
+
+      //derive submatrices
+      elem_type *a11=&(op.a)[0];
+      elem_type *a12=&(op.a)[submatrix_size];
+      elem_type *a21=&(op.a)[submatrix_size*rs_a];
+      elem_type *a22=&(op.a)[submatrix_size*rs_a+submatrix_size];
+      elem_type *b11=&(op.b)[0];
+      elem_type *b12=&(op.b)[submatrix_size];
+      elem_type *b21=&(op.b)[submatrix_size*rs_b];
+      elem_type *b22=&(op.b)[submatrix_size*rs_b+submatrix_size];
+
+      //P1=(a11+a22)(b11+b22)
+      elem_type *p11=allocateCompactMatrix(submatrix_size);
+      elem_type *p12=allocateCompactMatrix(submatrix_size);
+      addCompactMatrix(a11,rs_a,a22,rs_a,p11,submatrix_size,submatrix_size);
+      addCompactMatrix(b11,rs_b,b22,rs_b,p12,submatrix_size,submatrix_size);
+
+      //P2=(a21+a22)b11
+      elem_type *p21=allocateCompactMatrix(submatrix_size);
+      addCompactMatrix(a21,rs_a,a22,rs_a,p21,submatrix_size,submatrix_size);
+
+      //P3=a11(b12-b22)
+      elem_type *p32=allocateCompactMatrix(submatrix_size);
+      subtCompactMatrix(b12,rs_b,b22,rs_b,p32,submatrix_size,submatrix_size);
+
+      //P4=a22(b21-b11)
+      elem_type *p42=allocateCompactMatrix(submatrix_size);
+      subtCompactMatrix(b21,rs_b,b11,rs_b,p42,submatrix_size,submatrix_size);
+
+      //P5=(a11+a12)b22
+      elem_type *p51=allocateCompactMatrix(submatrix_size);
+      addCompactMatrix(a11,rs_a,a12,rs_a,p51,submatrix_size,submatrix_size);
+
+      //P6=(a21-a11)(b11+b12)
+      elem_type *p61=allocateCompactMatrix(submatrix_size);
+      elem_type *p62=allocateCompactMatrix(submatrix_size);
+      subtCompactMatrix(a21,rs_a,a11,rs_a,p61,submatrix_size,submatrix_size);
+      addCompactMatrix(b11,rs_b,b12,rs_b,p62,submatrix_size,submatrix_size);
+
+      //P7=(a12-a22)(b21+b22)
+      elem_type *p71=allocateCompactMatrix(submatrix_size);
+      elem_type *p72=allocateCompactMatrix(submatrix_size);
+      subtCompactMatrix(a12,rs_a,a22,rs_a,p71,submatrix_size,submatrix_size);
+      addCompactMatrix(b21,rs_b,b22,rs_b,p72,submatrix_size,submatrix_size);
+
+      //create the various operands
+      subops.emplace_back(p11,submatrix_size,submatrix_size,p12,submatrix_size,submatrix_size,true,true);
+
+      subops.emplace_back(p21,submatrix_size,submatrix_size,b11,submatrix_size,rs_b,true,false);
+
+      subops.emplace_back(a11,submatrix_size,rs_a,p32,submatrix_size,submatrix_size,false,true);
+
+      subops.emplace_back(a22,submatrix_size,rs_a,p42,submatrix_size,submatrix_size,false,true);
+
+      subops.emplace_back(p51,submatrix_size,submatrix_size,b22,submatrix_size,rs_b,true,false);
+
+      subops.emplace_back(p61,submatrix_size,submatrix_size,p62,submatrix_size,submatrix_size,true,true);
+
+      subops.emplace_back(p71,submatrix_size,submatrix_size,p72,submatrix_size,submatrix_size,true,true);
+  }
+
+  /*
+   * Combine Function
+   */
+  void combine(std::vector<Result>& ress, Result &ret) override {
+      int submatrix_size=ress[0].c_size;
+
+      //allocate the space for the result
+      ret.c=allocateCompactMatrix(submatrix_size*2);
+      ret.c_size=submatrix_size*2;
+      ret.rs_c=submatrix_size*2;
+
+      for(int i=0;i<submatrix_size;i++)
+          for(int j=0;j<submatrix_size;j++) {
+              //c11=p1+p4-p5+p7
+              ret.c[i*ret.rs_c+j] = ress[0].c[i*submatrix_size+j] + ress[3].c[i*submatrix_size+j] -
+                      ress[4].c[i*submatrix_size+j] + ress[6].c[i*submatrix_size+j];
+
+              //c12=p3+p5
+              ret.c[i*ret.rs_c+j + submatrix_size]= ress[2].c[i*submatrix_size+j] + ress[4].c[i*submatrix_size+j];
+
+              //c21=p2+p4
+              ret.c[(i + submatrix_size)*ret.rs_c+j] = ress[1].c[i*submatrix_size+j] + ress[3].c[i*submatrix_size+j];
+
+              //c22=p1-p2+p3+p6
+              ret.c[(i + submatrix_size)*ret.rs_c+j + submatrix_size] =
+                      ress[0].c[i*submatrix_size+j] - ress[1].c[i*submatrix_size+j] +
+                      ress[2].c[i*submatrix_size+j] + ress[5].c[i*submatrix_size+j];
+          }
+  }
+
+  /*
+   * Base case: classical algorithm
+   */
+  void seq(const Operand &op, Result &ret) override {
+      ret.c=compactMatmul(op.a,op.rs_a,op.b,op.rs_b,op.a_size);
+      ret.c_size=op.a_size;
+      ret.rs_c=op.a_size;
+  }
+
+  bool cond(const Operand& op) {
+      return (op.a_size<=parameters::cut_off);
   }
 };
 
