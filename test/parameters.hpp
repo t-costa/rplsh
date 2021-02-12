@@ -15,6 +15,6 @@ namespace parameters {
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 200;
 #endif
-  const int minimum_wait = 1;
+  const int minimum_wait = 0;
   bool sequential = true;
 }
