@@ -362,22 +362,38 @@ string red_declaration( reduce_node& n, rpl_environment& env ) {
 
     size_t idx = datap_nodes.size()-1;
     ss << "\t\t" << typeout << "* out  = new " << typeout << "(wrapper" << idx << ".identity);\n";
-    ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
 
     if ( datap_nodes.size() > 1) {
         cout << "warning: reduce(comp(s1, s2, ..., sk, sn)) -> comp(map(s1,...,sk), reduce(sn))" << endl;
-        string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
-        ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
-        ss << "\t\tmapout->resize(_task.size());\n";
-        ss << parallel_for_declaration(n.grain, n.step, "mapout", datap_nodes.size()-2, to_string(nw(n)));
+//        string mapout  = datap_nodes[datap_nodes.size()-2]->typeout;
+//        ss << "\t\t" << mapout << "* mapout = new " << mapout << "();\n";
+//        ss << "\t\tmapout->resize(_task.size());\n";
+//        ss << parallel_for_declaration(n.grain, n.step, "mapout", datap_nodes.size()-2, to_string(nw(n)));
 
-        ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
-        ss << parallel_for_reduce_declaration(n.grain, n.step, "mapout->size()", idx, to_string(nw(n)));
-        ss << "\n\t\tdelete mapout;\n";
+        ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {\n";
+        size_t i;
+        string par;
+        //map body
+        for (i = 0; i < datap_nodes.size()-1; i++) {
+            par = !i ? "_task[i]" : ("res" + to_string(i-1));
+            ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
+        }
+//        par = !i ? "_task[i]" : ("res" + to_string(i-1));
+//        ss << "\t\t\tauto res" << i << " = wrapper" << i << ".op(" << par << ");\n";
+        //reduce function
+        ss << "\t\t\tsum = wrapper" << idx <<".op(sum, res" << i-1 << ");\n";
+        ss << "\t\t};\n";
+
+//        ss << "\t\tauto bodyF = [this,&mapout](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, (*mapout)[i]);};\n";
+//        ss << parallel_for_reduce_declaration(n.grain, n.step, "mapout->size()", idx, to_string(nw(n)));
+//        ss << "\n\t\tdelete mapout;\n";
     } else {
         ss << "\t\tauto bodyF = [this,&_task](const long i, " << typeout << "& sum) {sum = wrapper" << idx <<".op(sum, _task[i]);};\n";
-        ss << parallel_for_reduce_declaration(n.grain, n.step, "_task.size()", idx, to_string(nw(n)));
+//        ss << parallel_for_reduce_declaration(n.grain, n.step, "_task.size()", idx, to_string(nw(n)));
     }
+    ss << "\t\tauto reduceF = [this](" << typeout << "& sum, " << typeout << " elem) {sum = wrapper" << idx << ".op(sum, elem);};\n";
+
+    ss << parallel_for_reduce_declaration(n.grain, n.step, "_task.size()", idx, to_string(nw(n)));
 
     //delete received ptr
     ss << "\n\t\tdelete t;\n";
