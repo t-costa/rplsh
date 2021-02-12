@@ -236,19 +236,49 @@ namespace utils {
   //Assumption: the second matrix is transposed
   struct matrix_couple {
   public:
+    explicit matrix_couple() {
+      auto a = matrix();
+      auto b = matrix();
+      m = std::make_pair(a, b);
+    }
+
     matrix_couple(const matrix& a, const matrix& b) {
       m = std::make_pair(a, b);
     }
 
-    size_t size() {
+    size_t size() const {
       return m.first.size();
     }
 
-    const vec_matrix_couple operator[] (size_t i) {
+    const vec_matrix_couple operator[] (size_t i) const {
       auto a = m.first;
       auto b = m.second;
 
       return vec_matrix_couple(a[i], b);
+    }
+
+    void push_back(const vec_matrix_couple& in) {
+      // print();
+      m.first.push_back(in._vec);
+      m.second = in._mat;
+      // print();
+    }
+
+    void print() {
+      std::cout << "first matrix" << std::endl;
+      for (auto& v : m.first) {
+        for (auto& el : v) {
+          std::cout << el << " ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "second matrix" << std::endl;
+      for (auto& v : m.second) {
+        for (auto& el : v) {
+          std::cout << el << " ";
+        }
+        std::cout << std::endl;
+      }
     }
 
     // void push_back(vec_couple<T>& v) {
@@ -621,6 +651,15 @@ namespace utils {
       bool deletable_a=false;
       bool deletable_b=false;
 
+      explicit Operand() {
+        a = nullptr;
+        b = nullptr;
+        a_size = parameters::matrix_size;
+        rs_a = a_size;
+        b_size = a_size;
+        rs_b = b_size;
+      }
+
       Operand(elem_type *m1, int m1_size, int m1_rs,elem_type *m2, int m2_size,int m2_rs, bool del_a, bool del_b):
               a(m1), a_size(m1_size), rs_a(m1_rs),
               b(m2), b_size(m2_size), rs_b(m2_rs),
@@ -666,6 +705,36 @@ namespace utils {
           std::cout << b[i] << " ";
         }
       }
+
+      size_t size() {
+        return a_size;
+      }
+
+      void push_back(Operand& op) {
+        a=op.a;
+        a_size=op.a_size;
+        rs_a=op.rs_a;
+        b=op.b;
+        b_size=op.b_size;
+        rs_b=op.rs_b;
+        deletable_a=op.deletable_a;
+        deletable_b=op.deletable_b;
+        //do not delete the original matrix in any case
+        op.deletable_a=false;
+        op.deletable_b=false;
+      }
+
+      // Operand& operator[](size_t i) {
+      //   auto b_out = new elem_type[rs_a]();
+      //   for (int j=0; j<rs_a; ++j) {
+      //     b_out[j] = b[j*b_size + i];
+      //   }
+      //   auto a_out = new elem_type[rs_a]();
+      //   for (int j=0; j<rs_a; ++j) {
+      //     a_out[j] = a[i*a_size + j];
+      //   }
+      //   return Operand(a_out, rs_a, 1, b_out, rs_b, 1, false, false);
+      // }
 
       //serve: size, costruttore vuoto, push_back, operator[]
       //per dctomap
