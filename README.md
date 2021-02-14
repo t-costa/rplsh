@@ -4,8 +4,9 @@ The RPL-Shell is a DSL-based toolchain supporting the design of parallel applica
 ## Installation
 **Requirements**
 - cmake
+- libreadline-dev
 ```
-git clone https://github.com/Murray1991/rplsh.git
+git clone https://github.com/t-costa/rplsh.git
 cd rplsh
 ./install.sh
 ```
