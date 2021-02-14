@@ -91,7 +91,11 @@ bool mytuple::compare( const mytuple& t, size_t pos ) const {
         std::cout << "pos: " << pos << ", compare tuple" << std::endl;
         return false;
     }
-    return vec[pos]->compare( *t.get(pos) );
+    auto other = t.get(pos);
+    if (other == nullptr) {
+        return true;
+    }
+    return vec[pos]->compare( *other );
 }
 
 /**
