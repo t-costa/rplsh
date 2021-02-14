@@ -23,29 +23,27 @@ main = pipe( c, seq_vec_vec , dc, rcr)
 add source_vec in main
 add drain_elem in main
 
-show main
-show main by servicetime , latency , compltime , pardegree , resources 
-show main by servicetime , latency , compltime , pardegree , resources , unrank 
+#show main
+#show main by servicetime , latency , compltime , pardegree , resources 
+#show main by servicetime , latency , compltime , pardegree , resources , unrank 
 show main by servicetime , latency , compltime , pardegree , resources , unrank, full 
-show main by servicetime , compltime , resources , unrank, full 
+#show main by servicetime , compltime , resources , unrank, full 
 
 rewrite c with mapofcomp 
-show main by servicetime , compltime , resources , unrank, full 
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 #potrei mettere sia rew c che rew main con rec
 
 rewrite seq_vec_vec with farmintro 
-show main by servicetime , compltime , resources , unrank, full  
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 
 optimize main with mapopt , farmopt , dcopt , reduceopt 
-show main by servicetime , compltime , resources , unrank, full 
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 optimize main with mapopt , farmopt , dcopt , reduceopt , subexp 
-show main by servicetime , compltime , resources , unrank, full  
-optimize main with pipeopt , subexp 
-show main by servicetime , compltime , resources , unrank, full 
-#optimize main with maxresources 
-#show main by servicetime , compltime , resources , unrank, full 
-#optimize main with maxresources , subexp 
-#show main by servicetime , compltime , resources , unrank, full 
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
+optimize main with pipeopt 
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
+optimize main with maxresources , subexp 
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 #optimize main with pipeopt , subexp 
 #show main by servicetime , compltime , resources , unrank, full 
 #show main by servicetime , compltime , resources , full 
