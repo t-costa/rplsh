@@ -192,11 +192,16 @@ void interpreter::visit(show_node& n) {
 
         }
 
+        std::cout << "/////////////////////" << std::endl;
+        for (auto& v : tuples) {
+            v.print();
+        }
+        std::cout << "/////////////////////" << std::endl;
         // sort the tuples by calling stable_sort multiple times
         // complexity: O(N·log^2(N)) * #parameters
         size_t i = n.parameters.size()-1;
         while ( i-- > 0 )
-            std::stable_sort(tuples.begin(), tuples.end(), [&i](const mytuple& t1, const mytuple& t2) {
+            std::stable_sort(tuples.begin(), tuples.end(), [i](const mytuple& t1, const mytuple& t2) {
                 return t1.compare(t2, i);
             });
 

@@ -2,6 +2,7 @@
 #define rpl_utils_mytuple_hpp
 
 #include <string>
+#include <utility>
 #include <vector>
 
 /**
@@ -10,10 +11,11 @@
 struct wrapper
 {
     virtual ~wrapper() = default;
-    virtual bool compare( const wrapper& wr ) const = 0;
-    std::string tostring() const { return strrep; }
+    [[nodiscard]] virtual bool compare( const wrapper& wr ) const = 0;
+    [[nodiscard]] std::string tostring() const { return strrep; }
+    virtual void print() const = 0;
 protected:
-    explicit wrapper(const std::string& strrep) : strrep(strrep) {}
+    explicit wrapper(std::string  strrep) : strrep(std::move(strrep)) {}
     std::string strrep;
 };
 
@@ -23,9 +25,12 @@ protected:
 struct double_wrapper : public wrapper
 {
     explicit double_wrapper( const std::string& str ) : wrapper(str), value(stod(str)) {}
-    bool compare( const wrapper& wr ) const override {
+    [[nodiscard]] bool compare( const wrapper& wr ) const override {
         const auto& dwr = dynamic_cast<const double_wrapper&>( wr );
         return this->value < dwr.value;
+    }
+    void print() const override {
+        std::cout << value << std::endl;
     }
 private:
     double value;
@@ -37,9 +42,12 @@ private:
 struct string_wrapper : public wrapper
 {
     explicit string_wrapper( const std::string& str ) : wrapper(str) , value(str) {}
-    bool compare( const wrapper& wr ) const override {
+    [[nodiscard]] bool compare( const wrapper& wr ) const override {
         const auto& swr = dynamic_cast<const string_wrapper&>( wr );
         return this->value < swr.value;
+    }
+    void print() const override {
+        std::cout << value << std::endl;
     }
 private:
     std::string value;
@@ -52,9 +60,10 @@ private:
 struct mytuple
 {
     void add( std::unique_ptr<wrapper>&& term);
-    wrapper * get( size_t pos ) const;
-    bool compare( const mytuple& t, size_t pos ) const ;
-    std::string tostring() const;
+    [[nodiscard]] wrapper * get( size_t pos ) const;
+    [[nodiscard]] bool compare( const mytuple& t, size_t pos ) const ;
+    [[nodiscard]] std::string tostring() const;
+    void print() const;
 private:
     std::vector<std::unique_ptr<wrapper>> vec;
 };
@@ -107,6 +116,13 @@ std::string mytuple::tostring() const {
         str += ptr->tostring() + "\t";
     }
     return  str;
+}
+
+void mytuple::print() const {
+    for (size_t i=0; i<vec.size(); ++i) {
+        std::cout << "vec[" << i << "]: ";
+        vec[i]->print();
+    }
 }
 
 #endif
