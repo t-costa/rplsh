@@ -112,12 +112,12 @@ namespace parameters {
   const size_t matrix_size = 4;
   const int cut_off = 1;
 #else
-  const int dimension = 2;
-  const size_t inputsize = 500;
+  const int dimension = 1000;
+  const size_t inputsize = 200;
   const size_t matrix_size = 512;
   const int cut_off = 200;
 #endif
-  const int minimum_wait = 100;
+  const int minimum_wait = 10;
   bool sequential = true;
 }
 
@@ -320,7 +320,7 @@ public:
   explicit seq_vec_vec() {}
 
   std::vector<utils::elem_type> compute(std::vector<utils::elem_type>& in) override {
-    utils::waste(3*parameters::minimum_wait);
+    utils::waste(9*parameters::minimum_wait);
     std::vector<utils::elem_type> out;
     out.reserve(in.size());
 
@@ -360,7 +360,7 @@ public:
   }
 
   utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(parameters::minimum_wait);
+    utils::waste(7*parameters::minimum_wait);
     return in+2;
   }
 };
@@ -388,7 +388,7 @@ utils::print_vec(out);
 
   //valori più grandi => attese maggiori
   utils::elem_type op(const utils::elem_type& in) override {
-    utils::waste(in*parameters::minimum_wait);
+    utils::waste(12*parameters::minimum_wait);
     return in-1;
   }
 };
@@ -416,7 +416,7 @@ std::cout << out << std::endl;
   }
 
   utils::elem_type op(utils::elem_type& a, utils::elem_type& b) override {
-    utils::waste(parameters::minimum_wait);
+    utils::waste(5*parameters::minimum_wait);
     return a + b;
   }
 };
@@ -535,7 +535,7 @@ public:
   }
 
   void seq(const std::vector<elem_type>& in, std::vector<elem_type>& out) override {
-    waste(parameters::minimum_wait);
+    waste(7*parameters::minimum_wait);
     out.push_back(in[0] + 2);
   }
 
