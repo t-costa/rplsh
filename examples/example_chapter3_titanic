@@ -2,6 +2,7 @@ set dimension with 1000
 set inputsize with 200
 set resources with 64
 
+
 import "/home/costanzo/rplsh/examples/example_code.hpp"
 
 annotate seq_vec_vec with servicetime 9
@@ -43,7 +44,7 @@ optimize main with maxresources , subexp
 show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 
 rewrite main with allrules
-#show main by servicetime , latency , compltime , pardegree , resources , unrank, full
+show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 
 add source_vec in main
 add drain_elem in main
