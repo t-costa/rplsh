@@ -83,6 +83,7 @@ void mytuple::add( std::unique_ptr<wrapper>&& term) {
 wrapper * mytuple::get(const size_t pos) const {
     if (pos >= vec.size()) {
         std::cout << "pos: " << pos << ", get tuple" << std::endl;
+        std::cout << "vec.size = " << vec.size() << std::endl;
         return nullptr;
     }
     return vec[pos].get();
