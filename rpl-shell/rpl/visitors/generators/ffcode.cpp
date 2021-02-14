@@ -607,6 +607,7 @@ void ffcode::visit( comp_node& n ) {
     // and pick from code_lines
     std::vector<pair<string,string>> vec;
     for (size_t i = 0; i < n.size(); i++) {
+        //FIXME: avvisa che con source, farm e pipe non funziona
         n.get(i)->accept(*this);
         vec.push_back(code_lines.front());
         ss << vec.back().second;

@@ -72,6 +72,10 @@ void mytuple::add( std::unique_ptr<wrapper>&& term) {
  * @return the element in position pos
  */
 wrapper * mytuple::get(const size_t pos) const {
+    if (pos >= vec.size()) {
+        std::cout << "pos: " << pos << ", get tuple" << std::endl;
+        return nullptr;
+    }
     return vec[pos].get();
 }
 
@@ -83,6 +87,10 @@ wrapper * mytuple::get(const size_t pos) const {
  * @return true iff the element in this is smaller
  */
 bool mytuple::compare( const mytuple& t, size_t pos ) const {
+    if (pos >= vec.size()) {
+        std::cout << "pos: " << pos << ", compare tuple" << std::endl;
+        return false;
+    }
     return vec[pos]->compare( *t.get(pos) );
 }
 

@@ -2,7 +2,7 @@ set dimension with 1000
 set inputsize with 200
 set resources with 64
 
-import "examples/example_code.hpp"
+import "/home/tommaso/forked/rplsh/examples/example_code.hpp"
 
 annotate seq_vec_vec with servicetime 9
 annotate map_vec_vec with servicetime 7
@@ -19,9 +19,6 @@ dc = divide_conquer( dc_dummy )
 cr = comp( map_minus , reduce_vec_double )
 rcr = reduce(cr)
 main = pipe( c, seq_vec_vec , dc, rcr)
-
-add source_vec in main
-add drain_elem in main
 
 #show main
 #show main by servicetime , latency , compltime , pardegree , resources 
@@ -44,11 +41,13 @@ optimize main with pipeopt
 show main by servicetime , latency , compltime , pardegree , resources , unrank, full
 optimize main with maxresources , subexp 
 show main by servicetime , latency , compltime , pardegree , resources , unrank, full
-#optimize main with pipeopt , subexp 
-#show main by servicetime , compltime , resources , unrank, full 
-#show main by servicetime , compltime , resources , full 
-#rewrite main with allrules 
-#show main by servicetime , compltime , resources , full 
+
+rewrite main with allrules 
+#show main by servicetime , latency , compltime , pardegree , resources , unrank, full
+
+add source_vec in main
+add drain_elem in main
+
 #history
-#gencode main[20] as example_code_ff in "examples/"
+#gencode main[11] as example_code_ff in "examples/"
 
