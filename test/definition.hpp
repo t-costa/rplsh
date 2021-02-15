@@ -21,7 +21,7 @@ public:
   source_strassen() : i(0) {}
 
   bool has_next() {
-    return i++ < 1;
+    return i++ < parameters::matrix_stream;
   }
 
   utils::Operand* next() {
@@ -280,7 +280,7 @@ std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
-    utils::waste(parameters::minimum_wait);
+    //utils::waste(parameters::minimum_wait);
 
     return v;
   }
@@ -308,7 +308,7 @@ std::cout << "[source_vec_stage] result:\n";
 utils::print_vec(*v);
 #endif
 
-    utils::waste(parameters::minimum_wait);
+    //utils::waste(parameters::minimum_wait);
 
     return v;
   }
@@ -508,7 +508,7 @@ struct drain_vec_stage : public drain<std::vector<utils::elem_type>> {
 public:
   void process(std::vector<utils::elem_type>* in) {
 
-    utils::waste(parameters::minimum_wait);
+    //utils::waste(parameters::minimum_wait);
 
 #ifdef DEBUG
 std::cout << "[drain_vec_stage] result:\n";
@@ -604,7 +604,7 @@ public:
   }
 
   utils::elem_idx_idx op(const utils::elem_elem_idx_idx& in) override {
-    utils::waste(parameters::minimum_wait);
+    //utils::waste(parameters::minimum_wait);
     auto res = (in.a)*(in.b);
     auto out = utils::elem_idx_idx(res, in.i, in.j);
     return out;
@@ -629,11 +629,13 @@ public:
     out.print();
     #endif
 
+    delete &in;
+
     return out;
   }
 
   utils::elem_idx_idx op (utils::elem_idx_idx& a, utils::elem_idx_idx& b) override {
-    utils::waste(parameters::minimum_wait);
+    //utils::waste(parameters::minimum_wait);
     auto res = a.a + b.a;
     return elem_idx_idx(res, b.i, b.j);
   }
@@ -996,7 +998,7 @@ public:
   explicit dc_mergesort() {}
 
   void divide(const utils::range& prob, std::vector<utils::range>& subps) override {
-      utils::waste(parameters::minimum_wait);
+      // utils::waste(parameters::minimum_wait);
       auto mid = prob.left +(prob.right - prob.left) / 2;
       utils::range a, b;
       a.left = prob.left;
@@ -1009,7 +1011,7 @@ public:
   }
 
   void combine(std::vector<utils::range>& res, utils::range& ret) override {
-      utils::waste(parameters::minimum_wait);
+      // utils::waste(parameters::minimum_wait);
       auto size = (size_t) (res[1].right - res[0].left);
 
       std::vector<utils::elem_type> tmp(size);
@@ -1032,14 +1034,14 @@ public:
   }
 
   void seq(const utils::range& p, utils::range& res) override {
-      utils::waste(parameters::minimum_wait);
+      // utils::waste(parameters::minimum_wait);
       std::sort(p.left, p.right);
       res.left = p.left;
       res.right = p.right;
   }
 
   bool cond(const utils::range& p) override {
-      utils::waste(parameters::minimum_wait);
+      // utils::waste(parameters::minimum_wait);
       return (p.right - p.left <= parameters::cut_off);
   }
 };

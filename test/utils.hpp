@@ -20,7 +20,11 @@ using json = nlohmann::json;
 namespace utils {
 
   //typedef double size_type ;
+  #ifdef DEBUG
   typedef int elem_type;
+  #else
+  typedef double elem_type;
+  #endif
   typedef std::vector<elem_type> vec;
   typedef std::pair<elem_type, elem_type> pair;
   typedef std::vector<pair> vec_pair;
