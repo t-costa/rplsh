@@ -114,6 +114,13 @@ namespace utils {
     //[a, b, c, ... k, 0, ... 0]
   }
 
+  template <typename Iterator>
+  inline void init_fast(Iterator begin, Iterator end, elem_type start) {
+    while (begin != end) {
+      (*begin++) = start++;
+    }
+  }
+
   inline void waste(const double& millisec) {
       auto t1 = std::chrono::high_resolution_clock::now();
       auto t2 = std::chrono::high_resolution_clock::now();

@@ -69,8 +69,11 @@ public:
     auto row = std::vector<utils::elem_type>(parameters::matrix_size);
     auto col = std::vector<utils::elem_type>(parameters::matrix_size);
     //cerco di avere seed diversi, almeno un po'
-    utils::init(row.begin(), row.end(), i*2+1); //seed sempre dispari
-    utils::init(col.begin(), col.end(), j*3+3); //seed sempre pari, tranne 0
+    // utils::init(row.begin(), row.end(), i*2+1); //seed sempre dispari
+    // utils::init(col.begin(), col.end(), j*3+3); //seed sempre pari, tranne 0
+
+    utils::init_fast(row.begin(), row.end(), i*2+1);
+    utils::init_fast(col.begin(), col.end(), j*3+3);
 
     auto out = new std::vector<utils::elem_elem_idx_idx>();
     for (size_t k=0; k<parameters::matrix_size; k++) {
