@@ -8,9 +8,9 @@ namespace parameters {
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 1;
 #else
-  const int dimension = 100000;
+  const int dimension = 100;
   const int matrix_stream = 1;
-  const size_t inputsize = 1000;
+  const size_t inputsize = 1000000;
   const size_t matrix_size = 5000;
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 200;
