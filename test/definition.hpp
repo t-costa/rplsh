@@ -66,19 +66,23 @@ public:
       create = false;
     }
     //create vectors
-    auto row = std::vector<utils::elem_type>(parameters::matrix_size);
-    auto col = std::vector<utils::elem_type>(parameters::matrix_size);
+    // auto row = std::vector<utils::elem_type>(parameters::matrix_size);
+    // auto col = std::vector<utils::elem_type>(parameters::matrix_size);
     //cerco di avere seed diversi, almeno un po'
     // utils::init(row.begin(), row.end(), i*2+1); //seed sempre dispari
     // utils::init(col.begin(), col.end(), j*3+3); //seed sempre pari, tranne 0
 
-    utils::init_fast(row.begin(), row.end(), i*2+1);
-    utils::init_fast(col.begin(), col.end(), j*3+3);
+    // utils::init_fast(row.begin(), row.end(), i*2+1);
+    // utils::init_fast(col.begin(), col.end(), j*3+3);
 
     auto out = new std::vector<utils::elem_elem_idx_idx>();
-    for (size_t k=0; k<parameters::matrix_size; k++) {
-      out->emplace_back(elem_elem_idx_idx(row[k], col[k], i, j));
-    }
+    out->reserve(parameters::matrix_size);
+
+    utils::init_fast(out->begin(), out->end(), i, j);
+    //
+    // for (size_t k=0; k<parameters::matrix_size; k++) {
+    //   out->emplace_back(elem_elem_idx_idx(row[k], col[k], i, j));
+    // }
 
     // auto out = new utils::vec_vec_idx_idx(row, col, i, j);
     if (count % parameters::matrix_size == 0) {
@@ -1222,140 +1226,3 @@ struct dc_strassen : public dc_stage_wrapper<utils::Operand, utils::Result> {
       return (op.a_size<=parameters::cut_off);
   }
 };
-
-// //TODO: penso si possa eliminare
-// struct map_prod : public mapCOMMENTO_stage_wrapper<matrix_couple, matrix_3d, vec_matrix_couple, matrix> {
-// public:
-//
-//   explicit map_prod() {}
-//
-//   matrix_3d compute(matrix_couple& mn) override {
-//     // auto a = mn.first();
-//     // auto b = mn.second();
-//
-//     matrix_3d res;
-//
-//     for (size_t i=0; i<mn.size(); ++i) {
-//       res.push_back(op(mn[i]));
-//     }
-//
-// // #ifdef DEBUG
-// // std::cout << "[map_prod] compute:\n";
-// // // for (size_t i=0; i<res.size(); ++i) {
-// // //   res[i][0].print();
-// // // }
-// // #endif
-//
-//     return res;
-//   }
-//
-//   matrix op(const vec_matrix_couple& vm_pair) override {
-//     const auto a = vm_pair._vec;
-//     const auto b = vm_pair._mat;
-//     matrix res;
-//
-//     for (size_t i=0; i<a.size(); ++i) {
-//       auto v = std::vector<elem_type>(a.size());
-//       res.push_back(v);
-//     }
-// #ifdef DEBUG
-// std::cout << "res inizializzato\n";
-// for (auto row : res) {
-//   print_vec(row);
-// }
-// std::cout << "fine res inizializzato\n";
-//
-// vm_pair.print();
-// #endif
-//
-//     //per ogni elemento del vettore
-//     for (size_t i=0; i<a.size(); ++i) {
-//       //recupero riga matrice da moltiplicare
-//       const auto tmp = b[i];
-//       //per ogni elemento della riga
-//       for (size_t j=0; j<tmp.size(); ++j) {
-//           //faccio tutti i prodotti che servono per a[i]
-//           //e li metto nella riga giusta
-//           res[j][i] = a[i] * tmp[j];
-//       }
-//     }
-//
-//     // for (size_t i=0; i<a.size(); ++i) {
-//     //   const auto tmp = b[i];
-//     //   std::vector<utils::elem_type> v;
-//     //
-//     //   for (size_t j=0; j<tmp.size(); ++j) {
-//     //     //metto nel vettore temporaneo
-//     //     v.push_back(a[i] * tmp[j]);
-//     //   }
-//     //   //prima riga pronta
-//     //   res.push_back(v);
-//     // }
-//
-//     //vediamo com'è res
-// #ifdef DEBUG
-// std::cout << "------\n";
-// std::cout << "res da op\n";
-// for (auto& v : res) {
-//   utils::print_vec(v);
-// }
-// std::cout << "------\n";
-// #endif
-//     return res;
-//   }
-// };
-//
-// //TODO: penso si possa eliminare
-// struct reduce_matrix_stage : public reduceCOMMENTO_stage_wrapper<matrix_3d, matrix> {
-// public:
-//   matrix identity;
-//
-//   reduce_matrix_stage() {
-//     identity = matrix();
-//   }
-//
-//   matrix compute(matrix_3d& in) override {
-//     auto out = identity;
-//     //assumo identity (e quindi out) inizia tutto vuoto
-//     for (size_t i=0; i<in.size(); ++i) {
-//       out = op(out, in[i]);
-//     }
-//
-//     return out;
-//   }
-//
-//   matrix op(matrix& a, matrix& b) {
-//     auto res = 0;
-//     std::vector<utils::elem_type> res_vec;
-//
-//     for (size_t i=0; i<b.size(); ++i) {
-//       //row of the matrix;
-//       auto tmp = b[i];
-// #ifdef DEBUG
-// std::cout << "riga " << i << std::endl;
-// print_vec(tmp);
-// #endif
-//       for (size_t j=0; j<tmp.size(); ++j) {
-//         res += tmp[j];
-//       }
-//       //aggiungo un elemento alla riga
-//       res_vec.push_back(res);
-//       res = 0;
-//     }
-//     //aggiungo la riga alla matrice finale
-//     a.push_back(res_vec);
-// #ifdef DEBUG
-// std::cout << "res_vec:\n";
-// print_vec(res_vec);
-// std::cout << "matrice finale:\n";
-// for (size_t i=0; i<a.size(); ++i) {
-//   print_vec(a[i]);
-// }
-// #endif
-//     return a;
-//   }
-//
-// private:
-//   long row = 0;
-// };
-////////////////////////////////////////////////////////////////////////////////

@@ -114,13 +114,6 @@ namespace utils {
     //[a, b, c, ... k, 0, ... 0]
   }
 
-  template <typename Iterator>
-  inline void init_fast(Iterator begin, Iterator end, elem_type start) {
-    while (begin != end) {
-      (*begin++) = start++;
-    }
-  }
-
   inline void waste(const double& millisec) {
       auto t1 = std::chrono::high_resolution_clock::now();
       auto t2 = std::chrono::high_resolution_clock::now();
@@ -308,7 +301,9 @@ namespace utils {
 
     explicit elem_elem_idx_idx() : a(0), b(0), i(0), j(0) {}
 
-    elem_elem_idx_idx(elem_type& a, elem_type& b, elem_type i, elem_type j) {
+    elem_elem_idx_idx(elem_type a, elem_type b, size_t i, size_t j) : a(a), b(b), i(i), j(j) {}
+
+    elem_elem_idx_idx(elem_type& a, elem_type& b, size_t i, size_t j) {
       this->a = a;
       this->b = b;
       this->i = i;
@@ -423,6 +418,14 @@ namespace utils {
     elem_idx_idx out;
 
   };
+
+  template <typename Iterator>
+  inline void init_fast(Iterator begin, Iterator end, elem_type start_i, elem_type start_j) {
+    while (begin != end) {
+      auto el = elem_elem_idx_idx(start_i*2+1, start_j*3+3, start_i, start_j);
+      (*begin++) = el;
+    }
+  }
 
   inline double speed_up(const double& time_seq, const double& time_par) {
     return time_seq / time_par;
