@@ -851,7 +851,6 @@ public:
   }
 
   std::vector<elem_type> op(const vec_matrix_couple& vm_pair) override {
-    // utils::waste(10*parameters::minimum_wait);
     const auto a = vm_pair._vec;
     const auto b = vm_pair._mat;
 
@@ -1005,7 +1004,7 @@ public:
   explicit dc_mergesort() {}
 
   void divide(const utils::range& prob, std::vector<utils::range>& subps) override {
-      // utils::waste(parameters::minimum_wait);
+      utils::waste(parameters::minimum_wait);
       auto mid = prob.left +(prob.right - prob.left) / 2;
       utils::range a, b;
       a.left = prob.left;
@@ -1018,7 +1017,7 @@ public:
   }
 
   void combine(std::vector<utils::range>& res, utils::range& ret) override {
-      // utils::waste(parameters::minimum_wait);
+      utils::waste(parameters::minimum_wait);
       auto size = (size_t) (res[1].right - res[0].left);
 
       std::vector<utils::elem_type> tmp(size);
@@ -1041,14 +1040,13 @@ public:
   }
 
   void seq(const utils::range& p, utils::range& res) override {
-      // utils::waste(parameters::minimum_wait);
+      utils::waste(parameters::minimum_wait);
       std::sort(p.left, p.right);
       res.left = p.left;
       res.right = p.right;
   }
 
   bool cond(const utils::range& p) override {
-      // utils::waste(parameters::minimum_wait);
       return (p.right - p.left <= parameters::cut_off);
   }
 };
