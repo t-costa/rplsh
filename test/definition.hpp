@@ -15,6 +15,8 @@
 
 using namespace utils;
 
+matrix global_m;
+
 ////////////////////////////////////////////////////////////////////////////////
 struct source_strassen : public source<utils::Operand>{
 public:
@@ -136,6 +138,53 @@ public:
     print_vec(v);
   }
   #endif
+
+    return m;
+  }
+
+private:
+  int i;
+};
+
+struct source_matrixmul : public source<matrix> {
+public:
+  source_matrixmul() : i(0) {
+    utils::init_random();
+  }
+
+  bool has_next() override {
+    return i++ < parameters::matrix_stream;
+  }
+
+  matrix* next() {
+    auto size = (size_t) (parameters::matrix_size);
+    std::vector<utils::elem_type> a(size);
+    // auto m = new matrix();
+    auto m = new matrix();
+    // auto n = new matrix();
+
+    for (size_t j=0; j<size; ++j) {
+      utils::init(a.begin(), a.end());
+      m->push_back(a);
+      utils::init(a.begin(), a.end());
+      global_m.push_back(a);
+    }
+
+  #ifdef DEBUG
+  std::cout << "[source_matrix_stage] result:\n";
+std::cout << "------\n";
+  std::cout << "first matrix:\n";
+  for (auto& v : *m) {
+    print_vec(v);
+  }
+  std::cout << "second matrix\n";
+  for (auto& v : global_m) {
+    print_vec(v);
+  }
+  std::cout << "------\n";
+  #endif
+
+    // auto c = new matrix_couple(m, n);
 
     return m;
   }
@@ -830,6 +879,59 @@ public:
     for (size_t i=0; i<v.size(); ++i) {
       res[i] = v[i] / 2;
     }
+
+    return res;
+  }
+};
+
+struct map_matrixmul : public map_stage_wrapper<matrix, matrix, std::vector<utils::elem_type>, std::vector<utils::elem_type>> {
+public:
+  explicit map_matrixmul() {}
+
+  matrix compute(matrix& mn) override {
+    matrix res;
+
+    for (size_t i=0; i<mn.size(); ++i) {
+      res.push_back(op(mn[i]));
+    }
+
+    return res;
+  }
+
+  std::vector<elem_type> op(const std::vector<utils::elem_type>& a) override {
+    // const auto a = vm_pair._vec;
+    // const auto b = global_m;
+
+    //res vector initialized at 0
+    std::vector<elem_type> res(a.size());
+
+#ifdef DEBUG
+std::cout << "input op\n";
+std::cout << "vector: \n";
+print_vec(a);
+std::cout << "matrix: \n";
+for (auto& v: global_m) {
+  print_vec(v);
+}
+#endif
+
+    //length of the orizontal vector
+    for (size_t i=0; i<a.size(); ++i) {
+      elem_type n = 0;
+      //number of rows in matrix b
+      for (size_t j=0; j<a.size(); ++j) {
+        //b scanned vertically
+        n += a[j] * global_m[j][i];
+      }
+
+      //add value to the result
+      res[i] = n;
+    }
+
+#ifdef DEBUG
+std::cout << "vector result\n";
+print_vec(res);
+#endif
 
     return res;
   }
