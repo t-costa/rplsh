@@ -11,7 +11,7 @@ namespace parameters {
   const int dimension = 1;
   const int matrix_stream = 1;
   const size_t inputsize = 100000;
-  const size_t matrix_size = 3000;
+  const size_t matrix_size = 2000;
   const int matrix_production = matrix_size*matrix_size;
   const int cut_off = 100;
 #endif
