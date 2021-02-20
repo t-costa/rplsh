@@ -66,8 +66,8 @@ int main( int argc, char* argv[] ) {
 	// worker mapping
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	std::vector<std::pair<int, double>> par_time;
-	std::vector<int> par_degree;
+	// std::vector<std::pair<int, double>> par_time;
+	// std::vector<int> par_degree;
 	while (nw <= 4) {
 	source_strassen_stage _source_strassen;
 	dc_strassen dc_stage;
@@ -100,8 +100,8 @@ int main( int argc, char* argv[] ) {
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
-	par_time.emplace_back(nw, pipe.ffTime());
-	par_degree.push_back(nw);
+	// par_time.emplace_back(nw, pipe.ffTime());
+	// par_degree.push_back(nw);
 	nw *= 2;
 	}
 

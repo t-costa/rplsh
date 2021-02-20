@@ -82,8 +82,6 @@ void mytuple::add( std::unique_ptr<wrapper>&& term) {
  */
 wrapper * mytuple::get(const size_t pos) const {
     if (pos >= vec.size()) {
-//        std::cout << "pos: " << pos << ", get tuple" << std::endl;
-//        std::cout << "vec.size = " << vec.size() << std::endl;
         return nullptr;
     }
     return vec[pos].get();
@@ -98,7 +96,6 @@ wrapper * mytuple::get(const size_t pos) const {
  */
 bool mytuple::compare( const mytuple& t, size_t pos ) const {
     if (pos >= vec.size()) {
-//        std::cout << "pos: " << pos << ", compare tuple" << std::endl;
         return false;
     }
     auto other = t.get(pos);

@@ -59,8 +59,6 @@ private:
  */
 struct seq_node : public concrete_skel_node<seq_node> {
     seq_node( std::string name, std::string typein, std::string typeout, std::string file );
-//    seq_node( std::string name, std::string typein, std::string typeout,
-//              std::string typein_el, std::string typeout_el, std::string file );
 
     explicit seq_node( double servicetime, bool datap_flag = false );
     seq_node( const seq_node& other );
@@ -72,8 +70,6 @@ struct seq_node : public concrete_skel_node<seq_node> {
     std::string name;
     std::string typein;
     std::string typeout;
-//    std::string typein_el;
-//    std::string typeout_el;
     std::string file;
 };
 

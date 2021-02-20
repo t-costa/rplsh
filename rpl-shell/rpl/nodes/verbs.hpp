@@ -6,10 +6,6 @@
 #include "node_interface.hpp"
 
 //Forward declaration of a skeleton node
-//TODO maybe better templating the assign_node
-//TODO probably better use some type "rvalue_node"
-//and keep it in "node_interface.hpp"
-//The #include "skeletons.hpp" works too
 struct skel_node;
 
 /**

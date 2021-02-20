@@ -30,8 +30,7 @@ protected:
  * @tparam S special type for a node
  * @param root first tree
  * @param rule second tree
- * @return true if all root is inserted? Sure if some subtree is not inserted
- * it returns false, even if some others have been inserted!
+ * @return true if a match has been found
  */
 template <typename T, typename S>
 bool tree_matcher<T,S>::match(T* root, T* rule)
@@ -40,6 +39,18 @@ bool tree_matcher<T,S>::match(T* root, T* rule)
 }
 
 
+/**
+ * If the rule is the same type of S (matches with the entire rooted subtree)
+ * root is inserted as leaf, recursively for root and rule; it stops as soon
+ * as root is inserted or no insertion is possible. Retrieves identifiers
+ * from environment
+ * @tparam T type of the tree nodes
+ * @tparam S special type for a node
+ * @param env rpl environment
+ * @param root first tree
+ * @param rule second tree
+ * @return true if a match has been found
+ */
 template<typename T, typename S>
 bool tree_matcher<T, S>::match(rpl_environment &env, T *root, T *rule) {
     return match(env, root, rule, true);
@@ -55,8 +66,7 @@ bool tree_matcher<T, S>::match(rpl_environment &env, T *root, T *rule) {
  * @param root first tree
  * @param rule second tree
  * @param reset useful just for the recursion
- * @return true if all root is inserted? Sure if some subtree is not inserted
- * it returns false, even if some others have been inserted!
+ * @return true iff the two subtrees root and rule are equal
  */
 template <typename T, typename S>
 bool tree_matcher<T,S>::match(T* root, T* rule, bool reset) {
@@ -79,15 +89,6 @@ bool tree_matcher<T,S>::match(T* root, T* rule, bool reset) {
     }
     return res;
 }
-//
-//skel_node* retrieve(rpl_environment& env, skel_node* n) {
-//    return n;
-//}
-//
-//skel_node* retrieve(rpl_environment& env, id_node* n) {
-//    auto ptr = env.get(n->id, n->index);
-//    return ptr == nullptr ? nullptr : ptr.get();
-//}
 
 /**
  * Checks if the subtree rooted in root is the same of

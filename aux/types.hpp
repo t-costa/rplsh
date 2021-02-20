@@ -67,6 +67,7 @@ public:
 
     // interface iterating the container
     void add ( const T& t );
+    void push_back ( const T& t );
     void resize( std::size_t value );
     T get ( const std::size_t& idx ) const;
     T& operator[]( const std::size_t& idx ) const;
@@ -100,6 +101,12 @@ Container<T>::Container( Container<T>& o, const split& sp ) {
 
 template <typename T>
 void Container<T>::add( const T& t ) {
+    vec->push_back(t);
+    upper = vec->size();
+}
+
+template <typename T>
+void Container<T>::push_back( const T& t ) {
     vec->push_back(t);
     upper = vec->size();
 }

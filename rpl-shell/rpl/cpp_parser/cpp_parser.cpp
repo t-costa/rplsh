@@ -22,7 +22,7 @@ cpp_parser::cpp_parser( string  path ) :
 {}
 
 /**
- * Parse source file
+ * Parses source file
  * @return couple (begin, end) of the list of structures found
  */
 pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
@@ -40,8 +40,6 @@ pair<cpp_parser::iterator, cpp_parser::iterator> cpp_parser::parse() {
     regex drn_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)drain([ ]*)<([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
     regex map_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)map_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
-    // name: $3, typein: $9, typeout: $12, typein_el: $15, typeout_el: $18
-//    regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12
     regex red_regex("(class|struct)([ ]*)(.+)([ ]*):([ ]*)public([ ]*)reduce_stage_wrapper([ ]*)<([ ]*)(.+)([ ]*),([ ]*)(.+)([ ]*)>");
     // name: $3, typein: $9, typeout: $12

@@ -39,7 +39,6 @@ show map_fifth by servicetime, latency, pardegree, compltime, resources
 #main = pipe(dsrc, comp(m1, m2, m3, m4, m5), ddrn)
 #show main by servicetime, latency, pardegree, compltime, resources
 
-#poi prova ad ottimizzare con max_resources
 
 #versione con una sola map
 c = comp(map_first, map_second, map_third, map_fourth, map_fifth)

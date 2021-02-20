@@ -66,9 +66,9 @@ int main( int argc, char* argv[] ) {
 	// worker mapping
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	std::vector<std::pair<int, double>> par_time;
-	std::vector<int> par_degree;
-	int i = 0;
+	// std::vector<std::pair<int, double>> par_time;
+	// std::vector<int> par_degree;
+	// int i = 0;
 	while (nw <= 7) {
 		source_range_stage_stage _source_range_stage;
 		dc_mergesort dc_stage;
@@ -104,16 +104,16 @@ int main( int argc, char* argv[] ) {
 		std::cout << "Stats: " << std::endl;
 		pipe.ffStats(std::cout);
 		#endif
-		par_time.emplace_back(nw, pipe.ffTime());
-		i++;
-		if (i >= 5 || i >= nw) {
-			par_degree.push_back(nw);
+		// par_time.emplace_back(nw, pipe.ffTime());
+		// i++;
+		// if (i >= 5 || i >= nw) {
+		// 	par_degree.push_back(nw);
 			nw *= 2;
-			i = 0;
-		}
+		// 	i = 0;
+		// }
 	}
 
-	utils::build_json(26000, par_time, par_degree, "mergesort_1000_mio");
+	// utils::build_json(26000, par_time, par_degree, "mergesort_1000_mio");
 	return 0;
 
 }

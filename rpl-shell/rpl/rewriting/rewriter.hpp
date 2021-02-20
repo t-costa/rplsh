@@ -126,24 +126,6 @@ skel_node* rewriter::rewrite( skel_node& n, rewrule& r ) {
             n.set( rewrite(*n.get(1), r), 1 );
         }
     }
-//    else {
-//        /* for rec support */
-//        while ( rec && newptr && (tmp = r.rewrite(*newptr)) )
-//            newptr = tmp;
-//
-//        /* TODO really lazy now, should be written in a more concise way */
-//        if ( rec && newptr && newptr->size() == 1) {
-//            newptr->set( rewrite(*newptr->get(0), r), 0 );
-//        } else if ( rec && newptr && newptr->size() == 2) {
-//            newptr->set( rewrite(*newptr->get(0), r), 0 );
-//            newptr->set( rewrite(*newptr->get(1), r), 1 );
-//        } else if ( rec && n.size() == 1 ) {
-//            n.set( rewrite(*n.get(0), r), 0 );
-//        } else if ( rec && n.size() == 2) {
-//            n.set( rewrite(*n.get(0), r), 0 );
-//            n.set( rewrite(*n.get(1), r), 1 );
-//        }
-//    }
 
     return newptr == nullptr ? n.clone() : newptr;
 }

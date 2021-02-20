@@ -1,4 +1,3 @@
-//matrix mul
 #include <iostream>
 #include <vector>
 #include <functional>
@@ -6,8 +5,6 @@
 #include "/home/tommaso/forked/rplsh/test/definition.hpp"
  // #include "/home/costanzo/rplsh/test/definition.hpp"
 
-// using time = std::chrono::high_resolution_clock::time_point;
-// using clock = std::chrono::high_resolution_clock;
 inline double avg(double a, double b) {
   if (a == 0) return b;
   return static_cast<double>((a+b)/2);
@@ -18,17 +15,8 @@ int main() {
   drain_range_stage d;
   dc_mergesort m;
 
-  // std::cout << "matrix_stream: " << parameters::matrix_stream << std::endl;
-  // std::cout << "matrix_size: " << parameters::matrix_size << std::endl;
-
   auto start = std::chrono::high_resolution_clock::now();
-  // time start_source, start_m, start_drain;
-  // time end_source, end_m, end_drain;
-
-  // std::vector<std::chrono::nanoseconds> source_times, m_times, drain_times;
-  // std::vector<double> source_times, m_times, drain_times;
   double avg_source = 0, avg_m = 0, avg_drain = 0;
-
 
   while (s.has_next()) {
     auto start_source = std::chrono::high_resolution_clock::now();
@@ -56,15 +44,6 @@ int main() {
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
   std::cout << "Total time: " << duration.count() << " milliseconds" << std::endl;
-
-  //provo a prendere le medie
-  // auto total_source = std::accumulate(source_times.begin(), source_times.end(), 0);
-  // auto total_m = std::accumulate(m_times.begin(), m_times.end(), 0);
-  // auto total_drain = std::accumulate(drain_times.begin(), drain_times.end(), 0);
-  // std::cout << "Average source: " << (total_source/source_times.size()) << " nanoseconds" << std::endl;
-  // std::cout << "Average map: " << (total_m/m_times.size()) << " nanoseconds" << std::endl;
-  // std::cout << "Average drain: " << (total_drain/drain_times.size()) << " nanoseconds" << std::endl;
-
 
   std::cout << "Average source: " << avg_source << " nanoseconds" << std::endl;
   std::cout << "Average dc: " << avg_m << " nanoseconds" << std::endl;

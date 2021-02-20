@@ -285,13 +285,6 @@ ann_cutoff::ann_cutoff(rpl_environment &env) :
 void ann_cutoff::visit(dc_node &n) {
     result = (value >= 1);
     n.cutoff = result ? value : 1;
-//    if (n.transformed) {
-//        result = (value >= 1);
-//        n.cutoff = result ? value : 1;
-//    } else {
-//        result = false;
-//    }
-
 }
 
 bool ann_cutoff::operator()(skel_node &n, ann_node &a) {

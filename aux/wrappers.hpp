@@ -90,32 +90,6 @@ private:
   }
 };
 
-
-
-// template<typename Tin,
-//           typename Tout,
-//           typename Tin_el,
-//           typename Tout_el>
-//           //typename T>
-// class reduce_stage_wrapper {
-//
-//   virtual Tout compute(Tin& input) = 0;
-//
-//   virtual Tout_el op(Tin_el& input1, Tin_el& input2) = 0;
-//
-// protected:
-//   Tout identity{};
-// };
-
-
-
-/*template <typename T>
-class composable {
-public:
-    virtual T&& operator[](size_t idx);
-    virtual T& operator[](size_t idx);
-}*/
-
 // class type representing a set of values of type T
 // that could be splitted in several sub-composable sets
 // -> similiar concept to the TBB Range

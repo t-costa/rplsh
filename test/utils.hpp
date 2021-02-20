@@ -13,7 +13,7 @@
 #include <dirent.h>
 #include <printf.h>
 
-using json = nlohmann::json;
+// using json = nlohmann::json;
 
 #define MAX_DBL_NUM 999.9
 
@@ -303,12 +303,12 @@ namespace utils {
 
     elem_elem_idx_idx(elem_type a, elem_type b, size_t i, size_t j) : a(a), b(b), i(i), j(j) {}
 
-    elem_elem_idx_idx(elem_type& a, elem_type& b, size_t i, size_t j) {
-      this->a = a;
-      this->b = b;
-      this->i = i;
-      this->j = j;
-    }
+    // elem_elem_idx_idx(elem_type& a, elem_type& b, size_t i, size_t j) {
+    //   this->a = a;
+    //   this->b = b;
+    //   this->i = i;
+    //   this->j = j;
+    // }
 
     elem_elem_idx_idx& operator= (elem_elem_idx_idx & v) {
       this->a = v.a;
@@ -427,106 +427,106 @@ namespace utils {
     }
   }
 
-  inline double speed_up(const double& time_seq, const double& time_par) {
-    return time_seq / time_par;
-  }
-
-  void build_json(const double& seq_time,                             //tseq
-                const std::vector<std::pair<int, double>>& par_time,  //nw-tc
-                const std::vector<int>& par_degree,                   //lista nw
-                const std::string& problem) {                         //nome problema
-    json j_time, j_speedup, j_scalab, j_eff;
-
-    std::vector<double> par;
-    int first = 1, count = 0;
-    double avg = 0;
-    for (const auto &i : par_time) {
-        if (first == i.first) {
-            //same degree
-            avg += i.second;
-            count++;
-        } else {
-            //new degee
-            first = i.first;
-            par.push_back(avg / count);
-            avg = i.second;
-            count = 1;
-        }
-    }
-
-    //last element
-    par.push_back(avg / count);
-
-    std::vector<double> all_y;
-    std::vector<double> all_x;
-    for (auto& v : par_time) {
-        all_y.push_back(v.second);
-        all_x.push_back(v.first);
-    }
-
-    j_time["x"] = par_degree;
-    j_time["y"] = par;
-    j_time["all_x"] = all_x;
-    j_time["all_y"] = all_y;
-    j_time["title"] = "Graph of execution time w.r.t. parallel degree for " + problem;
-    j_time["xaxis"] = "Parallelism degree";
-    j_time["yaxis"] = "Execution time (seconds)";
-    j_time["seq_time"] = seq_time;
-    j_time["name"] = problem;
-
-    DIR* dir = opendir("json_files");
-    if (dir)
-    {
-        /* Directory exists. */
-        closedir(dir);
-    }
-    else if (ENOENT == errno)
-    {
-        /* Directory does not exist. */
-        const int dir_err = mkdir("json_files", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        if (dir_err == -1) {
-            std::cerr << "Error creating directory!" << std::endl;
-        }
-    }
-    else
-    {
-        /* opendir() failed for some other reason. */
-        std::cerr << "Something went wrong with the directory..." << std::endl;
-    }
-
-    //write j_time to file
-    std::ofstream of_time;
-    of_time.open("./json_files/" + problem + "-time.json");
-    of_time << std::setw(4) << j_time << std::endl;
-    of_time.close();
-
-    std::vector<double> speed_vec_all;
-    std::vector<double> speed_vec_avg;
-    std::vector<int> speed_x;
-    for (const auto& t : par_time) {
-        speed_vec_all.push_back(speed_up(seq_time, t.second));
-        speed_x.push_back(t.first);
-    }
-
-    for (const auto& t : par) {
-        speed_vec_avg.push_back(speed_up(seq_time, t));
-    }
-
-    j_speedup["x"] = par_degree;
-    j_speedup["y"] = speed_vec_avg;
-    j_speedup["times"] = par;
-    j_speedup["all_x"] = speed_x;
-    j_speedup["all_y"] = speed_vec_all;
-    j_speedup["title"] = "Graph of speedup w.r.t. parallel degree for " + problem;
-    j_speedup["xaxis"] = "Parallelism degree";
-    j_speedup["yaxis"] = "Speedup";
-    j_speedup["seq_time"] = seq_time;
-    j_speedup["name"] = problem;
-
-    std::ofstream of_speed;
-    of_speed.open("./json_files/" + problem + "-speedup.json");
-    of_speed << std::setw(4) << j_speedup << std::endl;
-    of_speed.close();
+  // inline double speed_up(const double& time_seq, const double& time_par) {
+  //   return time_seq / time_par;
+  // }
+  //
+  // void build_json(const double& seq_time,                             //tseq
+  //               const std::vector<std::pair<int, double>>& par_time,  //nw-tc
+  //               const std::vector<int>& par_degree,                   //lista nw
+  //               const std::string& problem) {                         //nome problema
+  //   json j_time, j_speedup, j_scalab, j_eff;
+  //
+  //   std::vector<double> par;
+  //   int first = 1, count = 0;
+  //   double avg = 0;
+  //   for (const auto &i : par_time) {
+  //       if (first == i.first) {
+  //           //same degree
+  //           avg += i.second;
+  //           count++;
+  //       } else {
+  //           //new degee
+  //           first = i.first;
+  //           par.push_back(avg / count);
+  //           avg = i.second;
+  //           count = 1;
+  //       }
+  //   }
+  //
+  //   //last element
+  //   par.push_back(avg / count);
+  //
+  //   std::vector<double> all_y;
+  //   std::vector<double> all_x;
+  //   for (auto& v : par_time) {
+  //       all_y.push_back(v.second);
+  //       all_x.push_back(v.first);
+  //   }
+  //
+  //   j_time["x"] = par_degree;
+  //   j_time["y"] = par;
+  //   j_time["all_x"] = all_x;
+  //   j_time["all_y"] = all_y;
+  //   j_time["title"] = "Graph of execution time w.r.t. parallel degree for " + problem;
+  //   j_time["xaxis"] = "Parallelism degree";
+  //   j_time["yaxis"] = "Execution time (seconds)";
+  //   j_time["seq_time"] = seq_time;
+  //   j_time["name"] = problem;
+  //
+  //   DIR* dir = opendir("json_files");
+  //   if (dir)
+  //   {
+  //       /* Directory exists. */
+  //       closedir(dir);
+  //   }
+  //   else if (ENOENT == errno)
+  //   {
+  //       /* Directory does not exist. */
+  //       const int dir_err = mkdir("json_files", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  //       if (dir_err == -1) {
+  //           std::cerr << "Error creating directory!" << std::endl;
+  //       }
+  //   }
+  //   else
+  //   {
+  //       /* opendir() failed for some other reason. */
+  //       std::cerr << "Something went wrong with the directory..." << std::endl;
+  //   }
+  //
+  //   //write j_time to file
+  //   std::ofstream of_time;
+  //   of_time.open("./json_files/" + problem + "-time.json");
+  //   of_time << std::setw(4) << j_time << std::endl;
+  //   of_time.close();
+  //
+  //   std::vector<double> speed_vec_all;
+  //   std::vector<double> speed_vec_avg;
+  //   std::vector<int> speed_x;
+  //   for (const auto& t : par_time) {
+  //       speed_vec_all.push_back(speed_up(seq_time, t.second));
+  //       speed_x.push_back(t.first);
+  //   }
+  //
+  //   for (const auto& t : par) {
+  //       speed_vec_avg.push_back(speed_up(seq_time, t));
+  //   }
+  //
+  //   j_speedup["x"] = par_degree;
+  //   j_speedup["y"] = speed_vec_avg;
+  //   j_speedup["times"] = par;
+  //   j_speedup["all_x"] = speed_x;
+  //   j_speedup["all_y"] = speed_vec_all;
+  //   j_speedup["title"] = "Graph of speedup w.r.t. parallel degree for " + problem;
+  //   j_speedup["xaxis"] = "Parallelism degree";
+  //   j_speedup["yaxis"] = "Speedup";
+  //   j_speedup["seq_time"] = seq_time;
+  //   j_speedup["name"] = problem;
+  //
+  //   std::ofstream of_speed;
+  //   of_speed.open("./json_files/" + problem + "-speedup.json");
+  //   of_speed << std::setw(4) << j_speedup << std::endl;
+  //   of_speed.close();
 
     // std::vector<double> scalab;
     // for (const auto& t : par) {
@@ -562,7 +562,7 @@ namespace utils {
     // of_eff << std::setw(4) << j_eff << std::endl;
     // of_eff.close();
 
-  }
+  // }
 
 
   ///////////////////////////////////////////////////////////////////////////
@@ -737,21 +737,6 @@ namespace utils {
         op.deletable_a=false;
         op.deletable_b=false;
       }
-
-      // Operand& operator[](size_t i) {
-      //   auto b_out = new elem_type[rs_a]();
-      //   for (int j=0; j<rs_a; ++j) {
-      //     b_out[j] = b[j*b_size + i];
-      //   }
-      //   auto a_out = new elem_type[rs_a]();
-      //   for (int j=0; j<rs_a; ++j) {
-      //     a_out[j] = a[i*a_size + j];
-      //   }
-      //   return Operand(a_out, rs_a, 1, b_out, rs_b, 1, false, false);
-      // }
-
-      //serve: size, costruttore vuoto, push_back, operator[]
-      //per dctomap
   };
 
 

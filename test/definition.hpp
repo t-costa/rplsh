@@ -16,6 +16,8 @@
 using namespace utils;
 
 matrix global_m;
+// matrix global_a, global_b;
+// std::vector<std::vector<elem_elem_idx_idx>*> global_a, global_b;
 
 ////////////////////////////////////////////////////////////////////////////////
 struct source_strassen : public source<utils::Operand>{
@@ -54,6 +56,32 @@ public:
   source_matrix_vectors() : i(0), j(0), count(0), create(true) {
     utils::init_random();
     total = parameters::inputsize*parameters::inputsize;
+    // global_a = std::vector<std::vector<elem_elem_idx_idx>*>();
+    // // global_a = matrix();
+    // global_a.reserve(parameters::matrix_size);
+    // global_b = std::vector<std::vector<elem_elem_idx_idx>*>();
+    // // global_b = matrix();
+    // global_b.reserve(parameters::matrix_size);
+    // size_t j=0, k=0, last_a = 0, last_b = 0;
+    // for (size_t i=0; i<parameters::matrix_size; ++i) {
+    //   auto va = std::vector<utils::elem_type>(parameters::matrix_size);
+    //   auto vb = std::vector<utils::elem_type>(parameters::matrix_size);
+    //   utils::init(va.begin(), va.end());
+    //   utils::init(vb.begin(), vb.end());
+    //   global_a
+    //   global_a.push_back(va);
+    //   global_b.push_back(vb);
+    // }
+    // #ifdef DEBUG
+    // std::cout << "matrix a" << std::endl;
+    // for (auto v: global_a) {
+    //   utils::print_vec(v);
+    // }
+    // std::cout << "matrix b" << std::endl;
+    // for (auto v: global_b) {
+    //   utils::print_vec(v);
+    // }
+    // #endif
   }
 
   //dimension must be size*size
@@ -76,15 +104,21 @@ public:
 
     // utils::init_fast(row.begin(), row.end(), i*2+1);
     // utils::init_fast(col.begin(), col.end(), j*3+3);
-
+    // auto* out = new std::vector<utils::elem_elem_idx_idx>();
     auto out = new std::vector<utils::elem_elem_idx_idx>();
     out->reserve(parameters::matrix_size);
-
+    //
     utils::init_fast(out->begin(), out->end(), i, j);
     //
     // for (size_t k=0; k<parameters::matrix_size; k++) {
     //   out->emplace_back(elem_elem_idx_idx(row[k], col[k], i, j));
     // }
+
+    // for (size_t k=0; k<parameters::matrix_size; ++k) {
+    //   out->emplace_back(elem_elem_idx_idx(global_a[i][k], global_b[j][k], i, j));
+    // }
+
+
 
     // auto out = new utils::vec_vec_idx_idx(row, col, i, j);
     if (count % parameters::matrix_size == 0) {
@@ -492,7 +526,7 @@ public:
       utils::print_vec(v);
     }
   #endif
-    delete in;
+    //delete in;
   }
 
 private:
@@ -511,6 +545,7 @@ for (auto& v : *in) {
 #endif
 
       delete in;
+      global_m = matrix();
     }
 };
 
@@ -905,15 +940,15 @@ public:
     //res vector initialized at 0
     std::vector<elem_type> res(a.size());
 
-#ifdef DEBUG
-std::cout << "input op\n";
-std::cout << "vector: \n";
-print_vec(a);
-std::cout << "matrix: \n";
-for (auto& v: global_m) {
-  print_vec(v);
-}
-#endif
+// #ifdef DEBUG
+// std::cout << "input op\n";
+// std::cout << "vector: \n";
+// print_vec(a);
+// std::cout << "matrix: \n";
+// for (auto& v: global_m) {
+//   print_vec(v);
+// }
+// #endif
 
     //length of the orizontal vector
     for (size_t i=0; i<a.size(); ++i) {
@@ -928,10 +963,10 @@ for (auto& v: global_m) {
       res[i] = n;
     }
 
-#ifdef DEBUG
-std::cout << "vector result\n";
-print_vec(res);
-#endif
+// #ifdef DEBUG
+// std::cout << "vector result\n";
+// print_vec(res);
+// #endif
 
     return res;
   }
