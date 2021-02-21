@@ -50,7 +50,7 @@ void skel_node::add( skel_node* sk ) {
  */
 void skel_node::set( skel_node* sk, size_t pos) {
     //FIXME: this is not a solution, maybe there is nothing to do?
-    if (pos >= children.size() || pos < 0) {
+    if (pos >= children.size()) {
         std::cerr << "Error! Pos is outside the limit in skel_node::set!" << std::endl;
         exit(1);
     }

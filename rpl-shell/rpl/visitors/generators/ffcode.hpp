@@ -4,7 +4,7 @@
 #include "visitors/visitor_interface.hpp"
 #include "visitors/visitors.hpp"
 #include "environment/rpl_environment.hpp"
-#include "compseq_setter.hpp"
+//#include "compseq_setter.hpp"
 #include <queue>
 #include <utility>
 #include <sstream>
@@ -34,7 +34,7 @@ protected:
     rpl_environment& env;
     get_seq_wrappers gsw;
     top_datap_skeletons tds;
-    compseq_setter compseq;
+//    compseq_setter compseq;
 
     std::queue<std::pair<std::string,std::string>> code_lines;
 };

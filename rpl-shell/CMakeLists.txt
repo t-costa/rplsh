@@ -9,7 +9,7 @@ if(EXPANSION)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++17 -g -O0 -pedantic -Wall -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -O3 -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -O3 -Wall -pedantic")
 
 add_subdirectory (rpl)
 add_executable (rplsh rplsh.cpp)

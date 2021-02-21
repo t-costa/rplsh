@@ -600,8 +600,8 @@ ffcode::ffcode( rpl_environment& env ) :
     in_comp(false),
     env(env),
     gsw(env),
-    tds(env),
-    compseq(env)
+    tds(env)
+    //compseq(env)
 {}
 
 /**
@@ -822,22 +822,22 @@ void ffcode::visit( id_node& n ) {
     }
 }
 
-/**
- * Retrieves sequential nodes inside composition nodes
- * @param node starting composition node
- * @param set container for the sequential nodes
- */
-void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
-    size_t i = 0;
-    while (node->size() > i) {
-        add_seq_of_comp(node->get(i), set);
-        i++;
-    }
-    if (i == 0) {
-        //it's a seq
-        set.emplace(node);
-    }
-}
+///**
+// * Retrieves sequential nodes inside composition nodes
+// * @param node starting composition node
+// * @param set container for the sequential nodes
+// */
+//void add_seq_of_comp(skel_node* node, std::set<skel_node*>& set) {
+//    size_t i = 0;
+//    while (node->size() > i) {
+//        add_seq_of_comp(node->get(i), set);
+//        i++;
+//    }
+//    if (i == 0) {
+//        //it's a seq
+//        set.emplace(node);
+//    }
+//}
 
 /**
  * Builds all the source code
@@ -857,7 +857,7 @@ string ffcode::operator()(skel_node& n) {
     swap( code_lines, empty );
 
     gsw(n);       // start visit to get seq wrappers
-    compseq(n);   // start visit to set compseq nodes
+    //compseq(n);   // start visit to set compseq nodes
     auto src_nodes = gsw.get_source_nodes();
     auto drn_nodes = gsw.get_drain_nodes();
     auto seq_nodes = gsw.get_seq_nodes();
