@@ -94,14 +94,15 @@ string stage_declaration( const seq_node& n ) {
 string source_declaration( const source_node& n ) {
     stringstream ss;
     ss << "class " << n.name << "_stage : public ff_node {\n";
-    ss << "protected:\n\tstd::unique_ptr<" << n.name << "> src; \n\n";
+//    ss << "protected:\n\tstd::unique_ptr<" << n.name << "> src; \n\n";
+    ss << "protected:\n\t" << n.name << " src;\n\n";
     ss << "public:\n";
-    ss << "\t" << n.name << "_stage() : src(new " << n.name << "()) {}\n";
+//    ss << "\t" << n.name << "_stage() : src(new " << n.name << "()) {}\n";
     ss << svc_init_decl(n.name) << "\n";
     ss << "\tvoid * svc(void *t) {\n";
-    ss << "\t\twhile( src->has_next() )\n";
-    ss << "\t\t\tff_send_out((void*) src->next() );\n";
-    ss << "\t\treturn (NULL);\n";
+    ss << "\t\twhile( src.has_next() )\n";
+    ss << "\t\t\tff_send_out((void*) src.next() );\n";
+    ss << "\t\treturn (EOS);\n";
     ss << "\t}\n";
     ss << "};\n\n";
     return ss.str();
@@ -115,12 +116,13 @@ string source_declaration( const source_node& n ) {
 string drain_declaration( const drain_node& n ) {
     stringstream ss;
     ss << "class " << n.name << "_stage : public ff_node {\n";
-    ss << "protected:\n\tstd::unique_ptr<" << n.name << "> drn; \n\n";
+//    ss << "protected:\n\tstd::unique_ptr<" << n.name << "> drn; \n\n";
+    ss << "protected:\n\t" << n.name << " drn;\n\n";
     ss << "public:\n";
-    ss << "\t" << n.name << "_stage() : drn(new " << n.name << "()) {}\n";
+//    ss << "\t" << n.name << "_stage() : drn(new " << n.name << "()) {}\n";
     ss << svc_init_decl(n.name) << "\n";
     ss << "\tvoid * svc(void *t) {\n";
-    ss << "\t\tdrn->process((" << n.typein << "*) t);\n";
+    ss << "\t\tdrn.process((" << n.typein << "*) t);\n";
     ss << "\t\treturn (GO_ON);\n";
     ss << "\t}\n";
     ss << "};\n\n";
@@ -427,12 +429,12 @@ string includes() {
     ss << "// specify include directory for RPL-Shell\n";
     ss << "#include <aux/types.hpp>\n";
     ss << "#include <aux/wrappers.hpp>\n";
-    ss << "#include <aux/ff_comp.hpp>\n\n";
+//    ss << "#include <aux/ff_comp.hpp>\n\n";
     ss << "// business code headers\n";
     for (auto& kv : business_headers) {
         ss << "#include <" << kv.first << ">\n";
     }
-    ss << "\n\n";
+    ss << "\nusing namespace ff;\n\n";
 
 #ifdef DEBUG
     ss << "int nw = 1;\n";

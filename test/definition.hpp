@@ -54,6 +54,7 @@ private:
 struct source_matrix_vectors : public source<std::vector<utils::elem_elem_idx_idx>> {
 public:
   source_matrix_vectors() : i(0), j(0), count(0), create(true) {
+    std::cout << "costruttore source_matrix_vectors\n";
     utils::init_random();
     total = parameters::inputsize*parameters::inputsize;
     // global_a = std::vector<std::vector<elem_elem_idx_idx>*>();
@@ -84,8 +85,13 @@ public:
     // #endif
   }
 
+  // ~source_matrix_vectors() {
+  //   std::cout << "sta distruggendo source\n";
+  // }
+
   //dimension must be size*size
   bool has_next() override {
+    // std::cout << "has next" << std::endl;
     return count++ < parameters::matrix_production;
   }
 
@@ -106,9 +112,12 @@ public:
     // utils::init_fast(col.begin(), col.end(), j*3+3);
     // auto* out = new std::vector<utils::elem_elem_idx_idx>();
     auto out = new std::vector<utils::elem_elem_idx_idx>();
-    out->reserve(parameters::matrix_size);
+    out->resize(parameters::matrix_size);
     //
     utils::init_fast(out->begin(), out->end(), i, j);
+    // std::cout << "da out" << std::endl;
+    // (*out)[1].print();
+    // (*out)[1] = utils::elem_elem_idx_idx(15, 12, 0, 0);
     //
     // for (size_t k=0; k<parameters::matrix_size; k++) {
     //   out->emplace_back(elem_elem_idx_idx(row[k], col[k], i, j));
@@ -518,6 +527,10 @@ public:
     }
   }
 
+  // ~drain_matrixelem() {
+  //   std::cout << "sta distruggendo drain" << std::endl;
+  // }
+
   void process(utils::elem_idx_idx* in) {
     res[in->i][in->j] = in->a;
   #ifdef DEBUG
@@ -673,7 +686,10 @@ std::cout << (*in) << std::endl;
 
 struct map_vec_prod : public map_stage_wrapper<std::vector<utils::elem_elem_idx_idx>, std::vector<utils::elem_idx_idx>, utils::elem_elem_idx_idx, utils::elem_idx_idx> {
 public:
-  explicit map_vec_prod() {}
+  // explicit map_vec_prod() = default;
+  // ~map_vec_prod() {
+  //   std::cout << "sta distruggendo map_vec_prod\n";
+  // }
 
   std::vector<utils::elem_idx_idx> compute(std::vector<utils::elem_elem_idx_idx>& in) override {
     std::vector<utils::elem_idx_idx> v(parameters::matrix_size);
@@ -689,7 +705,7 @@ public:
     }
     #endif
 
-    delete &in;
+    // delete &in;
 
     return v;
   }
@@ -706,7 +722,10 @@ struct red_sum : public reduce_stage_wrapper<std::vector<utils::elem_idx_idx>, u
 public:
   utils::elem_idx_idx identity;
 
-  explicit red_sum() { }
+  // explicit red_sum() = default;
+  // ~red_sum() {
+  //   std::cout << "sta distruggndo red_sum\n";
+  // };
 
   utils::elem_idx_idx compute(std::vector<utils::elem_idx_idx>& in) override {
     auto out = identity;
@@ -720,7 +739,7 @@ public:
     out.print();
     #endif
 
-    delete &in;
+    // delete &in;
 
     return out;
   }

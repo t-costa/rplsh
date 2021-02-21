@@ -16,16 +16,17 @@
 // specify include directory for RPL-Shell
 #include <aux/types.hpp>
 #include <aux/wrappers.hpp>
-#include <aux/ff_comp.hpp>
+// #include <aux/ff_comp.hpp>
 
 // business code headers
 #include </home/tommaso/forked/rplsh/test/definition.hpp>
 
+using namespace ff;
 
 int nw = 1;
 class source_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<source_vec_stage> src; 
+	std::unique_ptr<source_vec_stage> src;
 
 public:
 	source_vec_stage_stage() : src(new source_vec_stage()) {}
@@ -45,7 +46,7 @@ public:
 
 class drain_vec_stage_stage : public ff_node {
 protected:
-	std::unique_ptr<drain_vec_stage> drn; 
+	std::unique_ptr<drain_vec_stage> drn;
 
 public:
 	drain_vec_stage_stage() : drn(new drain_vec_stage()) {}
@@ -64,7 +65,7 @@ public:
 
 class seq_vec_vec_stage_stage : public ff_node {
 protected:
-	seq_vec_vec_stage wrapper; 
+	seq_vec_vec_stage wrapper;
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
@@ -84,7 +85,7 @@ public:
 
 class map_vec_vec_stage_stage : public ff_node {
 protected:
-	map_vec_vec_stage wrapper; 
+	map_vec_vec_stage wrapper;
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
@@ -104,7 +105,7 @@ public:
 
 class dc_dummy_stage : public ff_node {
 protected:
-	dc_dummy wrapper; 
+	dc_dummy wrapper;
 public:
 	int svc_init() {
 		#ifdef TRACE_CORE
@@ -123,12 +124,10 @@ public:
 };
 
 int main( int argc, char* argv[] ) {
-	// worker mapping 
+	// worker mapping
 	const char worker_mapping[] = "0,1,2";
 	threadMapper::instance()->setMappingList(worker_mapping);
-	std::vector<std::pair<int, double>> par_time;
-	std::vector<int> par_degree;
-	while (nw <= 128) {
+
 	source_vec_stage_stage _source_vec_stage;
 	seq_vec_vec_stage_stage _seq_vec_vec_stage;
 	map_vec_vec_stage_stage _map_vec_vec_stage;
@@ -142,22 +141,18 @@ int main( int argc, char* argv[] ) {
 	pipe.add_stage(&_source_vec_stage);
 	pipe.add_stage(&comp2);
 	pipe.add_stage(&_drain_vec_stage);
-	
-	
+
+
 	pipe.run_and_wait_end();
 	std::cout << "nw = " << nw << ". ";
 	std::cout << "Spent: " << pipe.ffTime() << " msecs" << std::endl;
-	
+
 	#ifdef TRACE_FASTFLOW
 	std::cout << "Stats: " << std::endl;
 	pipe.ffStats(std::cout);
 	#endif
-	par_time.emplace_back(nw, pipe.ffTime());
-	par_degree.push_back(nw);
-	nw *= 2;
-	}
-	
-	utils::build_json(0, par_time, par_degree, "pipe(source_vec_stage,c,drain_vec_stage)");
+
+	// utils::build_json(0, par_time, par_degree, "pipe(source_vec_stage,c,drain_vec_stage)");
 	return 0;
-	
+
 }
