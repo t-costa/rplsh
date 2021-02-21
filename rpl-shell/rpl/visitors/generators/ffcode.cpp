@@ -428,8 +428,7 @@ string includes() {
     ss << "#include <ff/dc.hpp>\n\n";
     ss << "// specify include directory for RPL-Shell\n";
     ss << "#include <aux/types.hpp>\n";
-    ss << "#include <aux/wrappers.hpp>\n";
-//    ss << "#include <aux/ff_comp.hpp>\n\n";
+    ss << "#include <aux/wrappers.hpp>\n\n";
     ss << "// business code headers\n";
     for (auto& kv : business_headers) {
         ss << "#include <" << kv.first << ">\n";
@@ -457,6 +456,14 @@ string main_wrapper( const string& code ) {
     return ss.str();
 }
 
+/**
+ * Manages the declaration of the divide function in D&C
+ * @param transformed true iff the node is result of a transformation
+ * @param typein input type
+ * @param wrapper_name name of the class in the user code
+ * @param schedule type of scheduling
+ * @return working code as string
+ */
 string divide_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, long schedule) {
     stringstream ss;
     if (transformed) {
@@ -490,6 +497,14 @@ string divide_decl(bool transformed, const std::string& typein, const std::strin
     return ss.str();
 }
 
+/**
+ * Manages the declaration of the combine function in D&C
+ * @param transformed true iff the node is result of a transformation
+ * @param typeout output type
+ * @param wrapper_name name of the class in the user code
+ * @param schedule type of scheduling
+ * @return working code as string
+ */
 string combine_decl(bool transformed, const std::string& typeout, const std::string& wrapper_name, long schedule) {
     stringstream ss;
     if (transformed) {
@@ -531,6 +546,15 @@ string combine_decl(bool transformed, const std::string& typeout, const std::str
     return ss.str();
 }
 
+/**
+ * Manages the declaration of the solve phase in D&C
+ * @param transformed true iff the node is result of a transformation
+ * @param typein input type
+ * @param typeout output type
+ * @param wrapper_name name of the class in the user code
+ * @param cutoff size of the collection
+ * @return working code as string
+ */
 string seq_decl(bool transformed, const std::string& typein, const std::string& typeout, const std::string& wrapper_name, const size_t cutoff) {
     stringstream ss;
     if (transformed || cutoff > 1) {
@@ -547,6 +571,14 @@ string seq_decl(bool transformed, const std::string& typein, const std::string& 
     return ss.str();
 }
 
+/**
+ * Manages the declaration of the condition function in D&C
+ * @param transformed true iff the node is result of a transformation
+ * @param typein input type
+ * @param wrapper_name name of the class in the user code
+ * @param cutoff size of the collection when the condition is true
+ * @return working code as string
+ */
 string cond_decl(bool transformed, const std::string& typein, const std::string& wrapper_name, size_t cutoff) {
     stringstream ss;
     if (transformed || cutoff > 1) {
@@ -565,6 +597,7 @@ string cond_decl(bool transformed, const std::string& typein, const std::string&
 ///////////////////////////////////////////////////////////////////////////////
 
 ffcode::ffcode( rpl_environment& env ) :
+    in_comp(false),
     env(env),
     gsw(env),
     tds(env),
@@ -596,8 +629,7 @@ void ffcode::visit( drain_node& n ) {
 }
 
 /**
- * Calls comp_pipe for a sequential composition
- * or a pipeline
+ * Generates working code for sequential composition
  * @param n composite node
  */
 void ffcode::visit( comp_node& n ) {
@@ -608,13 +640,14 @@ void ffcode::visit( comp_node& n ) {
     // recursion over the children
     // and pick from code_lines
     std::vector<pair<string,string>> vec;
+    in_comp = true;
     for (size_t i = 0; i < n.size(); i++) {
-        //FIXME: avvisa che con source, farm e pipe non funziona
         n.get(i)->accept(*this);
         vec.push_back(code_lines.front());
         ss << vec.back().second;
         code_lines.pop();
     }
+    in_comp = false;
 
     if (n.size() == 1) {
         //no need for comp
@@ -637,10 +670,15 @@ void ffcode::visit( comp_node& n ) {
 }
 
 /**
- * Calls comp_pipe for a pipeline
+ * Generates working code for pipeline
  * @param n pipe node
  */
 void ffcode::visit( pipe_node& n ) {
+    if (in_comp) {
+        std::cout << "WARNING: sequential composition with a pipeline inside is not "
+                     "supported by FastFlow!" << std::endl;
+    }
+
     stringstream ss;
     string var = new_name("pipe");
 
@@ -669,6 +707,11 @@ void ffcode::visit( pipe_node& n ) {
  * @param n farm node
  */
 void ffcode::visit( farm_node& n ) {
+
+    if (in_comp) {
+        std::cout << "WARNING: sequential composition with a farm inside "
+                     "is not supported by FastFlow!" << std::endl;
+    }
 
     stringstream ss;
     string wvar = new_name("workers");

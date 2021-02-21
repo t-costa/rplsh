@@ -46,7 +46,8 @@ void usage(const token& tok) {
         }
         case token::annotate : {
             std::cout << "Annotate usage: ";
-            std::cout << "annotate <identifier> with <parameter> <value> [optional for grain: as <static/dynamic>]" << std::endl;
+            std::cout << "annotate <identifier> with <parameter> <value> [optional for grain: as <static/dynamic>] "
+                         "\t\t\t\t\t[optional for schedule: as <tie/zip>]" << std::endl;
             break;
         }
         case token::rewrite : {
@@ -71,7 +72,7 @@ void usage(const token& tok) {
         }
         case token::gencode : {
             std::cout << "Gencode usage: ";
-            std::cout << "gencode <identifier>" << std::endl;
+            std::cout << "gencode <identifier> [as <name> in \"<path>\"]" << std::endl;
             break;
         }
         case token::expand : {

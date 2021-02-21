@@ -28,6 +28,7 @@ struct ffcode : public skel_visitor {
 
 private:
     void seq_wraps(const std::string& name);
+    bool in_comp;
 
 protected:
     rpl_environment& env;
