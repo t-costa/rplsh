@@ -233,20 +233,18 @@ void dcopt::visit(dc_node &n) {
 
     /*
      * from work-span
-     * work: inputsize seq + O(log(n)) div and merge
+     * work: Ts(seq)
      * span: O(log(n))
      * with schedule and cutoff, tree height (div+merge) is 2*log_schedule(n/cutoff)
      * but remove constant for big O notation
      */
     double t_sk = ts(*n.get(0));
+    double single_ts = t_sk/(3*n.inputsize);
     auto base = abs(n.schedule);
     //TODO: check formulas
-    auto crit_path = static_cast<int>(ceil(max(log( n.inputsize / n.cutoff), 1.0) / log(base)));
-    //should be 2*crit_path also on the numerator, but inputsize
-    //should be much bigger, and in practice is probably better
-    //to reduce a bit the pardegree
+    auto crit_path = static_cast<int>(ceil(log( n.inputsize / n.cutoff) / log(base)));
 
-    n.pardegree = ceil(t_sk / (2*crit_path));
+    n.pardegree = ceil(t_sk / ((n.cutoff*single_ts)+(4*crit_path*single_ts)));
 
     /* reassign resources with the new pardegree */
     assignres(n, env.get_inputsize());

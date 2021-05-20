@@ -24,22 +24,12 @@ public:
 
 template<typename Tin,
           typename Tout,
-          typename Tin_el, //tipo degli elementi di Tin
-          typename Tout_el>  //tipo degli elementi di Tout, o direttamente Tout se non è un vettore
+          typename Tin_el, //Type of the elements of Tin
+          typename Tout_el>  //Type of the elements of Tout
 class map_stage_wrapper {
 
-  //lascio la compute perchè così lo stadio può essere
-  //messo dentro un qualsiasi pattern (farm, pipe, seq...)
+  //can be used by any other pattern
   virtual Tout compute(Tin& input) = 0;
-  // virtual Tout compute(Tin& input) {
-  //   Tout out(input.size());
-  //
-  //   for (size_t i=0; i<input.size(); ++i) {
-  //     out[i] = op(input[i]);
-  //   }
-  //
-  //   return out;
-  // }
 
   virtual Tout_el op(const Tin_el& input) = 0;
 };

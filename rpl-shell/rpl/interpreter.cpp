@@ -96,7 +96,7 @@ void interpreter::visit(assign_node& n) {
         tab_completion::add_id(n.id);
         //if user has imported code, he probably wants to
         //generate code, otherwise he probably doesn't care
-        //about the practicality of it's skeleton tree
+        //about the practicality of his skeleton tree
         if (imported)
             check_correct_assignment(*n.rvalue);
     } else if ( success ) {
@@ -828,6 +828,10 @@ void interpreter::visit(reduce_node& n) {
     n.get(0)->accept(*this);
 }
 
+/**
+ * Calls the accept of the child of n
+ * @param n dc node
+ */
 void interpreter::visit(dc_node &n) {
     n.get(0)->accept((*this));
 }

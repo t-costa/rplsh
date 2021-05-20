@@ -20,7 +20,7 @@ main3 = pipe(source_ordered_vec_stage, d, m, drain_ordered_vec_stage)
 gencode main3 as default_ff in "test/dc_map_rewrite/"
 
 annotate mtd with cutoff 10
-annotate mtd with schedule 100
+annotate mtd with schedule 100 as zip
 
 annotate dtm with grain 100
 

@@ -300,16 +300,18 @@ ann_schedule::ann_schedule(rpl_environment &env) :
 { }
 
 void ann_schedule::visit(dc_node &n) {
-    if (n.transformed) {
+//    if (n.transformed) {
+    //always annotate to improve precision of performance model,
+    //but it's not used in the generated code if not transformed
         result = (value >= 2);
         n.schedule = result ? value : 2;
         //if explicit zip, negative schedule, otherwise standard tie
         if (scheduling_type == "zip") {
             n.schedule = -n.schedule;
         }
-    } else {
-        result = false;
-    }
+//    } else {
+//        result = false;
+//    }
 
 }
 
